@@ -29,6 +29,7 @@ For commercial licensing, please contact support@quantumnous.com
 
 @import './theme.css';
 @import './theme-presets.css';
+@import './paper-pixel.css';
 
 @layer base {
   :root {
@@ -487,7 +488,11 @@ For commercial licensing, please contact support@quantumnous.com
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    /* `none`, not `translateY(0)`: an identity transform still keeps the
+     * element on its own compositor layer with `fill-mode: both`, and Chrome
+     * then renders the text without subpixel antialiasing (blurry until a
+     * repaint, e.g. on hover). */
+    transform: none;
   }
 }
 @keyframes landing-fade-in {
@@ -505,7 +510,7 @@ For commercial licensing, please contact support@quantumnous.com
   }
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: none;
   }
 }
 @keyframes landing-fade-left {
@@ -515,7 +520,7 @@ For commercial licensing, please contact support@quantumnous.com
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: none;
   }
 }
 @keyframes landing-fade-right {
@@ -525,12 +530,57 @@ For commercial licensing, please contact support@quantumnous.com
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: none;
   }
 }
 
 .landing-animate-fade-up {
   animation: landing-fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes landing-endpoint-scroll {
+  /* One row (1.5rem = `h-6`) per 25% of the cycle: 0.84s of sliding followed
+   * by 2.16s of rest, so the path stays readable and the step never snaps.
+   * The last stop lands on the duplicated first row (-6rem = 4 rows), which is
+   * pixel-identical to the start, so wrapping back to 0 is invisible. */
+  0%,
+  18% {
+    transform: translate3d(0, 0, 0);
+  }
+  25%,
+  43% {
+    transform: translate3d(0, -1.5rem, 0);
+  }
+  50%,
+  68% {
+    transform: translate3d(0, -3rem, 0);
+  }
+  75%,
+  93% {
+    transform: translate3d(0, -4.5rem, 0);
+  }
+  100% {
+    transform: translate3d(0, -6rem, 0);
+  }
+}
+
+.landing-endpoint-scroll {
+  /* A fixed length, not `calc(-100% + 1.5rem)`: a percentage translate can
+   * only be resolved against the element's own height, so every animated frame
+   * forced a layout and a fresh raster, which reads as jitter. Keep the total
+   * shift equal to the number of rolled rows (5 rows in the hero minus the one
+   * visible row = 4 rows = 6rem); a partial row leaves the text clipped soft. */
+  animation: landing-endpoint-scroll 12s ease-in-out infinite;
+  /* Keep the strip on its own compositor layer so the animation moves the
+   * existing raster instead of relaying out and re-rasterizing the text. */
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-endpoint-scroll {
+    animation: none;
+    will-change: auto;
+  }
 }
 .landing-animate-fade-in {
   animation: landing-fade-in 0.6s ease-out both;
@@ -555,6 +605,41 @@ For commercial licensing, please contact support@quantumnous.com
     opacity: 1 !important;
     transform: none !important;
   }
+}
+
+/* ── Landing page grid background ── */
+/* One ruled grid behind the whole home page. It is a layer of its own instead
+ * of the wrapper's `background-image`, because the home wrapper already paints
+ * the preset's paper surface there and a later, more specific rule would win.
+ * Cells and strength are declared once so the hero, cards and footer all sit
+ * on the same lattice; the line color is mixed from `--foreground`, which keeps
+ * it legible on a near-white canvas and inverts with the dark theme. */
+.home-grid {
+  position: relative;
+  --home-grid-cell: calc(8rem / 9);
+  --home-grid-line: color-mix(in oklch, var(--foreground) 3%, transparent);
+}
+
+.home-first-screen {
+  --home-space: 0px;
+}
+
+@media (min-width: 1024px) {
+  .home-first-screen {
+    --home-space: clamp(0px, calc((100svh - 48rem) / 16), 2rem);
+  }
+}
+
+.home-grid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, var(--home-grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--home-grid-line) 1px, transparent 1px);
+  background-size: var(--home-grid-cell) var(--home-grid-cell);
 }
 
 /* Micro-interactions — Vercel-style subtle hover/active feedback */

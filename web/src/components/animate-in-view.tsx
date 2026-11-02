@@ -48,35 +48,42 @@ export function AnimateInView(props: AnimateInViewProps) {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
     if (mq.matches) {
       el.classList.remove('opacity-0')
-      el.classList.add(`landing-animate-${animation}`)
       return
     }
 
+    // `will-change` promotes the element to its own compositor layer, where
+    // Chrome drops subpixel antialiasing — permanent promotion leaves the text
+    // looking soft until a repaint. Keep it only for the animation itself.
+    const animationClass = `landing-animate-${animation}`
+    const releaseLayer = () => {
+      el.classList.remove(animationClass, 'will-change-[transform,opacity]')
+    }
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           el.classList.remove('opacity-0')
-          el.classList.add(`landing-animate-${animation}`)
+          el.classList.add('will-change-[transform,opacity]', animationClass)
+          el.addEventListener('animationend', releaseLayer, { once: true })
           if (once) observer.unobserve(el)
         } else if (!once) {
           el.classList.add('opacity-0')
-          el.classList.remove(`landing-animate-${animation}`)
+          el.classList.remove(animationClass)
         }
       },
       { threshold, rootMargin: '0px 0px -40px 0px' }
     )
 
     observer.observe(el)
-    return () => observer.disconnect()
+    return () => {
+      observer.disconnect()
+      el.removeEventListener('animationend', releaseLayer)
+    }
   }, [threshold, once, animation])
 
   return (
     <Tag
       ref={ref as never}
-      className={cn(
-        'opacity-0 will-change-[transform,opacity]',
-        props.className
-      )}
+      className={cn('opacity-0', props.className)}
       style={{ animationDelay: delay ? `${delay}ms` : undefined }}
     >
       {props.children}

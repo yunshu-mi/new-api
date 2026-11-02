@@ -30,6 +30,8 @@ type ProviderBadgeProps = Omit<StatusBadgeProps, 'children' | 'label'> & {
   label: string
   /** Color the label text by provider name. Set false for a neutral label. */
   colorText?: boolean
+  /** 隐藏可见名称时仍保留读屏文本。 */
+  showLabel?: boolean
 }
 
 export function ProviderBadge({
@@ -39,6 +41,7 @@ export function ProviderBadge({
   iconSize = 14,
   label,
   colorText = true,
+  showLabel = true,
   ...badgeProps
 }: ProviderBadgeProps) {
   const icon = iconNode ?? (iconKey ? getLobeIcon(iconKey, iconSize) : null)
@@ -49,14 +52,18 @@ export function ProviderBadge({
       className={cn('flex max-w-full min-w-0 items-center gap-1.5', className)}
     >
       {icon && <span className='flex shrink-0 items-center'>{icon}</span>}
-      <StatusBadge
-        label={label}
-        autoColor={colorText ? label : undefined}
-        variant={colorText ? undefined : 'neutral'}
-        size='sm'
-        className={cn('min-w-0 shrink overflow-hidden', !icon && 'pl-0')}
-        {...badgeProps}
-      />
+      {showLabel ? (
+        <StatusBadge
+          label={label}
+          autoColor={colorText ? label : undefined}
+          variant={colorText ? undefined : 'neutral'}
+          size='sm'
+          className={cn('min-w-0 shrink overflow-hidden', !icon && 'pl-0')}
+          {...badgeProps}
+        />
+      ) : (
+        <span className='sr-only'>{label}</span>
+      )}
     </div>
   )
 }

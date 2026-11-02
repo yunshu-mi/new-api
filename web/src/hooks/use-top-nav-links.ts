@@ -42,6 +42,9 @@ export type TopNavLink = {
  *   docs: true,
  *   about: true
  * }
+ *
+ * `rankings` is still parsed by the backend payload but the ranking entry is
+ * intentionally not rendered in the header navigation.
  */
 export function useTopNavLinks(): TopNavLink[] {
   const { t } = useTranslation()
@@ -77,13 +80,6 @@ export function useTopNavLinks(): TopNavLink[] {
   if (pricing && typeof pricing === 'object' && pricing.enabled) {
     const requiresAuth = pricing.requireAuth && !isAuthed
     links.push({ title: t('Model Square'), href: '/pricing', requiresAuth })
-  }
-
-  // Rankings
-  const rankings = modules?.rankings
-  if (rankings && typeof rankings === 'object' && rankings.enabled) {
-    const requiresAuth = rankings.requireAuth && !isAuthed
-    links.push({ title: t('Rankings'), href: '/rankings', requiresAuth })
   }
 
   // Docs (supports external links)

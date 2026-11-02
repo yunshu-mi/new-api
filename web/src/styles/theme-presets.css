@@ -428,8 +428,10 @@ For commercial licensing, please contact support@quantumnous.com
  *     cards/borders rather than tinting them with the clay accent).
  *   - `simple-large`: keeps intentionally neutral, high-contrast surfaces. */
 [data-theme-preset]:not([data-theme-preset='default']):not(
-  [data-theme-preset='anthropic']
-):not([data-theme-preset='simple-large']) {
+    [data-theme-preset='anthropic']
+  ):not([data-theme-preset='paper-pixel']):not(
+    [data-theme-preset='simple-large']
+  ) {
   --card: color-mix(in oklch, var(--primary) 3%, var(--background));
   --popover: color-mix(in oklch, var(--primary) 5%, var(--background));
   --muted: color-mix(in oklch, var(--primary) 7%, var(--background));
@@ -454,7 +456,9 @@ For commercial licensing, please contact support@quantumnous.com
 .dark
   [data-theme-preset]:not([data-theme-preset='default']):not(
     [data-theme-preset='anthropic']
-  ):not([data-theme-preset='simple-large']) {
+  ):not([data-theme-preset='paper-pixel']):not(
+    [data-theme-preset='simple-large']
+  ) {
   --card: color-mix(in oklch, var(--primary) 8%, var(--background));
   --popover: color-mix(in oklch, var(--primary) 12%, var(--background));
   --muted: color-mix(in oklch, var(--primary) 12%, var(--background));
@@ -610,6 +614,149 @@ For commercial licensing, please contact support@quantumnous.com
 
   --skeleton-base: oklch(0.305 0.004 60);
   --skeleton-highlight: oklch(0.41 0.004 60);
+}
+
+/* ── Paper Pixel (home page only) ───────────────────────────────────── */
+/*
+ * The paper treatment is scoped to the home page (`.paper-home`), not to the
+ * whole app: signed-in consoles, pricing and auth pages keep the default
+ * palette and their original backgrounds.
+ *
+ * Only colors, the radius and the `--paper-*` helpers are declared here; the
+ * texture, edges and mono display type live in ./paper-pixel.css. The preset
+ * is opted out of the semantic surface bridge above so these bespoke paper
+ * surfaces win the cascade instead of being tinted from `--primary`.
+ */
+[data-theme-preset='paper-pixel'] .paper-home {
+  /* Consumed by ./paper-pixel.css. Cool paper stock, blue-slate ink. */
+  --paper-ink: oklch(0.4 0.012 255);
+  --paper-line: oklch(0.885 0.006 255);
+  --paper-line-strong: oklch(0.8 0.01 255);
+  --paper-shadow: oklch(0.32 0.02 255 / 14%);
+  --paper-glow-sage: oklch(0.955 0.014 178 / 38%);
+  --paper-glow-sky: oklch(0.96 0.016 245 / 55%);
+  --paper-highlight: oklch(1 0 0 / 60%);
+
+  /* Cool paper canvas with blue-slate ink. */
+  --background: oklch(0.968 0.003 255); /* ≈ #f5f6f7 */
+  --foreground: oklch(0.4 0.012 255); /* ≈ #3b4149 */
+
+  --card: oklch(0.995 0.001 255); /* ≈ #fdfdfd */
+  --card-foreground: oklch(0.4 0.012 255);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.4 0.012 255);
+
+  /* Pine is the only saturated accent; sage carries the wash. */
+  --primary: oklch(0.5 0.072 172); /* ≈ #2f6f5e */
+  --primary-foreground: oklch(0.99 0.002 255);
+
+  --secondary: oklch(0.945 0.005 255); /* ≈ #eceef0 */
+  --secondary-foreground: oklch(0.4 0.012 255);
+
+  --muted: oklch(0.955 0.004 255);
+  --muted-foreground: oklch(0.52 0.012 255); /* ≈ #6b7280 */
+  --accent: oklch(0.945 0.018 172); /* sage wash */
+  --accent-foreground: oklch(0.4 0.012 255);
+
+  --destructive: oklch(0.53 0.15 27); /* ≈ #b23a34 */
+  --destructive-foreground: oklch(0.99 0.002 255);
+  --success: oklch(0.53 0.09 152); /* ≈ #3f7d58 */
+  --success-foreground: oklch(0.99 0.002 255);
+  --warning: oklch(0.62 0.11 72); /* ≈ #a9772a */
+  --warning-foreground: oklch(0.28 0.03 72);
+  --info: oklch(0.52 0.07 245); /* ≈ #3f6d8f */
+  --info-foreground: oklch(0.99 0.002 255);
+  --neutral: oklch(0.6 0.012 255);
+  --neutral-foreground: oklch(0.99 0.002 255);
+
+  /* Visible cool hairlines — the paper's ruled edge, not a tinted gray. */
+  --border: oklch(0.885 0.006 255);
+  --input: oklch(0.8 0.01 255);
+  --ring: oklch(0.5 0.072 172);
+
+  --chart-1: oklch(0.5 0.072 172); /* pine */
+  --chart-2: oklch(0.6 0.11 42); /* clay */
+  --chart-3: oklch(0.7 0.09 88); /* ochre */
+  --chart-4: oklch(0.55 0.06 250); /* slate blue */
+  --chart-5: oklch(0.75 0.07 165); /* mint */
+
+  --sidebar: oklch(0.958 0.004 255); /* ≈ #f1f2f4 */
+  --sidebar-foreground: oklch(0.4 0.012 255);
+  --sidebar-primary: oklch(0.5 0.072 172);
+  --sidebar-primary-foreground: oklch(0.99 0.002 255);
+  --sidebar-accent: oklch(0.945 0.015 172);
+  --sidebar-accent-foreground: oklch(0.4 0.012 255);
+  --sidebar-border: oklch(0.885 0.006 255);
+  --sidebar-ring: oklch(0.5 0.072 172);
+
+  --skeleton-base: oklch(0.945 0.004 255);
+  --skeleton-highlight: oklch(0.975 0.003 255);
+  --table-header: oklch(0.958 0.004 255);
+  --table-header-hover: oklch(0.94 0.005 255);
+}
+.dark [data-theme-preset='paper-pixel'] .paper-home {
+  /* Graphite stock at night; the sheet edges stay visible. */
+  --paper-ink: oklch(0.93 0.004 255);
+  --paper-line: oklch(1 0 0 / 13%);
+  --paper-line-strong: oklch(1 0 0 / 22%);
+  --paper-shadow: oklch(0 0 0 / 42%);
+  --paper-glow-sage: oklch(0.5 0.05 172 / 22%);
+  --paper-glow-sky: oklch(0.52 0.05 250 / 20%);
+  --paper-highlight: oklch(1 0 0 / 5%);
+
+  --background: oklch(0.235 0.005 255);
+  --foreground: oklch(0.945 0.004 255);
+
+  --card: oklch(0.275 0.006 255);
+  --card-foreground: oklch(0.945 0.004 255);
+  --popover: oklch(0.3 0.007 255);
+  --popover-foreground: oklch(0.945 0.004 255);
+
+  --primary: oklch(0.72 0.09 168);
+  --primary-foreground: oklch(0.21 0.012 255);
+
+  --secondary: oklch(0.32 0.006 255);
+  --secondary-foreground: oklch(0.93 0.004 255);
+
+  --muted: oklch(0.305 0.006 255);
+  --muted-foreground: oklch(0.75 0.006 255);
+  --accent: oklch(0.335 0.014 172);
+  --accent-foreground: oklch(0.96 0.004 255);
+
+  --destructive: oklch(0.68 0.16 25);
+  --destructive-foreground: oklch(0.18 0.01 25);
+  --success: oklch(0.72 0.11 155);
+  --success-foreground: oklch(0.18 0.01 155);
+  --warning: oklch(0.8 0.12 80);
+  --warning-foreground: oklch(0.2 0.02 80);
+  --info: oklch(0.72 0.08 245);
+  --info-foreground: oklch(0.18 0.02 245);
+  --neutral: oklch(0.76 0.006 255);
+  --neutral-foreground: oklch(0.18 0.01 255);
+
+  --border: oklch(1 0 0 / 13%);
+  --input: oklch(1 0 0 / 19%);
+  --ring: oklch(0.72 0.09 168);
+
+  --chart-1: oklch(0.72 0.09 168);
+  --chart-2: oklch(0.7 0.11 45);
+  --chart-3: oklch(0.78 0.11 88);
+  --chart-4: oklch(0.72 0.07 250);
+  --chart-5: oklch(0.78 0.08 165);
+
+  --sidebar: oklch(0.215 0.005 255);
+  --sidebar-foreground: oklch(0.9 0.004 255);
+  --sidebar-primary: oklch(0.72 0.09 168);
+  --sidebar-primary-foreground: oklch(0.21 0.012 255);
+  --sidebar-accent: oklch(0.32 0.014 172);
+  --sidebar-accent-foreground: oklch(0.94 0.004 255);
+  --sidebar-border: oklch(1 0 0 / 13%);
+  --sidebar-ring: oklch(0.72 0.09 168);
+
+  --skeleton-base: oklch(0.305 0.006 255);
+  --skeleton-highlight: oklch(0.385 0.008 255);
+  --table-header: oklch(0.285 0.006 255);
+  --table-header-hover: oklch(0.325 0.007 255);
 }
 
 /* ── Font axis ────────────────────────────────────────────────────────────

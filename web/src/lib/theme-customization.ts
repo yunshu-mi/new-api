@@ -25,6 +25,11 @@ For commercial licensing, please contact support@quantumnous.com
 
 export const THEME_PRESETS = [
   {
+    value: 'paper-pixel',
+    name: 'Paper Pixel',
+    swatches: ['oklch(0.952 0.012 95)', 'oklch(0.5 0.072 172)'],
+  },
+  {
     value: 'default',
     name: 'Default',
     swatches: ['oklch(0.72 0.18 250)', 'oklch(0.7 0.12 280)'],
@@ -112,7 +117,7 @@ export type ThemeCustomization = {
 }
 
 export const DEFAULT_THEME_CUSTOMIZATION: ThemeCustomization = {
-  preset: 'default',
+  preset: 'paper-pixel',
   font: 'default',
   radius: 'default',
   scale: 'default',

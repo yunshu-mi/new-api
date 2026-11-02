@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 /*
 Copyright (C) 2023-2026 QuantumNous
 
@@ -16,75 +17,147 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { Settings, Zap, BarChart3 } from 'lucide-react'
+import { Check, ChevronRight } from 'lucide-react'
+import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AnimateInView } from '@/components/animate-in-view'
+import { Badge } from '@/components/ui/badge'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { useStatus } from '@/hooks/use-status'
+// 左栏只放三句接入时能立刻验证的短事实，保持一行一条，不与上方能力卡和
+// 右栏三条承诺重复。
+const DEVELOPER_POINTS = [
+  'Only one line changes',
+  'Streaming stays the same',
+  'Clear error reasons',
+] as const
 
 export function HowItWorks() {
   const { t } = useTranslation()
-
-  const steps = [
+  const headingId = useId()
+  const { status } = useStatus()
+  const docsUrl =
+    (status?.docs_link as string | undefined) || 'https://docs.newapi.pro'
+  const integrationDescription = t(
+    'Supports one-click configuration and perfectly adapts to NewAPI multi-protocol configuration.'
+  )
+  const channelDescription = t(
+    '100% native channels, with web search and testing support'
+  )
+  const commitments = [
     {
-      num: '1',
-      title: t('Configure'),
-      desc: t(
-        'Add your API keys, set up channels and configure access permissions'
+      title: t('Full-Capability Official Channels'),
+      description: docsUrl.startsWith('http') ? (
+        <a
+          href={docsUrl}
+          target='_blank'
+          rel='noopener noreferrer'
+          title={integrationDescription}
+          className='hover:text-foreground transition-colors'
+        >
+          {channelDescription}
+        </a>
+      ) : (
+        <Link
+          to={docsUrl}
+          title={integrationDescription}
+          className='hover:text-foreground transition-colors'
+        >
+          {channelDescription}
+        </Link>
       ),
-      icon: <Settings className='size-6' strokeWidth={1.5} />,
     },
     {
-      num: '2',
-      title: t('Connect'),
-      desc: t(
-        'Connect through OpenAI, Claude, Gemini, and other compatible API routes'
-      ),
-      icon: <Zap className='size-6' strokeWidth={1.5} />,
+      title: t('1:1 Top-ups · Clear Balance'),
+      description: t('Use what you top up, with a clear and checkable balance'),
     },
     {
-      num: '3',
-      title: t('Monitor'),
-      desc: t('Track usage, costs and performance with real-time analytics'),
-      icon: <BarChart3 className='size-6' strokeWidth={1.5} />,
+      title: t('Dedicated After-Sales Support'),
+      description: t('Dedicated help with errors, plus tutorials'),
     },
   ]
 
   return (
-    <section className='border-border/40 relative z-10 border-t px-6 py-24 md:py-32'>
-      <div className='mx-auto max-w-6xl'>
-        <AnimateInView className='mb-16 text-center md:mb-20'>
-          <p className='text-muted-foreground mb-3 text-xs font-medium tracking-widest uppercase'>
-            {t('How It Works')}
-          </p>
-          <h2 className='text-2xl font-bold tracking-tight md:text-3xl'>
-            {t('Three steps to get started')}
-          </h2>
-        </AnimateInView>
-
-        <div className='grid gap-8 md:grid-cols-3 md:gap-12'>
-          {steps.map((step, i) => (
-            <AnimateInView
-              key={step.num}
-              delay={i * 150}
-              animation='fade-up'
-              className='relative flex flex-col items-center text-center'
-            >
-              <div className='relative mb-6'>
-                <div className='text-muted-foreground border-border/50 bg-muted/30 flex size-16 items-center justify-center rounded-2xl border transition-colors'>
-                  {step.icon}
-                </div>
-                <div className='bg-foreground text-background absolute -top-2 -right-2 flex size-6 items-center justify-center rounded-full text-xs font-bold'>
-                  {step.num}
+    <section
+      aria-labelledby={headingId}
+      className='relative z-10 px-6 py-8 lg:py-12'
+    >
+      <AnimateInView className='mx-auto max-w-6xl' animation='fade-up'>
+        <Card className='rounded-2xl py-0'>
+          <div className='grid gap-7 px-6 py-6 md:px-8 md:py-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-10 lg:px-10 lg:py-9'>
+            <CardHeader className='flex flex-col gap-6 p-0 text-left'>
+              <div>
+                <CardTitle>
+                  <h2
+                    id={headingId}
+                    className='text-xl font-bold tracking-tight'
+                  >
+                    {t('Our Commitments')}
+                  </h2>
+                </CardTitle>
+                <CardDescription className='mt-3 leading-relaxed'>
+                  {t(
+                    '100% full-capability official channels | Reputation first, long-term operation | Dedicated help with errors'
+                  )}
+                </CardDescription>
+              </div>
+              {/* 核对项与标签成组贴住卡片下沿，左栏底部因此与右栏末行对齐。 */}
+              <div className='mt-auto flex flex-col gap-5'>
+                <ul className='border-border/50 flex flex-col gap-2.5 border-t pt-5'>
+                  {DEVELOPER_POINTS.map((point) => (
+                    <li
+                      key={point}
+                      className='flex items-center gap-2 text-sm'
+                    >
+                      <Check
+                        aria-hidden='true'
+                        className='text-primary size-4 shrink-0'
+                      />
+                      {t(point)}
+                    </li>
+                  ))}
+                </ul>
+                <div className='flex flex-wrap gap-2'>
+                  <Badge variant='secondary'>{t('High Concurrency')}</Badge>
+                  <Badge variant='secondary'>{t('1:1 Top-ups')}</Badge>
+                  <Badge variant='secondary'>&lt;200ms</Badge>
+                  <Badge variant='secondary'>{t('Multiple Models')}</Badge>
                 </div>
               </div>
-              <h3 className='mb-2 text-base font-semibold'>{step.title}</h3>
-              <p className='text-muted-foreground max-w-[240px] text-sm leading-relaxed'>
-                {step.desc}
-              </p>
-            </AnimateInView>
-          ))}
-        </div>
-      </div>
+            </CardHeader>
+            <CardContent className='p-0 lg:border-border/60 lg:border-l lg:pl-10'>
+              <ul className='divide-border/60 flex h-full flex-col divide-y'>
+                {commitments.map((commitment) => (
+                  <li
+                    key={commitment.title}
+                    className='flex flex-1 items-start gap-3 py-4 first:pt-0 last:pb-0'
+                  >
+                    <ChevronRight
+                      aria-hidden='true'
+                      className='text-primary mt-0.5 size-4 shrink-0'
+                    />
+                    <div>
+                      <h3 className='text-[15px] font-semibold'>
+                        {commitment.title}
+                      </h3>
+                      <p className='text-muted-foreground mt-1.5 text-sm leading-relaxed'>
+                        {commitment.description}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </div>
+        </Card>
+      </AnimateInView>
     </section>
   )
 }

@@ -1,0 +1,119 @@
+/*
+Copyright (C) 2023-2026 QuantumNous
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+For commercial licensing, please contact support@quantumnous.com
+*/
+/*
+ * Paper Pixel — shape, texture and display typography for the home page.
+ *
+ * The palette lives in ./theme-presets.css; this file turns it into a paper
+ * language: a soft corner glow under the page grid, hairline-plus-offset
+ * edges instead of blurred shadows, and a monospace display voice.
+ *
+ * Scope: `.paper-home` is the home page wrapper only. Every rule here is
+ * nested under it, so consoles, pricing and auth pages keep the default
+ * look — the preset attribute alone must not change them.
+ *
+ * Deliberate differences from the reference pixel skin it is modelled on:
+ *   - one soft glow per opposite corner instead of two symmetric ones;
+ *   - 2px edges instead of 3-4px, so the frame stays fine enough not to
+ *     compete with body copy;
+ *   - cut corners (small radius) instead of square corners;
+ *   - no fabricated pixel font: the display voice is the system monospace
+ *     stack, which every platform actually ships.
+ *
+ * These rules sit outside any `@layer`, so they win over Tailwind utilities
+ * without `!important`.
+ */
+
+body[data-theme-preset='paper-pixel'] .paper-home {
+  --font-display-paper:
+    ui-monospace, 'Cascadia Mono', 'JetBrains Mono', 'SFMono-Regular', Menlo,
+    Consolas, 'Courier New', monospace;
+  /* Paper stock: one soft glow in each opposite corner. The ruled grid on top
+   * of it is the page-level layer in src/styles/index.css (`.home-grid`), so
+   * there is a single lattice sized for readable cells rather than a second,
+   * barely visible texture mesh underneath it. */
+  --paper-sheet:
+    radial-gradient(circle at 92% -8%, var(--paper-glow-sage), transparent 58%),
+    radial-gradient(circle at 2% 106%, var(--paper-glow-sky), transparent 52%);
+  --paper-sheet-size: 960px 720px, 820px 620px;
+  /* The page shell behind this wrapper paints an opaque `bg-background`, so
+   * the sheet is declared here rather than on <body>. */
+  min-height: calc(100svh - var(--app-header-height, 3rem));
+  background-color: var(--background);
+  background-image: var(--paper-sheet);
+  background-repeat: no-repeat, no-repeat;
+  background-size: var(--paper-sheet-size);
+  background-attachment: scroll;
+  color: var(--foreground);
+}
+
+/* ── Edges: hairline + offset shadow ─────────────────────────────────────── */
+
+/* Cards read as pasted sheets: ink edge, offset shadow, lit top edge. */
+body[data-theme-preset='paper-pixel'] .paper-home [data-slot='card'] {
+  border: 2px solid var(--paper-line);
+  border-radius: var(--radius);
+  box-shadow:
+    3px 3px 0 var(--paper-shadow),
+    inset 0 1px 0 var(--paper-highlight);
+}
+
+/* Form controls own their edge, so the ruled sheet stays readable. */
+body[data-theme-preset='paper-pixel']
+  .paper-home
+  :is(
+    [data-slot='input'],
+    [data-slot='textarea'],
+    [data-slot='select-trigger'],
+    [data-slot='input-group']
+  ) {
+  border: 2px solid var(--paper-line);
+  border-radius: calc(var(--radius) * 0.75);
+}
+
+/* ── Typography: monospace display voice ─────────────────────────────────── */
+
+body[data-theme-preset='paper-pixel'] .paper-home :is(h1, h2, h3),
+body[data-theme-preset='paper-pixel']
+  .paper-home
+  :is([data-slot='card-title'], [data-slot='badge']) {
+  font-family: var(--font-display-paper);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+/* ── Motion: the sheet lifts, it never floats ────────────────────────────── */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* `will-change` is scoped to the hover state on purpose: promoting the card
+   * permanently would put its text on a compositor layer without subpixel
+   * antialiasing, which reads as blurry until the next repaint. */
+  body[data-theme-preset='paper-pixel'] .paper-home [data-slot='card'] {
+    transition:
+      transform 140ms steps(2, end),
+      box-shadow 140ms steps(2, end);
+  }
+
+  body[data-theme-preset='paper-pixel'] .paper-home [data-slot='card']:hover {
+    will-change: transform;
+    transform: translate(-1px, -1px);
+    box-shadow:
+      4px 4px 0 var(--paper-shadow),
+      inset 0 1px 0 var(--paper-highlight);
+  }
+}

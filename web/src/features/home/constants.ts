@@ -20,10 +20,19 @@ For commercial licensing, please contact support@quantumnous.com
  * Home page constants
  * All hardcoded data for home page sections
  */
-import { type TFunction } from 'i18next'
+import type { TFunction } from 'i18next'
 
 // Layout - Main base classes
 export const MAIN_BASE_CLASSES = 'bg-background text-foreground w-full'
+
+// Rolled one after another in the landing hero; the CSS step count in
+// `styles/index.css` must stay equal to this length.
+export const HOME_API_ENDPOINTS = [
+  '/v1/chat/completions',
+  '/v1/responses',
+  '/v1/embeddings',
+  '/v1/models',
+] as const
 
 // Hero section - AI Applications (Left side)
 export const AI_APPLICATIONS = [

@@ -26,7 +26,7 @@ import { useTheme } from '@/context/theme-provider'
 import { isLikelyHtml } from '@/lib/content-format'
 import { useAuthStore } from '@/stores/auth-store'
 
-import { CTA, Features, Hero, HowItWorks, Stats } from './components'
+import { Features, Hero, HowItWorks, Providers } from './components'
 import { useHomePageContent } from './hooks'
 
 export function Home() {
@@ -122,12 +122,29 @@ export function Home() {
 
   return (
     <PublicLayout showMainContainer={false}>
-      <Hero isAuthenticated={isAuthenticated} />
-      <Stats />
-      <Features />
-      <HowItWorks />
-      <CTA isAuthenticated={isAuthenticated} />
-      <Footer />
+      {/* The paper palette and texture are scoped to this wrapper so only the
+          home page is themed; see src/styles/paper-pixel.css. The ruled page
+          background comes from `home-grid` in src/styles/index.css. */}
+      <div className='paper-home home-grid'>
+        <div className='home-first-screen relative isolate flex min-h-svh flex-col pt-[calc(5rem+var(--home-space,0px)*3)] pb-2'>
+          <div
+            aria-hidden='true'
+            className='pointer-events-none absolute inset-0 -z-10 opacity-25 dark:opacity-[0.12]'
+            style={{
+              background: [
+                'radial-gradient(ellipse 60% 50% at 20% 20%, oklch(0.72 0.18 250 / 80%) 0%, transparent 70%)',
+                'radial-gradient(ellipse 50% 40% at 80% 15%, oklch(0.65 0.15 200 / 60%) 0%, transparent 70%)',
+                'radial-gradient(ellipse 40% 35% at 40% 80%, oklch(0.70 0.12 280 / 40%) 0%, transparent 70%)',
+              ].join(', '),
+            }}
+          />
+          <Hero isAuthenticated={isAuthenticated} />
+          <Features />
+        </div>
+        <HowItWorks />
+        <Providers />
+        <Footer compact />
+      </div>
     </PublicLayout>
   )
 }
