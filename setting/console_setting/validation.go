@@ -97,6 +97,8 @@ func ValidateConsoleSettings(settingsStr string, settingType string) error {
 		return validateAnnouncements(settingsStr)
 	case "FAQ":
 		return validateFAQ(settingsStr)
+	case "HomeFAQ":
+		return validateFAQ(settingsStr)
 	case "UptimeKumaGroups":
 		return validateUptimeKumaGroups(settingsStr)
 	default:
@@ -258,6 +260,10 @@ func GetAnnouncements() []map[string]any {
 
 func GetFAQ() []map[string]any {
 	return getJSONList(GetConsoleSetting().FAQ)
+}
+
+func GetHomeFAQ() []map[string]any {
+	return getJSONList(GetConsoleSetting().HomeFAQ)
 }
 
 func validateUptimeKumaGroups(groupsStr string) error {

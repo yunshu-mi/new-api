@@ -46,6 +46,7 @@ const SITE_SECTIONS = [
           TaskPublicAddress: settings.TaskPublicAddress,
           general_setting: {
             logo_dark: settings['general_setting.logo_dark'],
+            icp_record: settings['general_setting.icp_record'],
             docs_link: settings['general_setting.docs_link'],
           },
           legal: {

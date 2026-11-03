@@ -30,6 +30,7 @@ const defaultSiteSettings: SiteSettings = {
   SystemName: 'New API',
   Logo: '',
   'general_setting.logo_dark': '',
+  'general_setting.icp_record': '',
   Footer: '',
   About: '',
   HomePageContent: '',

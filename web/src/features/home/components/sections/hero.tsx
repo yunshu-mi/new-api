@@ -17,7 +17,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { Link } from '@tanstack/react-router'
-import { Play } from 'lucide-react'
+import { ArrowRight, BookOpen } from 'lucide-react'
 import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -25,7 +25,20 @@ import { CopyButton } from '@/components/copy-button'
 import { Button } from '@/components/ui/button'
 import { useStatus } from '@/hooks/use-status'
 
-import { HOME_API_ENDPOINTS } from '../../constants'
+import { HeroTerminalDemo } from '../hero-terminal-demo'
+
+interface HeroStat {
+  value: string
+  label: string
+  accent?: boolean
+}
+
+const HERO_STATS: HeroStat[] = [
+  { value: '20+', label: 'connected models' },
+  { value: '99.99%', label: 'uptime' },
+  { value: '<200ms', label: 'avg latency' },
+  { value: '0', label: 'data persisted', accent: true },
+]
 
 interface HeroProps {
   className?: string
@@ -43,87 +56,97 @@ export function Hero(props: HeroProps) {
   const apiBaseUrl = serverAddress || window.location.origin
 
   return (
-    <section className='relative z-10 shrink-0 overflow-hidden px-6 pb-[calc(.5rem+var(--home-space,0px)/2)]'>
-      <div className='mx-auto w-full max-w-3xl'>
-        <div className='flex flex-col items-center text-center'>
-          <h1
-            className='landing-animate-fade-up text-4xl leading-none font-bold tracking-tight md:text-5xl lg:text-[length:calc(3rem+var(--home-space,0px))]'
-            style={{ animationDelay: '60ms' }}
-          >
-            {t('Unified')} <br />
-            <span className='bg-gradient-to-r from-blue-400 via-violet-400 to-purple-500 bg-clip-text text-transparent'>
-              {t('Large Model API Gateway')}
-            </span>
+    <section className='relative z-10 mx-auto w-full max-w-6xl px-6 pt-24 pb-10 md:pt-40 md:pb-14'>
+      <div className='grid items-center gap-10 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-12'>
+        {/* 左栏：文案与操作 */}
+        <div className='flex flex-col items-start gap-6'>
+          <span className='inline-flex items-center gap-2 rounded-full border border-[#E6E9F0] bg-white px-3.5 py-1.5 text-[13px] font-medium text-[#3A434F]'>
+            <span
+              aria-hidden='true'
+              className='size-2 rounded-full bg-[#3D5BFF]'
+            />
+            {t('New v2.0 is live · xAI Grok / Mistral supported')}
+          </span>
+
+          <h1 className='text-4xl leading-[1.15] font-black tracking-tight text-[#0F131A] md:text-5xl lg:text-[3.25rem]'>
+            {t('One endpoint,')}
+            <br />
+            <span className='text-[#3D5BFF]'>{t('for every large model')}</span>
           </h1>
-          <p
-            className='landing-animate-fade-up text-muted-foreground/80 mt-[calc(.75rem+var(--home-space,0px)/2)] max-w-xl text-base leading-7 opacity-0'
-            style={{ animationDelay: '120ms' }}
-          >
-            {t('Enterprise-grade stability and speed')}
+
+          <p className='max-w-lg text-base leading-7 text-[#5A6370]'>
+            {t(
+              'Enterprise-grade stability, fast routing, transparent billing. Built for developers, not for slides.'
+            )}
           </p>
-          <p
-            id={baseUrlHintId}
-            className='landing-animate-fade-up text-muted-foreground/70 mt-[calc(.75rem+var(--home-space,0px)/2)] text-sm leading-6 opacity-0'
-            style={{ animationDelay: '150ms' }}
-          >
-            {t('Just replace your model base URL with:')}
-          </p>
+
+          <div className='flex flex-wrap items-center gap-3'>
+            <Button
+              className='h-10 gap-2 rounded-xl bg-[#3D5BFF] px-5 text-sm font-medium text-white hover:bg-[#2f4fd0]'
+              render={
+                <Link to={props.isAuthenticated ? '/keys' : '/sign-up'} />
+              }
+            >
+              {t('Get API Key')}
+              <ArrowRight aria-hidden='true' className='size-4' />
+            </Button>
+            <Button
+              variant='outline'
+              className='h-10 gap-2 rounded-xl border-[#E6E9F0] bg-white px-5 text-sm font-medium text-[#0F131A] hover:bg-[#F0F2F5]'
+              render={<Link to='/about' />}
+            >
+              <BookOpen aria-hidden='true' className='size-4 text-[#5A6370]' />
+              {t('View Docs')}
+            </Button>
+          </div>
 
           <div
             role='group'
             aria-label={t('API Base URL')}
             aria-describedby={baseUrlHintId}
-            className='landing-animate-fade-up border-border/60 bg-card mt-2.5 flex w-full max-w-xs min-w-0 items-center gap-1 rounded-xl border py-0.5 pr-1 pl-2 opacity-0 shadow-xs sm:max-w-[26rem]'
-            style={{ animationDelay: '180ms' }}
+            className='flex w-full max-w-md items-center gap-2 rounded-xl border border-[#E6E9F0] bg-white px-4 py-3'
           >
-            {/* 基址居左，轮播路径靠右排列，复制按钮保持在最右侧。 */}
-            <div className='flex min-w-0 flex-1 items-center gap-x-4 font-mono text-xs sm:text-sm'>
-              <code className='text-foreground/90 min-w-0 break-all'>
+            <span className='flex min-w-0 flex-1 flex-col gap-1'>
+              <span
+                id={baseUrlHintId}
+                className='font-mono text-[11px] font-medium tracking-wide text-[#8892A0]'
+              >
+                {t('API endpoint · OpenAI-compatible')}
+              </span>
+              <code className='truncate font-mono text-sm font-medium text-[#2F4FD0]'>
                 {apiBaseUrl}
               </code>
-              <div
-                aria-hidden='true'
-                className='ml-auto hidden h-[1.5rem] w-32 shrink-0 overflow-hidden pr-1 text-right text-[13px] font-medium text-blue-600 sm:block dark:text-blue-400'
-              >
-                <div className='landing-endpoint-scroll'>
-                  {HOME_API_ENDPOINTS.map((endpoint) => (
-                    <code
-                      key={endpoint}
-                      className='flex h-[1.5rem] items-center justify-end'
-                    >
-                      {endpoint}
-                    </code>
-                  ))}
-                  <code className='flex h-[1.5rem] items-center justify-end'>
-                    {HOME_API_ENDPOINTS[0]}
-                  </code>
-                </div>
-              </div>
-            </div>
+            </span>
             <CopyButton
               value={apiBaseUrl}
               variant='outline'
-              className='size-6 shrink-0 rounded-lg'
-              iconClassName='size-3.5'
+              className='size-8 shrink-0 rounded-lg'
+              iconClassName='size-4'
               aria-label={t('Copy base URL')}
             />
           </div>
 
-          <div
-            className='landing-animate-fade-up mt-[calc(1rem+var(--home-space,0px)/2)] flex flex-wrap items-center justify-center gap-3 opacity-0'
-            style={{ animationDelay: '240ms' }}
-          >
-            <Button
-              className='group h-7 gap-1 rounded-lg px-2 text-sm font-medium'
-              render={
-                <Link to={props.isAuthenticated ? '/keys' : '/sign-up'} />
-              }
-            >
-              <Play aria-hidden='true' className='size-3.5 fill-current' />
-              {t('Get API Key')}
-            </Button>
-          </div>
+          <dl className='mt-2 flex w-full max-w-md items-center justify-between gap-4 border-t border-[#E6E9F0] pt-5'>
+            {HERO_STATS.map((stat) => (
+              <div key={stat.label} className='flex flex-col gap-1'>
+                <dt className='sr-only'>{t(stat.label)}</dt>
+                <dd
+                  className={
+                    stat.accent
+                      ? 'font-mono text-xl font-bold text-[#3D5BFF]'
+                      : 'font-mono text-xl font-bold text-[#0F131A]'
+                  }
+                >
+                  {stat.value}
+                </dd>
+                <dd className='text-xs text-[#8892A0]'>{t(stat.label)}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
+
+        {/* 右栏：代码控制台演示 */}
+        <HeroTerminalDemo className='max-w-full' />
       </div>
     </section>
   )

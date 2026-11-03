@@ -43,6 +43,7 @@ export interface SystemConfig {
   logo: string
   logoDark?: string
   footerHtml?: string
+  icpRecord?: string
   demoSiteEnabled?: boolean
   displayTokenStatEnabled?: boolean
   currency: CurrencyConfig

@@ -132,6 +132,28 @@ afterEach(() => {
 })
 
 describe('logo upload settings', () => {
+  it('shows image placeholders beside upload controls and configured logos in the previews below', async () => {
+    const lightLogo = 'https://example.com/light.png'
+    const darkLogo = 'https://example.com/dark.webp'
+    await renderSettings(lightLogo, darkLogo)
+
+    const placeholders = screen.getAllByTestId('logo-upload-icon')
+    expect(placeholders).toHaveLength(2)
+    for (const placeholder of placeholders) {
+      expect(placeholder).toHaveAttribute('aria-hidden', 'true')
+      expect(placeholder).toHaveClass('size-10', 'shrink-0')
+    }
+    expect(screen.queryAllByAltText('')).toHaveLength(0)
+    expect(screen.getByAltText('Light logo preview')).toHaveAttribute(
+      'src',
+      lightLogo
+    )
+    expect(screen.getByAltText('Dark logo preview')).toHaveAttribute(
+      'src',
+      darkLogo
+    )
+  })
+
   it('saves separate light and dark uploads and switches the published logo with the theme', async () => {
     const input = await renderSettings()
     const user = userEvent.setup()

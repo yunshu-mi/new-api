@@ -66,6 +66,7 @@ func GetStatus(c *gin.Context) {
 		"logo":                        common.Logo,
 		"logo_dark":                   operation_setting.GetGeneralSetting().LogoDark,
 		"footer_html":                 common.Footer,
+		"icp_record":                  operation_setting.GetGeneralSetting().ICPRecord,
 		"wechat_qrcode":               common.WeChatAccountQRCodeImageURL,
 		"wechat_login":                common.WeChatAuthEnabled,
 		"server_address":              system_setting.ServerAddress,
@@ -104,6 +105,7 @@ func GetStatus(c *gin.Context) {
 		"uptime_kuma_enabled":   cs.UptimeKumaEnabled,
 		"announcements_enabled": cs.AnnouncementsEnabled,
 		"faq_enabled":           cs.FAQEnabled,
+		"home_faq_enabled":      cs.HomeFAQEnabled,
 		"customer_support":      cs.CustomerSupport.PublicConfig(),
 
 		// 模块管理配置
@@ -140,6 +142,9 @@ func GetStatus(c *gin.Context) {
 	}
 	if cs.FAQEnabled {
 		data["faq"] = console_setting.GetFAQ()
+	}
+	if cs.HomeFAQEnabled {
+		data["home_faq"] = console_setting.GetHomeFAQ()
 	}
 
 	// Add enabled custom OAuth providers

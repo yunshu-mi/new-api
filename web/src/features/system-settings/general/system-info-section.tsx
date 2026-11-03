@@ -59,6 +59,7 @@ const _systemInfoSchema = z.object({
   HomePageContent: z.string().optional(),
   general_setting: z.object({
     docs_link: z.string(),
+    icp_record: z.string().optional(),
     logo_dark: z.string().url().optional().or(z.literal('')),
   }),
   legal: z.object({
@@ -93,6 +94,7 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
     HomePageContent: normalizeValue(defaultValues.HomePageContent),
     general_setting: {
       docs_link: normalizeValue(defaultValues.general_setting?.docs_link),
+      icp_record: normalizeValue(defaultValues.general_setting?.icp_record),
       logo_dark: normalizeValue(defaultValues.general_setting?.logo_dark),
     },
     legal: {
@@ -118,6 +120,7 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
     HomePageContent: z.string().optional(),
     general_setting: z.object({
       docs_link: z.string(),
+      icp_record: z.string().optional(),
       logo_dark: z.string().url().optional().or(z.literal('')),
     }),
     legal: z.object({
@@ -336,6 +339,25 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
                     </FormControl>
                     <FormDescription>
                       {t('Footer text displayed at the bottom of pages')}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='general_setting.icp_record'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('ICP filing number')}</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      {t(
+                        'Displayed beside the copyright in the footer. Leave empty to hide.'
+                      )}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

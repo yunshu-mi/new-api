@@ -96,6 +96,8 @@ export function mapStatusDataToConfig(
     logo: (data.logo as string | undefined) || DEFAULT_LOGO,
     logoDark: (data.logo_dark as string | undefined) || '',
     footerHtml: data.footer_html as string | undefined,
+    icpRecord:
+      typeof data.icp_record === 'string' ? data.icp_record.trim() : '',
     demoSiteEnabled: data.demo_site_enabled as boolean | undefined,
     displayTokenStatEnabled: data.display_token_stat_enabled as
       | boolean

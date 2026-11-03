@@ -408,6 +408,12 @@ func UpdateOption(c *gin.Context) {
 			common.ApiError(c, err)
 			return
 		}
+	case "console_setting.home_faq":
+		err = console_setting.ValidateConsoleSettings(option.Value.(string), "HomeFAQ")
+		if err != nil {
+			common.ApiError(c, err)
+			return
+		}
 	case "console_setting.uptime_kuma_groups":
 		err = console_setting.ValidateConsoleSettings(option.Value.(string), "UptimeKumaGroups")
 		if err != nil {

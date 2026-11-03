@@ -16,7 +16,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { Upload01Icon } from '@hugeicons/core-free-icons'
+import { Image01Icon, Upload01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useRef, useState, type ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -39,7 +39,6 @@ export function LogoUpload(props: LogoUploadProps) {
   const { t } = useTranslation()
   const inputRef = useRef<HTMLInputElement>(null)
   const [isReading, setIsReading] = useState(false)
-  const logo = props.value || props.fallback || DEFAULT_LOGO
   const isCustom = !!props.value && props.value !== DEFAULT_LOGO
   const disabled = props.disabled || isReading
   let status = t('Using original logo')
@@ -86,11 +85,13 @@ export function LogoUpload(props: LogoUploadProps) {
 
   return (
     <div className='bg-muted/30 flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center'>
-      <img
-        src={logo}
-        alt=''
-        className='bg-background size-10 shrink-0 rounded-lg border object-contain p-1.5'
-      />
+      <div
+        className='bg-muted text-muted-foreground flex size-10 shrink-0 items-center justify-center rounded-lg border'
+        data-testid='logo-upload-icon'
+        aria-hidden='true'
+      >
+        <HugeiconsIcon icon={Image01Icon} className='size-5' />
+      </div>
       <div className='min-w-0 flex-1 space-y-1'>
         <FormLabel>{props.label}</FormLabel>
         <FormDescription>

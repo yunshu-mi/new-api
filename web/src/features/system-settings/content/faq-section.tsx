@@ -65,6 +65,12 @@ type FAQ = {
 type FAQSectionProps = {
   enabled: boolean
   data: string
+  /** 区块标题 i18n key。 */
+  titleKey?: string
+  /** 存储 FAQ 列表的选项键（默认登录后控制台 FAQ）。 */
+  optionKey?: string
+  /** 存储启用开关的选项键。 */
+  enabledKey?: string
 }
 
 const faqSchema = z.object({
@@ -82,7 +88,13 @@ type FAQFormValues = z.infer<typeof faqSchema>
 
 const FAQ_FORM_ID = 'faq-form'
 
-export function FAQSection({ enabled, data }: FAQSectionProps) {
+export function FAQSection({
+  enabled,
+  data,
+  titleKey = 'FAQ',
+  optionKey = 'console_setting.faq',
+  enabledKey = 'console_setting.faq_enabled',
+}: FAQSectionProps) {
   const { t } = useTranslation()
   const updateOption = useUpdateOption()
   const [faqList, setFaqList] = useState<FAQ[]>([])
@@ -125,7 +137,7 @@ export function FAQSection({ enabled, data }: FAQSectionProps) {
   const handleToggleEnabled = async (checked: boolean) => {
     try {
       await updateOption.mutateAsync({
-        key: 'console_setting.faq_enabled',
+        key: enabledKey,
         value: checked,
       })
       setIsEnabled(checked)
@@ -209,7 +221,7 @@ export function FAQSection({ enabled, data }: FAQSectionProps) {
   const handleSaveAll = async () => {
     try {
       await updateOption.mutateAsync({
-        key: 'console_setting.faq',
+        key: optionKey,
         value: JSON.stringify(faqList),
       })
       setHasChanges(false)
@@ -230,7 +242,7 @@ export function FAQSection({ enabled, data }: FAQSectionProps) {
   }
 
   return (
-    <SettingsSection title={t('FAQ')}>
+    <SettingsSection title={t(titleKey)}>
       <div className='space-y-4'>
         <div className='flex flex-wrap items-center justify-between gap-2'>
           <div className='flex flex-wrap items-center gap-2'>

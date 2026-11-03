@@ -26,7 +26,7 @@ import { useTheme } from '@/context/theme-provider'
 import { isLikelyHtml } from '@/lib/content-format'
 import { useAuthStore } from '@/stores/auth-store'
 
-import { Features, Hero, HowItWorks, Providers } from './components'
+import { Faq, Features, Hero, Providers } from './components'
 import { useHomePageContent } from './hooks'
 
 export function Home() {
@@ -57,6 +57,20 @@ export function Home() {
       syncIframePreferences()
     }
   }, [isUrl, syncIframePreferences])
+
+  // 首页强制浅色：按设计稿首页始终以浅色呈现，离开首页后恢复用户偏好主题。
+  useEffect(() => {
+    const root = document.documentElement
+    const timer = window.setTimeout(() => {
+      root.classList.remove('dark')
+      root.classList.add('light')
+    }, 0)
+    return () => {
+      window.clearTimeout(timer)
+      root.classList.remove('light', 'dark')
+      root.classList.add(resolvedTheme)
+    }
+  }, [resolvedTheme])
 
   if (!isLoaded) {
     return (
@@ -122,20 +136,11 @@ export function Home() {
 
   return (
     <PublicLayout showMainContainer={false}>
-      {/* The paper palette and texture are scoped to this wrapper so only the
-          home page is themed; see src/styles/paper-pixel.css. The ruled page
-          background comes from `home-grid` in src/styles/index.css. */}
-      <div className='paper-home home-grid'>
-        <div className='home-first-screen relative isolate flex min-h-svh flex-col pt-[calc(5rem+var(--home-space,0px)*3)] pb-2'>
-          <div
-            aria-hidden='true'
-            className='page-glow pointer-events-none absolute inset-0 -z-10 opacity-25 dark:opacity-[0.12]'
-          />
-          <Hero isAuthenticated={isAuthenticated} />
-          <Features />
-        </div>
-        <HowItWorks />
+      <div className='min-h-screen bg-[#F6F7F9] text-[#0F131A]'>
+        <Hero isAuthenticated={isAuthenticated} />
+        <Features />
         <Providers />
+        <Faq />
         <Footer compact />
       </div>
     </PublicLayout>

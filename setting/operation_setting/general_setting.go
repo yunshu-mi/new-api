@@ -12,6 +12,7 @@ const (
 
 type GeneralSetting struct {
 	LogoDark            string `json:"logo_dark"`
+	ICPRecord           string `json:"icp_record"`
 	DocsLink            string `json:"docs_link"`
 	PingIntervalEnabled bool   `json:"ping_interval_enabled"`
 	PingIntervalSeconds int    `json:"ping_interval_seconds"`

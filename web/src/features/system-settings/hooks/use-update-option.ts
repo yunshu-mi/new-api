@@ -30,6 +30,7 @@ import type { UpdateOptionRequest, UpdatePasskeyDomainsRequest } from '../types'
 const STATUS_RELATED_KEYS = new Set([
   'Logo',
   'general_setting.logo_dark',
+  'general_setting.icp_record',
   'HeaderNavModules',
   'SidebarModulesAdmin',
   'Notice',

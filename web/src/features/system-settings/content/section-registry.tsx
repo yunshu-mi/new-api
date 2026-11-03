@@ -83,6 +83,19 @@ const CONTENT_SECTIONS = [
     ),
   },
   {
+    id: 'home-faq',
+    titleKey: 'Home FAQ',
+    build: (settings: ContentSettings) => (
+      <FAQSection
+        enabled={settings['console_setting.home_faq_enabled']}
+        data={settings['console_setting.home_faq']}
+        titleKey='Home FAQ'
+        optionKey='console_setting.home_faq'
+        enabledKey='console_setting.home_faq_enabled'
+      />
+    ),
+  },
+  {
     id: 'uptime-kuma',
     titleKey: 'Uptime Kuma',
     build: (settings: ContentSettings) => (

@@ -77,10 +77,8 @@ function FooterLinkItem(props: { link: FooterLink }) {
   )
 }
 
-// Renders User Agreement / Privacy Policy links inline with the parent's
-// copyright row when either is configured in System Settings → Site. Emits
-// fragmented siblings so the parent flex container's gap controls spacing.
-function LegalLinks(props: { leadingSeparator?: boolean }) {
+// 复用站点设置中的协议配置，未配置的入口不显示。
+function LegalLinks() {
   const { t } = useTranslation()
   const { status } = useStatus()
   const items: { key: string; label: string; href: string }[] = []
@@ -102,23 +100,23 @@ function LegalLinks(props: { leadingSeparator?: boolean }) {
     return null
   }
   return (
-    <>
+    <div className='text-muted-foreground flex max-w-full min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium'>
       {items.map((item, index) => (
         <Fragment key={item.key}>
-          {(props.leadingSeparator || index > 0) && (
+          {index > 0 && (
             <span aria-hidden='true' className='text-muted-foreground/30'>
-              ·
+              |
             </span>
           )}
           <Link
             to={item.href}
-            className='hover:text-foreground transition-colors duration-200'
+            className='hover:text-foreground min-w-0 break-words transition-colors duration-200'
           >
             {item.label}
           </Link>
         </Fragment>
       ))}
-    </>
+    </div>
   )
 }
 
@@ -156,6 +154,7 @@ export function Footer(props: FooterProps) {
     systemName,
     logo: systemLogo,
     footerHtml,
+    icpRecord,
     demoSiteEnabled,
   } = useSystemConfig()
 
@@ -163,6 +162,16 @@ export function Footer(props: FooterProps) {
   const displayName = systemName || props.name || 'New API'
   const isDemoSiteMode = Boolean(demoSiteEnabled)
   const currentYear = new Date().getFullYear()
+  const icpRecordLink = icpRecord?.trim() ? (
+    <a
+      href='https://beian.miit.gov.cn/'
+      target='_blank'
+      rel='noopener noreferrer'
+      className='text-muted-foreground hover:text-foreground min-w-0 text-xs break-words transition-colors duration-200'
+    >
+      {icpRecord.trim()}
+    </a>
+  ) : null
 
   const fallbackColumns = useMemo<FooterColumnProps[]>(
     () => [
@@ -233,10 +242,13 @@ export function Footer(props: FooterProps) {
       >
         <div className='mx-auto w-full max-w-6xl px-6 py-5'>
           <div className='bg-muted/20 border-border/50 flex flex-col items-center justify-between gap-4 rounded-2xl border px-4 py-4 backdrop-blur-sm sm:flex-row sm:px-5'>
-            <div
-              className='custom-footer text-muted-foreground min-w-0 text-center text-sm sm:text-left'
-              dangerouslySetInnerHTML={{ __html: footerHtml }}
-            />
+            <div className='flex min-w-0 flex-col items-center gap-2 sm:items-start'>
+              <div
+                className='custom-footer text-muted-foreground min-w-0 text-center text-sm sm:text-left'
+                dangerouslySetInnerHTML={{ __html: footerHtml }}
+              />
+              {icpRecordLink}
+            </div>
             <div className='border-border/60 text-muted-foreground/45 flex w-full flex-wrap items-center justify-center gap-x-3 gap-y-1 border-t pt-4 text-xs sm:w-auto sm:justify-end sm:border-t-0 sm:border-l sm:pt-0 sm:pl-5'>
               <LegalLinks />
               <ProjectAttribution currentYear={currentYear} inline />
@@ -309,8 +321,7 @@ export function Footer(props: FooterProps) {
           </div>
         )}
 
-        {/* Copyright + optional legal links inline on the left, project
-            attribution on the right; wraps on narrow screens. */}
+        {/* 版权在左，协议入口在右；窄屏上下排列并允许换行。 */}
         <div
           className={cn(
             'flex flex-col items-center justify-between gap-x-3 gap-y-2 sm:flex-row',
@@ -336,9 +347,12 @@ export function Footer(props: FooterProps) {
               &copy; {currentYear} {displayName}.{' '}
               {props.copyright ?? t('footer.defaultCopyright')}
             </span>
-            <LegalLinks leadingSeparator />
+            {icpRecordLink}
           </div>
-          {!props.compact && <ProjectAttribution currentYear={currentYear} />}
+          <div className='flex max-w-full min-w-0 flex-wrap items-center gap-x-4 gap-y-2 sm:ml-auto sm:justify-end'>
+            <LegalLinks />
+            {!props.compact && <ProjectAttribution currentYear={currentYear} />}
+          </div>
         </div>
       </div>
     </footer>
