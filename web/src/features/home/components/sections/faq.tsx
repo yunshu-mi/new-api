@@ -19,7 +19,6 @@ For commercial licensing, please contact support@quantumnous.com
 import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AnimateInView } from '@/components/animate-in-view'
 import {
   Accordion,
   AccordionContent,
@@ -28,6 +27,8 @@ import {
 } from '@/components/ui/accordion'
 import { Markdown } from '@/components/ui/markdown'
 import { useStatus } from '@/hooks/use-status'
+
+import { HOME_SECTION_CLASS_NAME } from '../../constants'
 
 interface FaqEntry {
   id?: number
@@ -92,26 +93,23 @@ export function Faq() {
         }))
 
   return (
-    <section
-      aria-labelledby={headingId}
-      className='relative z-10 mx-auto w-full max-w-6xl px-6 py-12 md:py-16'
-    >
-      <AnimateInView className='mb-10 max-w-2xl'>
-        <span className='font-mono text-[13px] font-medium text-[#3D5BFF]'>
+    <section aria-labelledby={headingId} className={HOME_SECTION_CLASS_NAME}>
+      <div className='mb-6 max-w-2xl'>
+        <span className='font-sans text-[13px] font-medium text-[#3D5BFF]'>
           {t('03 · FAQ')}
         </span>
         <h2
           id={headingId}
-          className='mt-3 text-3xl leading-tight font-bold tracking-tight text-[#0F131A] md:text-4xl'
+          className='mt-2 text-[36px] leading-tight font-bold tracking-tight text-[#0F131A]'
         >
           {t('Everything you want to know')}
         </h2>
-        <p className='mt-4 text-base leading-7 text-[#5A6370]'>
+        <p className='mt-3 text-[16px] leading-6 font-normal text-[#5A6370]'>
           {t('Still have questions? Join the community or contact us anytime.')}
         </p>
-      </AnimateInView>
+      </div>
 
-      <Accordion className='gap-4'>
+      <Accordion className='gap-3'>
         {items.map((item, idx) => {
           const key = item.id ?? `faq-${idx}`
           return (
@@ -120,10 +118,10 @@ export function Faq() {
               value={`item-${key}`}
               className='overflow-hidden rounded-2xl border border-[#E6E9F0] bg-white'
             >
-              <AccordionTrigger className='px-6 py-5 text-base font-bold text-[#0F131A] hover:no-underline'>
+              <AccordionTrigger className='px-5 py-4 text-sm font-bold text-[#0F131A] hover:no-underline'>
                 {item.question}
               </AccordionTrigger>
-              <AccordionContent className='px-6 pb-5 text-[15px] leading-7 text-[#4A5260]'>
+              <AccordionContent className='px-5 pb-4 text-sm leading-6 text-[#4A5260]'>
                 <Markdown>{item.answer}</Markdown>
               </AccordionContent>
             </AccordionItem>

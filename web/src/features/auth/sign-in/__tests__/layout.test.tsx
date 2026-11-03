@@ -49,6 +49,16 @@ function renderSignIn(status: SystemStatus = {}) {
         path: '/otp',
         component: () => <p>Verification required</p>,
       }),
+      createRoute({
+        getParentRoute: () => root,
+        path: '/user-agreement',
+        component: () => <h1>User Agreement</h1>,
+      }),
+      createRoute({
+        getParentRoute: () => root,
+        path: '/privacy-policy',
+        component: () => <h1>Privacy Policy</h1>,
+      }),
     ]),
     history: createMemoryHistory({ initialEntries: ['/sign-in'] }),
   })
@@ -166,7 +176,10 @@ it('retains legal consent, loading protection and verification redirects when su
     complete = resolve
   })
   const post = vi.spyOn(api, 'post').mockReturnValue(pending)
-  renderSignIn({ user_agreement_enabled: true })
+  renderSignIn({
+    user_agreement_enabled: true,
+    privacy_policy_enabled: true,
+  })
   const user = userEvent.setup()
   await user.type(
     await screen.findByLabelText('Username or Email'),
@@ -174,6 +187,12 @@ it('retains legal consent, loading protection and verification redirects when su
   )
   await user.type(screen.getByLabelText('Password'), 'example-password')
   const submit = screen.getByRole('button', { name: 'Sign in' })
+  expect(screen.getAllByRole('link', { name: 'User Agreement' })).toHaveLength(
+    1
+  )
+  expect(screen.getAllByRole('link', { name: 'Privacy Policy' })).toHaveLength(
+    1
+  )
   await user.click(submit)
   expect(post).not.toHaveBeenCalled()
   await user.click(screen.getByRole('checkbox'))
@@ -208,6 +227,24 @@ it('retains legal consent, loading protection and verification redirects when su
   ).toBe('/pricing')
 })
 
+it.each(['User Agreement', 'Privacy Policy'])(
+  'opens %s in the current tab and returns to sign-in through browser history',
+  async (name) => {
+    const { router } = renderSignIn({
+      user_agreement_enabled: true,
+      privacy_policy_enabled: true,
+    })
+    const user = userEvent.setup()
+    const link = await screen.findByRole('link', { name })
+    expect(link).not.toHaveAttribute('target', '_blank')
+    await user.click(link)
+    expect(await screen.findByRole('heading', { name })).toBeVisible()
+    act(() => router.history.back())
+    expect(await screen.findByLabelText('Username or Email')).toBeVisible()
+    expect(screen.getByRole('checkbox')).not.toBeChecked()
+  }
+)
+
 it('restores the submit button after a failed login without applying authentication', async () => {
   const post = vi
     .spyOn(api, 'post')
@@ -227,7 +264,7 @@ it('restores the submit button after a failed login without applying authenticat
   expect(screen.getByLabelText('Password')).toHaveValue('example-password')
 })
 
-it('uses an expanding desktop grid and switches to one column below the desktop breakpoint', () => {
+it('keeps the shared auth card compact and switches to one column below the desktop breakpoint', () => {
   const stylesheet = new CSSStyleSheet()
   stylesheet.replaceSync(
     readFileSync(path.resolve('src/styles/sign-in.css'), 'utf8')
@@ -244,13 +281,26 @@ it('uses an expanding desktop grid and switches to one column below the desktop 
   expect(page.style.getPropertyValue('min-height')).toBe('100svh')
   expect(page.style.getPropertyValue('height')).toBe('')
   expect(content.style.getPropertyValue('grid-template-columns')).toBe(
-    'minmax(0, 1fr) minmax(0, 480px)'
+    'minmax(0, 1fr) minmax(0, 400px)'
   )
   const card = rules.find(
     (rule) =>
       rule instanceof CSSStyleRule && rule.selectorText === '.sign-in-card'
   ) as CSSStyleRule
-  expect(card.style.getPropertyValue('padding')).toBe('32px')
+  expect(card.style.getPropertyValue('padding')).toBe('24px')
+  for (const [selector, property, value] of [
+    ['.sign-in-card-content', 'gap', '16px'],
+    ['.sign-in-form', 'gap', '12px'],
+    [".sign-in-form [data-slot='form-item']", 'gap', '6px'],
+    ['.sign-in-heading h1', 'font-size', '24px'],
+    ['.sign-in-form .sign-in-input-wrap input', 'height', '40px'],
+    ['.sign-in-form .sign-in-submit', 'height', '40px'],
+  ]) {
+    const rule = rules.find(
+      (rule) => rule instanceof CSSStyleRule && rule.selectorText === selector
+    ) as CSSStyleRule | undefined
+    expect(rule?.style.getPropertyValue(property), selector).toBe(value)
+  }
   const cardBrand = rules.find(
     (rule) =>
       rule instanceof CSSStyleRule &&
@@ -263,6 +313,11 @@ it('uses an expanding desktop grid and switches to one column below the desktop 
       rule.conditionText === '(max-width: 1023px)'
   ) as CSSMediaRule
   const mobileRules = [...mobile.cssRules] as CSSStyleRule[]
+  expect(
+    mobileRules
+      .find((rule) => rule.selectorText === '.sign-in-content')
+      ?.style.getPropertyValue('max-width')
+  ).toBe('400px')
   expect(
     mobileRules
       .find((rule) => rule.selectorText === '.sign-in-content')

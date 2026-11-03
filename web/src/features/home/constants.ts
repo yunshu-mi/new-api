@@ -25,6 +25,9 @@ import type { TFunction } from 'i18next'
 // Layout - Main base classes
 export const MAIN_BASE_CLASSES = 'bg-background text-foreground w-full'
 
+export const HOME_SECTION_CLASS_NAME =
+  'relative z-10 mx-auto w-full max-w-5xl px-6 py-12 md:py-16'
+
 // Rolled one after another in the landing hero; the CSS step count in
 // `styles/index.css` must stay equal to this length.
 export const HOME_API_ENDPOINTS = [

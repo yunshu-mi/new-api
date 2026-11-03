@@ -63,16 +63,16 @@ export function AuthLayout({ children, variant = 'default' }: AuthLayoutProps) {
             aria-labelledby='sign-in-intro-title'
           >
             {brand}
-            <div className='space-y-4'>
+            <div className='flex w-full min-w-0 flex-col gap-5'>
               <p id='sign-in-intro-title' className='sign-in-headline'>
-                {t('A unified')} <br />
-                <span className='bg-gradient-to-r from-blue-400 via-violet-400 to-purple-500 bg-clip-text text-transparent'>
-                  {t('Large model API gateway')}
+                {t('One endpoint,')} <br />
+                <span className='landing-hero-gradient bg-clip-text text-transparent'>
+                  {t('for every large model')}
                 </span>
               </p>
               <p className='text-base leading-relaxed text-[var(--sign-in-muted)]'>
                 {t(
-                  'A stable, efficient and secure platform for AI model access and management'
+                  'Enterprise-grade stability, fast routing, transparent billing. Built for developers, not for slides.'
                 )}
               </p>
             </div>

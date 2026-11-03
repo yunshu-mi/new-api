@@ -16,6 +16,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 
 import { Checkbox } from '@/components/ui/checkbox'
@@ -69,25 +70,15 @@ export function LegalConsent({
         <span>
           {t('I have read and agree to the')}{' '}
           {hasUserAgreement && (
-            <a
-              href='/user-agreement'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='text-primary hover:underline'
-            >
+            <Link to='/user-agreement' className='text-primary hover:underline'>
               {t('User Agreement')}
-            </a>
+            </Link>
           )}
           {hasUserAgreement && hasPrivacyPolicy && ' and the '}
           {hasPrivacyPolicy && (
-            <a
-              href='/privacy-policy'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='text-primary hover:underline'
-            >
+            <Link to='/privacy-policy' className='text-primary hover:underline'>
               {t('Privacy Policy')}
-            </a>
+            </Link>
           )}
           .
         </span>

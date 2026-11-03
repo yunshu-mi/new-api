@@ -12,6 +12,7 @@
   overflow-x: clip;
   padding: 32px;
   color: var(--sign-in-ink);
+  font-family: var(--font-ui-sans);
   background: var(--background);
 }
 
@@ -20,7 +21,7 @@
   width: 100%;
   max-width: 1120px;
   min-width: 0;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 480px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
   align-items: center;
   gap: clamp(40px, 6vw, 88px);
   margin: auto;
@@ -31,20 +32,30 @@
   min-width: 0;
   flex-direction: column;
   align-items: center;
-  gap: 28px;
+  gap: 24px;
   text-align: center;
 }
 
 .sign-in-brand {
   display: inline-flex;
+  width: 100%;
   max-width: 100%;
   align-items: center;
+  justify-content: center;
   gap: 12px;
   color: var(--sign-in-ink);
   font-size: 26px;
   font-weight: 650;
   line-height: 1.25;
+  text-align: center;
   transition: opacity 150ms;
+}
+
+/* 右侧预留与 Logo 等宽的位置，让站点名称本身对齐标题中线。 */
+.sign-in-intro .sign-in-brand::after {
+  content: '';
+  width: calc(var(--spacing) * 10);
+  flex-shrink: 0;
 }
 
 .sign-in-brand:hover {
@@ -59,10 +70,10 @@
 .sign-in-headline {
   margin: 0;
   color: var(--foreground);
-  font-size: clamp(40px, 4vw, 60px);
-  font-weight: 750;
+  font-size: clamp(36px, 4vw, 44px);
+  font-weight: 700;
   line-height: 1.1;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.025em;
   text-align: center;
   text-wrap: balance;
 }
@@ -70,8 +81,8 @@
 .sign-in-card {
   width: 100%;
   min-width: 0;
-  gap: 24px;
-  padding: 32px;
+  gap: 16px;
+  padding: 24px;
   border: 1px solid var(--sign-in-border);
   border-radius: 16px;
   background: var(--sign-in-surface);
@@ -83,21 +94,34 @@
   display: none;
   justify-content: center;
 }
+.sign-in-card-content {
+  gap: 16px;
+}
+.sign-in-form {
+  gap: 12px;
+}
+.sign-in-form [data-slot='form-item'] {
+  gap: 6px;
+}
+.sign-in-form [data-slot='form-description'] {
+  font-size: 12px;
+  line-height: 1.5;
+}
 .sign-in-heading {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   text-align: left;
 }
 .sign-in-heading h1 {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 650;
   line-height: 1.4;
 }
 .sign-in-heading p {
   color: var(--sign-in-muted);
   font-size: 14px;
-  line-height: 1.7;
+  line-height: 1.5;
 }
 .sign-in-input-wrap {
   position: relative;
@@ -106,21 +130,21 @@
 .sign-in-input-icon {
   position: absolute;
   z-index: 1;
-  top: 14px;
-  left: 16px;
-  width: 20px;
-  height: 20px;
+  top: 11px;
+  left: 12px;
+  width: 18px;
+  height: 18px;
   color: var(--sign-in-muted);
   pointer-events: none;
   stroke-width: 1.7;
 }
 .sign-in-form .sign-in-input-wrap input {
-  height: 48px;
-  padding-inline: 46px 48px;
+  height: 40px;
+  padding-inline: 38px 44px;
   border-color: var(--sign-in-border);
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--sign-in-surface);
-  font-size: 16px;
+  font-size: 14px;
 }
 .sign-in-form .sign-in-input-wrap input::placeholder {
   color: var(--sign-in-muted);
@@ -135,7 +159,7 @@
   border-color: var(--destructive);
 }
 .sign-in-form .sign-in-input-wrap button {
-  right: 12px;
+  right: 8px;
   width: 32px;
   height: 32px;
   color: var(--sign-in-muted);
@@ -144,12 +168,12 @@
   color: var(--sign-in-muted);
 }
 .sign-in-form .sign-in-submit {
-  height: 48px;
+  height: 40px;
   border: 0;
-  border-radius: 12px;
+  border-radius: 10px;
   color: white;
   background: #1c66d5;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
 }
 .sign-in-form .sign-in-submit:hover {
@@ -189,7 +213,7 @@
     padding: 24px;
   }
   .sign-in-content {
-    max-width: 480px;
+    max-width: 400px;
     grid-template-columns: minmax(0, 1fr);
   }
   .sign-in-intro {

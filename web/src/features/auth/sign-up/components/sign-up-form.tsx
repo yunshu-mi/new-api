@@ -382,7 +382,7 @@ export function SignUpForm({
                 </div>
               </div>
               <Button
-                className='h-[48px] rounded-xl px-4'
+                className='h-[40px] rounded-lg px-4'
                 variant='outline'
                 type='button'
                 disabled={

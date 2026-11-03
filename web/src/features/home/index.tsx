@@ -28,6 +28,7 @@ import { useAuthStore } from '@/stores/auth-store'
 
 import { Faq, Features, Hero, Providers } from './components'
 import { useHomePageContent } from './hooks'
+import { useHomeSlideScroll } from './hooks/use-home-slide-scroll'
 
 export function Home() {
   const { i18n, t } = useTranslation()
@@ -36,6 +37,7 @@ export function Home() {
   const { auth } = useAuthStore()
   const isAuthenticated = !!auth.user
   const { content, isLoaded, isUrl } = useHomePageContent()
+  const slidesRef = useHomeSlideScroll(isLoaded && !content)
 
   const syncIframePreferences = useCallback(() => {
     try {
@@ -74,7 +76,7 @@ export function Home() {
 
   if (!isLoaded) {
     return (
-      <PublicLayout showMainContainer={false}>
+      <PublicLayout showMainContainer={false} showThemeSwitch={false}>
         <main className='flex min-h-screen items-center justify-center'>
           <div className='text-muted-foreground'>{t('Loading...')}</div>
         </main>
@@ -85,7 +87,7 @@ export function Home() {
   if (content) {
     if (isUrl) {
       return (
-        <PublicLayout showMainContainer={false}>
+        <PublicLayout showMainContainer={false} showThemeSwitch={false}>
           {/*
             allow-top-navigation-by-user-activation: the custom home page URL is
             admin-configured (trusted); this lets its target="_top" nav/menu links
@@ -110,7 +112,7 @@ export function Home() {
 
     if (contentIsHtml) {
       return (
-        <PublicLayout showMainContainer={false}>
+        <PublicLayout showMainContainer={false} showThemeSwitch={false}>
           <RichContent
             mode='html'
             htmlVariant='isolated'
@@ -122,7 +124,7 @@ export function Home() {
     }
 
     return (
-      <PublicLayout>
+      <PublicLayout showThemeSwitch={false}>
         <div className='mx-auto max-w-6xl px-4 py-8'>
           <RichContent
             mode='markdown'
@@ -135,14 +137,27 @@ export function Home() {
   }
 
   return (
-    <PublicLayout showMainContainer={false}>
-      <div className='min-h-screen bg-[#F6F7F9] text-[#0F131A]'>
-        <Hero isAuthenticated={isAuthenticated} />
-        <Features />
-        <Providers />
-        <Faq />
-        <Footer compact />
-      </div>
+    <PublicLayout showMainContainer={false} showThemeSwitch={false}>
+      <main
+        ref={slidesRef}
+        className='home-slides home-grid bg-background text-[#0F131A]'
+      >
+        <div className='home-slide'>
+          <Hero isAuthenticated={isAuthenticated} />
+        </div>
+        <div className='home-slide'>
+          <Features />
+        </div>
+        <div className='home-slide'>
+          <Providers />
+        </div>
+        <div className='home-slide home-slide-last'>
+          <div className='home-slide-content'>
+            <Faq />
+          </div>
+          <Footer compact className='[&>div]:max-w-5xl [&>div]:py-2' />
+        </div>
+      </main>
     </PublicLayout>
   )
 }

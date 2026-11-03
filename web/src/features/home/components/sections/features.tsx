@@ -26,8 +26,9 @@ import {
 import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AnimateInView } from '@/components/animate-in-view'
 import { cn } from '@/lib/utils'
+
+import { HOME_SECTION_CLASS_NAME } from '../../constants'
 
 interface FeatureCard {
   id: string
@@ -42,13 +43,11 @@ function FeatureCardView(props: { card: FeatureCard }) {
   const { card } = props
   const Icon = card.icon
   return (
-    <div className='flex h-full flex-col gap-4 rounded-2xl border border-[#E6E9F0] bg-white p-8 text-left'>
-      <Icon aria-hidden='true' className='size-7 text-[#3D5BFF]' />
-      <h3 className='text-xl font-bold text-[#0F131A]'>{card.title}</h3>
-      <p className='text-[15px] leading-7 text-[#5A6370]'>{card.description}</p>
-      <span className='font-mono text-sm font-semibold text-[#2F4FD0]'>
-        {card.tag}
-      </span>
+    <div className='flex h-full flex-col gap-3 rounded-2xl border border-[#E6E9F0] bg-white p-6 text-left'>
+      <Icon aria-hidden='true' className='size-6 text-[#3D5BFF]' />
+      <h3 className='text-lg font-bold text-[#0F131A]'>{card.title}</h3>
+      <p className='text-sm leading-6 text-[#5A6370]'>{card.description}</p>
+      <span className='text-xs font-bold text-[#2F4FD0]'>{card.tag}</span>
     </div>
   )
 }
@@ -101,37 +100,29 @@ export function Features() {
   ]
 
   return (
-    <section
-      aria-labelledby={headingId}
-      className='relative z-10 mx-auto w-full max-w-6xl px-6 py-12 md:py-16'
-    >
-      <AnimateInView className='mb-10 max-w-2xl'>
-        <span className='font-mono text-[13px] font-medium text-[#3D5BFF]'>
+    <section aria-labelledby={headingId} className={HOME_SECTION_CLASS_NAME}>
+      <div className='mb-6 max-w-2xl'>
+        <span className='font-sans text-[13px] font-medium text-[#3D5BFF]'>
           {t('01 · Core capabilities')}
         </span>
         <h2
           id={headingId}
-          className='mt-3 text-3xl leading-tight font-bold tracking-tight text-[#0F131A] md:text-4xl'
+          className='mt-2 text-[36px] leading-tight font-bold tracking-tight text-[#0F131A]'
         >
           {t('Core capabilities built for developers')}
         </h2>
-        <p className='mt-4 text-base leading-7 text-[#5A6370]'>
+        <p className='mt-3 text-[16px] leading-6 font-normal text-[#5A6370]'>
           {t(
             'Not slide-deck talking points, but the stability, transparency and security running every day.'
           )}
         </p>
-      </AnimateInView>
+      </div>
 
-      <div className='grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3'>
-        {features.map((feature, index) => (
-          <AnimateInView
-            key={feature.id}
-            className={cn(feature.wide && 'sm:col-span-2')}
-            delay={index * 80}
-            animation='fade-up'
-          >
+      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+        {features.map((feature) => (
+          <div key={feature.id} className={cn(feature.wide && 'sm:col-span-2')}>
             <FeatureCardView card={feature} />
-          </AnimateInView>
+          </div>
         ))}
       </div>
     </section>

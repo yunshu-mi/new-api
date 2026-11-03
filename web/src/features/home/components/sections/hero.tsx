@@ -68,10 +68,12 @@ export function Hero(props: HeroProps) {
             {t('New v2.0 is live · xAI Grok / Mistral supported')}
           </span>
 
-          <h1 className='text-4xl leading-[1.15] font-black tracking-tight text-[#0F131A] md:text-5xl lg:text-[3.25rem]'>
+          <h1 className='font-sans text-4xl leading-[1.1] font-bold tracking-tight text-[#0F131A] md:text-[2.75rem]'>
             {t('One endpoint,')}
             <br />
-            <span className='text-[#3D5BFF]'>{t('for every large model')}</span>
+            <span className='landing-hero-gradient bg-clip-text text-transparent'>
+              {t('for every large model')}
+            </span>
           </h1>
 
           <p className='max-w-lg text-base leading-7 text-[#5A6370]'>
@@ -82,7 +84,7 @@ export function Hero(props: HeroProps) {
 
           <div className='flex flex-wrap items-center gap-3'>
             <Button
-              className='h-10 gap-2 rounded-xl bg-[#3D5BFF] px-5 text-sm font-medium text-white hover:bg-[#2f4fd0]'
+              className='h-8 gap-2 rounded-xl bg-[#3D5BFF] px-5 text-sm font-medium text-white hover:bg-[#2f4fd0]'
               render={
                 <Link to={props.isAuthenticated ? '/keys' : '/sign-up'} />
               }
@@ -92,7 +94,7 @@ export function Hero(props: HeroProps) {
             </Button>
             <Button
               variant='outline'
-              className='h-10 gap-2 rounded-xl border-[#E6E9F0] bg-white px-5 text-sm font-medium text-[#0F131A] hover:bg-[#F0F2F5]'
+              className='h-8 gap-2 rounded-xl border-[#E6E9F0] bg-white px-5 text-sm font-medium text-[#0F131A] hover:bg-[#F0F2F5]'
               render={<Link to='/about' />}
             >
               <BookOpen aria-hidden='true' className='size-4 text-[#5A6370]' />
@@ -104,9 +106,9 @@ export function Hero(props: HeroProps) {
             role='group'
             aria-label={t('API Base URL')}
             aria-describedby={baseUrlHintId}
-            className='flex w-full max-w-md items-center gap-2 rounded-xl border border-[#E6E9F0] bg-white px-4 py-3'
+            className='flex w-full max-w-md items-center gap-2 rounded-xl border border-[#E6E9F0] bg-white px-4 py-[0.2rem]'
           >
-            <span className='flex min-w-0 flex-1 flex-col gap-1'>
+            <span className='flex min-w-0 flex-1 flex-col gap-0.5'>
               <span
                 id={baseUrlHintId}
                 className='font-mono text-[11px] font-medium tracking-wide text-[#8892A0]'

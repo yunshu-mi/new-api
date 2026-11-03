@@ -19,8 +19,10 @@ For commercial licensing, please contact support@quantumnous.com
 import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AnimateInView } from '@/components/animate-in-view'
+import seedanceLogo from '@/assets/brand-icons/seedance.ico'
 import { getLobeIcon } from '@/lib/lobe-icon'
+
+import { HOME_SECTION_CLASS_NAME } from '../../constants'
 
 export function Providers() {
   const { t } = useTranslation()
@@ -33,49 +35,52 @@ export function Providers() {
     { name: 'OpenAI', icon: 'OpenAI' },
     { name: 'Claude', icon: 'Claude.Color' },
     { name: 'Gemini', icon: 'Gemini.Color' },
-    { name: t('StepFun'), icon: 'Stepfun.Color' },
-    { name: 'Meta Llama', icon: 'Meta.Color' },
+    { name: 'Seedance', logo: seedanceLogo },
+    { name: 'MiniMax', icon: 'Minimax.Color' },
   ]
 
   return (
-    <section
-      aria-labelledby={headingId}
-      className='relative z-10 mx-auto w-full max-w-6xl px-6 py-12 md:py-16'
-    >
-      <AnimateInView className='mb-10 max-w-2xl'>
-        <span className='font-mono text-[13px] font-medium text-[#3D5BFF]'>
+    <section aria-labelledby={headingId} className={HOME_SECTION_CLASS_NAME}>
+      <div className='mb-6 max-w-2xl'>
+        <span className='font-sans text-[13px] font-medium text-[#3D5BFF]'>
           {t('02 · Model marketplace')}
         </span>
         <h2
           id={headingId}
-          className='mt-3 text-3xl leading-tight font-bold tracking-tight text-[#0F131A] md:text-4xl'
+          className='mt-2 text-[36px] leading-tight font-bold tracking-tight text-[#0F131A]'
         >
           {t('One account, the whole model ecosystem')}
         </h2>
-        <p className='mt-4 text-base leading-7 text-[#5A6370]'>
+        <p className='mt-3 text-[16px] leading-6 font-normal text-[#5A6370]'>
           {t(
             "Covering the world's leading model providers, continuously updated - connect once, use any."
           )}
         </p>
-      </AnimateInView>
+      </div>
 
-      <ul className='grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4'>
-        {providers.map((provider, index) => (
-          <AnimateInView
-            as='li'
-            key={provider.name}
-            delay={index * 50}
-            animation='fade-up'
-          >
-            <div className='flex h-full flex-col items-center gap-3 rounded-2xl border border-[#E6E9F0] bg-white px-5 py-7'>
-              <span className='flex size-10 items-center justify-center'>
-                {getLobeIcon(provider.icon, 40)}
+      <ul className='grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4'>
+        {providers.map((provider) => (
+          <li key={provider.name}>
+            <div className='flex h-full flex-col items-center gap-2 rounded-2xl border border-[#E6E9F0] bg-white px-4 py-5'>
+              <span className='flex size-8 items-center justify-center'>
+                {provider.logo ? (
+                  <img
+                    src={provider.logo}
+                    alt=''
+                    aria-hidden='true'
+                    width={32}
+                    height={32}
+                    className='object-contain'
+                  />
+                ) : (
+                  getLobeIcon(provider.icon, 32)
+                )}
               </span>
               <span className='text-sm font-semibold text-[#3A434F]'>
                 {provider.name}
               </span>
             </div>
-          </AnimateInView>
+          </li>
         ))}
       </ul>
     </section>

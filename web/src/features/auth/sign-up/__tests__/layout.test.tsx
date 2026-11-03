@@ -169,6 +169,9 @@ it('sends verification email and keeps resend disabled during the countdown', as
     'Email (required for verification)'
   )
   expect(screen.getByRole('button', { name: 'Send code' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: 'Send code' })).toHaveClass(
+    'h-[40px]'
+  )
   expect(screen.getByLabelText('Verification code')).toBeVisible()
   expect(email.labels?.[0]).not.toHaveClass('sr-only')
   const code = screen.getByLabelText<HTMLInputElement>('Verification code')
@@ -222,10 +225,17 @@ it('keeps registration disabled until both the human check and legal consent are
   }
   renderSignUp({
     user_agreement_enabled: true,
+    privacy_policy_enabled: true,
     turnstile_check: true,
     turnstile_site_key: 'test-site',
   })
   const submit = await screen.findByRole('button', { name: 'Create account' })
+  expect(screen.getAllByRole('link', { name: 'User Agreement' })).toHaveLength(
+    1
+  )
+  expect(screen.getAllByRole('link', { name: 'Privacy Policy' })).toHaveLength(
+    1
+  )
   expect(submit).toBeDisabled()
   await waitFor(() => expect(verify).toBeDefined())
   act(() => verify?.('test-verification-token'))
