@@ -142,8 +142,8 @@ For commercial licensing, please contact support@quantumnous.com
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.64 0.197 253.892);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: color-mix(in oklch, var(--primary) 12%, var(--background));
-  --sidebar-accent-foreground: oklch(0.579 0.196 255.909);
+  --sidebar-accent: color-mix(in oklab, var(--primary) 26%, var(--background));
+  --sidebar-accent-foreground: oklch(0.48 0.17 255.909);
   --sidebar-border: oklch(0.93 0 0);
   --sidebar-ring: oklch(0.58 0.2 250);
   --skeleton-base: oklch(0.97 0 0);
@@ -219,7 +219,7 @@ For commercial licensing, please contact support@quantumnous.com
   --sidebar-foreground: oklch(0.95 0 0);
   --sidebar-primary: oklch(0.588 0.123 246.488);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: color-mix(in oklch, var(--primary) 20%, var(--background));
+  --sidebar-accent: color-mix(in oklab, var(--primary) 38%, var(--background));
   --sidebar-accent-foreground: oklch(0.9 0.05 250);
   --sidebar-border: oklch(1 0 0 / 11%);
   --sidebar-ring: oklch(0.7 0.17 250);

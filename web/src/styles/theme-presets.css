@@ -293,6 +293,7 @@ For commercial licensing, please contact support@quantumnous.com
 
 /* ── Simple Large-font ────────────────────────────────────────────────── */
 [data-theme-preset='simple-large'] {
+  /* 主按钮、开关和导航选中态沿用默认主题的蓝色。 */
   --background: oklch(0.99 0 0);
   --foreground: oklch(0.15 0 0);
   --card: oklch(1 0 0);
@@ -300,14 +301,10 @@ For commercial licensing, please contact support@quantumnous.com
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.15 0 0);
 
-  --primary: oklch(0.22 0 0);
-  --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.93 0 0);
   --secondary-foreground: oklch(0.15 0 0);
   --muted: oklch(0.95 0 0);
   --muted-foreground: oklch(0.36 0 0);
-  --accent: oklch(0.91 0 0);
-  --accent-foreground: oklch(0.15 0 0);
 
   --destructive: oklch(0.55 0.2 28);
   --destructive-foreground: oklch(1 0 0);
@@ -322,7 +319,6 @@ For commercial licensing, please contact support@quantumnous.com
 
   --border: oklch(0.82 0 0);
   --input: oklch(0.82 0 0);
-  --ring: oklch(0.22 0 0);
 
   --chart-1: oklch(0.22 0 0);
   --chart-2: oklch(0.45 0.12 145);
@@ -332,12 +328,7 @@ For commercial licensing, please contact support@quantumnous.com
 
   --sidebar: oklch(0.96 0 0);
   --sidebar-foreground: oklch(0.15 0 0);
-  --sidebar-primary: oklch(0.22 0 0);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.9 0 0);
-  --sidebar-accent-foreground: oklch(0.15 0 0);
   --sidebar-border: oklch(0.82 0 0);
-  --sidebar-ring: oklch(0.22 0 0);
 
   --skeleton-base: oklch(0.9 0 0);
   --skeleton-highlight: oklch(0.97 0 0);
@@ -360,14 +351,10 @@ For commercial licensing, please contact support@quantumnous.com
   --popover: oklch(0.29 0 0);
   --popover-foreground: oklch(0.97 0 0);
 
-  --primary: oklch(0.94 0 0);
-  --primary-foreground: oklch(0.145 0 0);
   --secondary: oklch(0.315 0 0);
   --secondary-foreground: oklch(0.97 0 0);
   --muted: oklch(0.315 0 0);
   --muted-foreground: oklch(0.82 0 0);
-  --accent: oklch(0.36 0 0);
-  --accent-foreground: oklch(0.98 0 0);
 
   --destructive: oklch(0.68 0.19 25);
   --destructive-foreground: oklch(0.98 0 0);
@@ -382,7 +369,6 @@ For commercial licensing, please contact support@quantumnous.com
 
   --border: oklch(1 0 0 / 18%);
   --input: oklch(1 0 0 / 24%);
-  --ring: oklch(0.94 0 0);
 
   --chart-1: oklch(0.94 0 0);
   --chart-2: oklch(0.72 0.13 145);
@@ -392,12 +378,7 @@ For commercial licensing, please contact support@quantumnous.com
 
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.97 0 0);
-  --sidebar-primary: oklch(0.94 0 0);
-  --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(0.34 0 0);
-  --sidebar-accent-foreground: oklch(0.98 0 0);
   --sidebar-border: oklch(1 0 0 / 18%);
-  --sidebar-ring: oklch(0.94 0 0);
 
   --skeleton-base: oklch(0.315 0 0);
   --skeleton-highlight: oklch(0.415 0 0);
@@ -445,7 +426,7 @@ For commercial licensing, please contact support@quantumnous.com
   --border: color-mix(in oklch, var(--primary) 20%, var(--background));
   --input: color-mix(in oklch, var(--primary) 22%, var(--background));
   --sidebar: color-mix(in oklch, var(--primary) 4%, var(--background));
-  --sidebar-accent: color-mix(in oklch, var(--primary) 14%, var(--background));
+  --sidebar-accent: color-mix(in oklab, var(--primary) 26%, var(--background));
   --sidebar-accent-foreground: var(--foreground);
   --sidebar-border: color-mix(in oklch, var(--primary) 18%, var(--background));
   --success: var(--chart-2);
@@ -471,7 +452,7 @@ For commercial licensing, please contact support@quantumnous.com
   --border: color-mix(in oklch, var(--primary) 24%, var(--background));
   --input: color-mix(in oklch, var(--primary) 28%, var(--background));
   --sidebar: color-mix(in oklch, var(--primary) 5%, var(--background));
-  --sidebar-accent: color-mix(in oklch, var(--primary) 18%, var(--background));
+  --sidebar-accent: color-mix(in oklab, var(--primary) 38%, var(--background));
   --sidebar-border: color-mix(in oklch, var(--primary) 22%, var(--background));
 }
 

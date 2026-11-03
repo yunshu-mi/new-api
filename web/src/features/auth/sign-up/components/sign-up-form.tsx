@@ -17,7 +17,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2 } from 'lucide-react'
+import {
+  Loader2,
+  UserRound,
+  LockKeyhole,
+  Mail,
+  ShieldCheck,
+} from 'lucide-react'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -31,6 +37,7 @@ import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -248,7 +255,7 @@ export function SignUpForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className={cn('grid gap-4', className)}
+        className={cn('sign-in-form grid gap-4', className)}
         {...props}
       >
         {/* Username Field */}
@@ -258,9 +265,16 @@ export function SignUpForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t('Username')}</FormLabel>
-              <FormControl>
-                <Input placeholder={t('Enter your username')} {...field} />
-              </FormControl>
+              <div className='sign-in-input-wrap'>
+                <UserRound className='sign-in-input-icon' aria-hidden='true' />
+                <FormControl>
+                  <Input
+                    placeholder={t('Enter your username')}
+                    autoComplete='username'
+                    {...field}
+                  />
+                </FormControl>
+              </div>
               <FormMessage />
             </FormItem>
           )}
@@ -273,12 +287,22 @@ export function SignUpForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t('Password')}</FormLabel>
-              <FormControl>
-                <PasswordInput
-                  placeholder={t('Enter password (8–128 characters)')}
-                  {...field}
+              <div className='sign-in-input-wrap'>
+                <LockKeyhole
+                  className='sign-in-input-icon'
+                  aria-hidden='true'
                 />
-              </FormControl>
+                <FormControl>
+                  <PasswordInput
+                    placeholder={t('Enter password')}
+                    autoComplete='new-password'
+                    {...field}
+                  />
+                </FormControl>
+              </div>
+              <FormDescription>
+                {t('Enter password (8–128 characters)')}
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -291,9 +315,19 @@ export function SignUpForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t('Confirm password')}</FormLabel>
-              <FormControl>
-                <PasswordInput placeholder={t('Confirm password')} {...field} />
-              </FormControl>
+              <div className='sign-in-input-wrap'>
+                <LockKeyhole
+                  className='sign-in-input-icon'
+                  aria-hidden='true'
+                />
+                <FormControl>
+                  <PasswordInput
+                    placeholder={t('Confirm password')}
+                    autoComplete='new-password'
+                    {...field}
+                  />
+                </FormControl>
+              </div>
               <FormMessage />
             </FormItem>
           )}
@@ -311,28 +345,44 @@ export function SignUpForm({
                   <FormLabel>
                     {t('Email (required for verification)')}
                   </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={t('name@example.com')}
-                      type='email'
-                      {...field}
-                    />
-                  </FormControl>
+                  <div className='sign-in-input-wrap'>
+                    <Mail className='sign-in-input-icon' aria-hidden='true' />
+                    <FormControl>
+                      <Input
+                        placeholder={t('name@example.com')}
+                        type='email'
+                        autoComplete='email'
+                        {...field}
+                      />
+                    </FormControl>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
             {/* Verification Code Field */}
-            <div className='flex items-end gap-2'>
-              <div className='flex-1'>
-                <Input
-                  placeholder={t('Verification code')}
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value)}
-                />
+            <div className='grid grid-cols-1 items-end gap-3 min-[380px]:grid-cols-[minmax(0,1fr)_auto]'>
+              <div className='grid min-w-0 gap-2'>
+                <Label htmlFor='sign-up-verification-code'>
+                  {t('Verification code')}
+                </Label>
+                <div className='sign-in-input-wrap'>
+                  <ShieldCheck
+                    className='sign-in-input-icon'
+                    aria-hidden='true'
+                  />
+                  <Input
+                    id='sign-up-verification-code'
+                    placeholder={t('Verification code')}
+                    autoComplete='one-time-code'
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value)}
+                  />
+                </div>
               </div>
               <Button
+                className='h-[48px] rounded-xl px-4'
                 variant='outline'
                 type='button'
                 disabled={
@@ -371,7 +421,7 @@ export function SignUpForm({
         {/* Submit Button */}
         <Button
           type='submit'
-          className='mt-2 w-full justify-center gap-2'
+          className='sign-in-submit mt-1 w-full justify-center gap-2'
           disabled={
             isLoading ||
             (requiresLegalConsent && !agreedToLegal) ||

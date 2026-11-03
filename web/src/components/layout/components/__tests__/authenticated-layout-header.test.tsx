@@ -16,6 +16,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -71,13 +72,18 @@ afterEach(() => {
 
 describe('authenticated layout header', () => {
   it('renders without the top bar search entry', () => {
+    const client = new QueryClient()
+    client.setQueryData(['status'], {})
     render(
-      <AuthenticatedLayout>
-        <div>Page content</div>
-      </AuthenticatedLayout>
+      <QueryClientProvider client={client}>
+        <AuthenticatedLayout>
+          <div>Page content</div>
+        </AuthenticatedLayout>
+      </QueryClientProvider>
     )
 
     expect(screen.getByText('Brand')).toBeInTheDocument()
     expect(screen.queryByText('Global search')).not.toBeInTheDocument()
+    client.clear()
   })
 })

@@ -25,9 +25,11 @@ import {
 } from './section-registry.tsx'
 
 const defaultSiteSettings: SiteSettings = {
+  'console_setting.customer_support': '{}',
   Notice: '',
   SystemName: 'New API',
   Logo: '',
+  'general_setting.logo_dark': '',
   Footer: '',
   About: '',
   HomePageContent: '',

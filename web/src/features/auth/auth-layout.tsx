@@ -19,16 +19,72 @@ For commercial licensing, please contact support@quantumnous.com
 import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 
+import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useSystemConfig } from '@/hooks/use-system-config'
 
+import '@/styles/sign-in.css'
+
 type AuthLayoutProps = {
   children: React.ReactNode
+  variant?: 'default' | 'split'
 }
 
-export function AuthLayout({ children }: AuthLayoutProps) {
+export function AuthLayout({ children, variant = 'default' }: AuthLayoutProps) {
   const { t } = useTranslation()
   const { systemName, logo, loading } = useSystemConfig()
+
+  if (variant === 'split') {
+    const brand = (
+      <Link to='/' className='sign-in-brand'>
+        {loading ? (
+          <>
+            <Skeleton className='size-10 shrink-0 rounded-full' />
+            <Skeleton className='h-8 w-28' />
+          </>
+        ) : (
+          <>
+            <img
+              src={logo}
+              alt={t('Logo')}
+              className='size-10 shrink-0 rounded-full object-cover'
+            />
+            <span className='min-w-0 break-words'>{systemName}</span>
+          </>
+        )}
+      </Link>
+    )
+
+    return (
+      <div className='sign-in-page'>
+        <main className='sign-in-content'>
+          <section
+            className='sign-in-intro'
+            aria-labelledby='sign-in-intro-title'
+          >
+            {brand}
+            <div className='space-y-4'>
+              <p id='sign-in-intro-title' className='sign-in-headline'>
+                {t('A unified')} <br />
+                <span className='bg-gradient-to-r from-blue-400 via-violet-400 to-purple-500 bg-clip-text text-transparent'>
+                  {t('Large model API gateway')}
+                </span>
+              </p>
+              <p className='text-base leading-relaxed text-[var(--sign-in-muted)]'>
+                {t(
+                  'A stable, efficient and secure platform for AI model access and management'
+                )}
+              </p>
+            </div>
+          </section>
+          <Card className='sign-in-card'>
+            <div className='sign-in-card-brand'>{brand}</div>
+            {children}
+          </Card>
+        </main>
+      </div>
+    )
+  }
 
   return (
     <div className='relative grid h-svh max-w-none'>

@@ -64,6 +64,7 @@ func GetStatus(c *gin.Context) {
 		"theme":                       "default",
 		"system_name":                 common.SystemName,
 		"logo":                        common.Logo,
+		"logo_dark":                   operation_setting.GetGeneralSetting().LogoDark,
 		"footer_html":                 common.Footer,
 		"wechat_qrcode":               common.WeChatAccountQRCodeImageURL,
 		"wechat_login":                common.WeChatAuthEnabled,
@@ -103,6 +104,7 @@ func GetStatus(c *gin.Context) {
 		"uptime_kuma_enabled":   cs.UptimeKumaEnabled,
 		"announcements_enabled": cs.AnnouncementsEnabled,
 		"faq_enabled":           cs.FAQEnabled,
+		"customer_support":      cs.CustomerSupport.PublicConfig(),
 
 		// 模块管理配置
 		"HeaderNavModules":    common.OptionMap["HeaderNavModules"],

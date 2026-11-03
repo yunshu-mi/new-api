@@ -199,8 +199,8 @@ test('品牌区按指定顺序仅显示八个图标，不展示分类或可见�
       'border',
       'border-border',
       'bg-card',
-      'rounded-xl',
-      'size-14'
+      'rounded-2xl',
+      'size-9.5'
     )
   }
   for (const brand of brands) {
@@ -212,6 +212,17 @@ test('品牌区按指定顺序仅显示八个图标，不展示分类或可见�
       within(providers).getByRole('listitem', { name: 'Kimi' })
     ).findByTitle('MoonshotAI')
   ).toBeInTheDocument()
+  const kimiIcon = within(
+    within(providers).getByRole('listitem', { name: 'Kimi' })
+  )
+    .getByTitle('MoonshotAI')
+    .closest('svg')
+  expect(kimiIcon).toHaveAttribute('width', '22')
+  expect(kimiIcon).toHaveAttribute('height', '22')
+  const seedanceIcon = within(providers)
+    .getByRole('listitem', { name: 'Seedance' })
+    .querySelector('img')
+  expect(seedanceIcon).toHaveClass('size-[22px]', 'object-contain')
   expect(
     within(providers).queryByText('Domestic Providers')
   ).not.toBeInTheDocument()
@@ -396,17 +407,34 @@ test.each([undefined, '', '   ', 123])(
   }
 )
 
-test('超长 API 基址允许换行，复制按钮不会被挤出地址栏', async () => {
+test('收窄地址栏后，超长 API 基址允许换行且复制按钮不会被挤出', async () => {
   const address =
     'https://gateway.example.com/a-long-deployment-prefix/another-long-routing-prefix/public-api'
   await renderHero({ server_address: address })
 
   const group = screen.getByRole('group', { name: 'API Base URL' })
-  expect(group).toHaveClass('w-full', 'min-w-0')
+  expect(group).toHaveClass(
+    'w-full',
+    'max-w-xs',
+    'sm:max-w-[26rem]',
+    'min-w-0',
+    'py-0.5'
+  )
   expect(within(group).getByText(address)).toHaveClass('min-w-0', 'break-all')
+  expect(within(group).getByText(address).parentElement).not.toHaveClass(
+    'flex-wrap'
+  )
   expect(
     within(group).getByRole('button', { name: 'Copy base URL' })
-  ).toHaveClass('shrink-0')
+  ).toHaveClass('size-6', 'shrink-0')
+})
+
+test('获取密钥按钮保持内容宽度，并使用紧凑的水平间距', async () => {
+  await renderHero()
+
+  const button = screen.getByRole('button', { name: 'Get API Key' })
+  expect(button).toHaveClass('h-7', 'px-2', 'gap-1')
+  expect(button).not.toHaveClass('w-full')
 })
 
 test('地址栏轮播四个 OpenAI 兼容路径，并以首项补位形成无缝循环', async () => {
@@ -424,13 +452,19 @@ test('地址栏轮播四个 OpenAI 兼容路径，并以首项补位形成无缝
   ])
   expect(endpoints[0].parentElement).toHaveClass('landing-endpoint-scroll')
   const pathWindow = endpoints[0].parentElement?.parentElement
-  expect(pathWindow).toHaveClass('ml-auto', 'pr-3', 'text-right')
-  expect(pathWindow?.parentElement).toHaveClass('gap-x-2')
+  expect(pathWindow).toHaveClass(
+    'ml-auto',
+    'h-[1.5rem]',
+    'w-32',
+    'pr-1',
+    'text-right'
+  )
+  expect(pathWindow?.parentElement).toHaveClass('gap-x-4')
   for (const endpoint of endpoints) {
-    expect(endpoint).toHaveClass('justify-end')
+    expect(endpoint).toHaveClass('h-[1.5rem]', 'justify-end')
   }
 
-  // 每次滑动必须正好一行（`h-6` = 1.5rem）；总位移对不上整行数时，
+  // 每次滑动必须正好一行（固定 1.5rem，不受主题间距影响）；总位移对不上整行数时，
   // 路径会停在半行位置，显示成被裁掉的模糊文字。
   const css = readFileSync(
     resolve(import.meta.dirname, '../../../../../styles/index.css'),
@@ -440,7 +474,7 @@ test('地址栏轮播四个 OpenAI 兼容路径，并以首项补位形成无缝
   expect(css).toContain(`translate3d(0, -${rolledRows * 1.5}rem, 0)`)
 })
 
-test('登录用户可前往密钥页，协议说明保留配置的文档链接', async () => {
+test('登录用户可前往密钥页，且不显示注册入口', async () => {
   await renderHero({ docs_link: 'https://docs.example.com' }, true)
 
   expect(screen.getByRole('button', { name: 'Get API Key' })).toHaveAttribute(
@@ -448,11 +482,23 @@ test('登录用户可前往密钥页，协议说明保留配置的文档链接',
     '/keys'
   )
   expect(
-    screen.getByRole('link', {
-      name: '100% native channels, with web search and testing support',
-    })
-  ).toHaveAttribute('href', 'https://docs.example.com')
-  expect(
     screen.queryByRole('button', { name: 'Get Started' })
   ).not.toBeInTheDocument()
 })
+
+test.each([undefined, 'https://docs.example.com', '/pricing'])(
+  '文档地址为 %s 时，渠道说明仅展示文字，不提供点击入口',
+  async (docsLink) => {
+    await renderHero({ docs_link: docsLink })
+
+    const commitments = screen.getByRole('region', { name: 'Our Commitments' })
+    const description = within(commitments).getByText(
+      '100% native channels, with web search and testing support'
+    )
+    expect(description).toBeVisible()
+    expect(
+      description.closest('a, button, [role="link"], [role="button"]')
+    ).toBeNull()
+    expect(within(commitments).queryByRole('link')).not.toBeInTheDocument()
+  }
+)

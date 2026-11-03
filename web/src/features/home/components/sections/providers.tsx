@@ -56,7 +56,7 @@ export function Providers() {
               key={provider.name}
               aria-label={provider.name}
               title={provider.name}
-              className='border-border bg-card text-foreground flex size-14 items-center justify-center rounded-xl border'
+              className='border-border bg-card text-foreground flex size-9.5 items-center justify-center rounded-2xl border'
             >
               <ProviderBadge
                 iconKey={provider.icon}
@@ -66,11 +66,11 @@ export function Providers() {
                       src={seedanceIcon}
                       alt=''
                       aria-hidden='true'
-                      className='size-8 object-contain'
+                      className='size-[22px] object-contain'
                     />
                   ) : undefined
                 }
-                iconSize={32}
+                iconSize={22}
                 label={provider.name}
                 colorText={false}
                 copyable={false}

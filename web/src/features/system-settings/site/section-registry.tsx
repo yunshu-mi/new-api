@@ -28,6 +28,7 @@ import { NoticeSection } from '../maintenance/notice-section'
 import { SidebarModulesSection } from '../maintenance/sidebar-modules-section'
 import type { SiteSettings } from '../types'
 import { createSectionRegistry } from '../utils/section-registry'
+import { CustomerSupportSection } from './customer-support-section'
 
 const SITE_SECTIONS = [
   {
@@ -44,6 +45,7 @@ const SITE_SECTIONS = [
           ServerAddress: settings.ServerAddress,
           TaskPublicAddress: settings.TaskPublicAddress,
           general_setting: {
+            logo_dark: settings['general_setting.logo_dark'],
             docs_link: settings['general_setting.docs_link'],
           },
           legal: {
@@ -59,6 +61,15 @@ const SITE_SECTIONS = [
     titleKey: 'System Notice',
     build: (settings: SiteSettings) => (
       <NoticeSection defaultValue={settings.Notice ?? ''} />
+    ),
+  },
+  {
+    id: 'customer-support',
+    titleKey: 'Customer support',
+    build: (settings: SiteSettings) => (
+      <CustomerSupportSection
+        defaultValue={settings['console_setting.customer_support']}
+      />
     ),
   },
   {

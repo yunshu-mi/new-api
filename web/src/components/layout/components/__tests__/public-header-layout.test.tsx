@@ -58,7 +58,6 @@ it('keeps the floating header size and top position when scrolling down and back
         showThemeSwitch={false}
         showLanguageSwitcher={false}
         showNotifications={false}
-        showAuthButtons={false}
       />
     ),
   })
@@ -83,7 +82,11 @@ it('keeps the floating header size and top position when scrolling down and back
       fireEvent.scroll(window)
     })
     expect(header).toHaveClass('fixed', 'inset-x-0', 'top-0')
-    expect(container).toHaveClass('max-w-[52rem]', 'px-3', 'pt-3')
-    expect(nav).toHaveClass('h-12', 'rounded-2xl', 'backdrop-blur-2xl')
+    expect(container).toHaveClass('max-w-[38rem]', 'px-3', 'pt-3')
+    expect(nav).toHaveClass('h-9', 'rounded-2xl', 'backdrop-blur-2xl')
+    expect(within(nav).getByRole('button', { name: 'Sign in' })).toHaveClass(
+      'h-6.5',
+      'px-2'
+    )
   }
 })

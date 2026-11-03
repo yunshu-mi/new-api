@@ -129,14 +129,7 @@ export function Home() {
         <div className='home-first-screen relative isolate flex min-h-svh flex-col pt-[calc(5rem+var(--home-space,0px)*3)] pb-2'>
           <div
             aria-hidden='true'
-            className='pointer-events-none absolute inset-0 -z-10 opacity-25 dark:opacity-[0.12]'
-            style={{
-              background: [
-                'radial-gradient(ellipse 60% 50% at 20% 20%, oklch(0.72 0.18 250 / 80%) 0%, transparent 70%)',
-                'radial-gradient(ellipse 50% 40% at 80% 15%, oklch(0.65 0.15 200 / 60%) 0%, transparent 70%)',
-                'radial-gradient(ellipse 40% 35% at 40% 80%, oklch(0.70 0.12 280 / 40%) 0%, transparent 70%)',
-              ].join(', '),
-            }}
+            className='page-glow pointer-events-none absolute inset-0 -z-10 opacity-25 dark:opacity-[0.12]'
           />
           <Hero isAuthenticated={isAuthenticated} />
           <Features />

@@ -17,7 +17,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { zodResolver } from '@hookform/resolvers/zod'
-import type { Resolver } from 'react-hook-form'
+import { useState, type BaseSyntheticEvent } from 'react'
+import { useWatch, type Resolver } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import * as z from 'zod'
 
@@ -32,6 +33,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { DEFAULT_LOGO } from '@/lib/constants'
 
 import { FormDirtyIndicator } from '../components/form-dirty-indicator'
 import { FormNavigationGuard } from '../components/form-navigation-guard'
@@ -44,6 +46,7 @@ import { SettingsPageFormActions } from '../components/settings-page-context'
 import { SettingsSection } from '../components/settings-section'
 import { useSettingsForm } from '../hooks/use-settings-form'
 import { useUpdateOption } from '../hooks/use-update-option'
+import { LogoUpload } from './logo-upload'
 import { isValidTaskPublicAddress } from './task-public-address'
 
 const _systemInfoSchema = z.object({
@@ -56,6 +59,7 @@ const _systemInfoSchema = z.object({
   HomePageContent: z.string().optional(),
   general_setting: z.object({
     docs_link: z.string(),
+    logo_dark: z.string().url().optional().or(z.literal('')),
   }),
   legal: z.object({
     user_agreement: z.string().optional(),
@@ -77,6 +81,7 @@ function normalizeValue(value: unknown): string {
 export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
   const { t } = useTranslation()
   const updateOption = useUpdateOption()
+  const [isReadingLogo, setIsReadingLogo] = useState(false)
 
   const normalizedDefaults: SystemInfoFormValues = {
     SystemName: normalizeValue(defaultValues.SystemName),
@@ -88,6 +93,7 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
     HomePageContent: normalizeValue(defaultValues.HomePageContent),
     general_setting: {
       docs_link: normalizeValue(defaultValues.general_setting?.docs_link),
+      logo_dark: normalizeValue(defaultValues.general_setting?.logo_dark),
     },
     legal: {
       user_agreement: normalizeValue(defaultValues.legal?.user_agreement),
@@ -112,6 +118,7 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
     HomePageContent: z.string().optional(),
     general_setting: z.object({
       docs_link: z.string(),
+      logo_dark: z.string().url().optional().or(z.literal('')),
     }),
     legal: z.object({
       user_agreement: z.string().optional(),
@@ -141,18 +148,34 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
       },
     })
 
+  const [lightLogo, darkLogo] = useWatch({
+    control: form.control,
+    name: ['Logo', 'general_setting.logo_dark'],
+  })
+
+  const handleSave = async (event?: BaseSyntheticEvent) => {
+    event?.preventDefault()
+    if (isReadingLogo) return
+    try {
+      await handleSubmit(event)
+    } catch {
+      // 更新失败由 mutation 提示，保留表单草稿供重试。
+    }
+  }
+
   return (
     <>
       <FormNavigationGuard when={isDirty} />
 
       <SettingsSection title={t('System Information')}>
         <Form {...form}>
-          <SettingsForm onSubmit={handleSubmit}>
+          <SettingsForm onSubmit={handleSave}>
             <SettingsPageFormActions
-              onSave={handleSubmit}
+              onSave={handleSave}
               onReset={handleReset}
               isSaving={isSubmitting || updateOption.isPending}
-              isResetDisabled={!isDirty}
+              isSaveDisabled={isReadingLogo}
+              isResetDisabled={!isDirty || isReadingLogo}
             />
             <FormDirtyIndicator isDirty={isDirty} />
             <SettingsFormGrid>
@@ -214,25 +237,67 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name='Logo'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('Logo URL')}</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder={t('https://example.com/logo.png')}
-                        {...field}
+              <div className='min-w-0 space-y-3'>
+                <FormField
+                  control={form.control}
+                  name='Logo'
+                  render={({ field }) => (
+                    <FormItem>
+                      <LogoUpload
+                        label={t('Light mode logo')}
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        onBusyChange={setIsReadingLogo}
+                        disabled={
+                          isReadingLogo ||
+                          isSubmitting ||
+                          updateOption.isPending
+                        }
                       />
-                    </FormControl>
-                    <FormDescription>
-                      {t('URL to your logo image (optional)')}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='general_setting.logo_dark'
+                  render={({ field }) => (
+                    <FormItem>
+                      <LogoUpload
+                        label={t('Dark mode logo (optional)')}
+                        value={field.value || ''}
+                        fallback={lightLogo || DEFAULT_LOGO}
+                        onChange={field.onChange}
+                        onBusyChange={setIsReadingLogo}
+                        disabled={
+                          isReadingLogo ||
+                          isSubmitting ||
+                          updateOption.isPending
+                        }
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className='grid grid-cols-2 gap-2'>
+                  <div className='flex min-w-0 flex-col items-center gap-3 rounded-lg border bg-white p-4 text-slate-900'>
+                    <img
+                      src={lightLogo || DEFAULT_LOGO}
+                      alt={t('Light logo preview')}
+                      className='h-10 max-w-full object-contain'
+                    />
+                    <span className='text-xs'>{t('Light')}</span>
+                  </div>
+                  <div className='flex min-w-0 flex-col items-center gap-3 rounded-lg border bg-neutral-950 p-4 text-white'>
+                    <img
+                      src={darkLogo || lightLogo || DEFAULT_LOGO}
+                      alt={t('Dark logo preview')}
+                      className='h-10 max-w-full object-contain'
+                    />
+                    <span className='text-xs'>{t('Dark')}</span>
+                  </div>
+                </div>
+              </div>
 
               <FormField
                 control={form.control}

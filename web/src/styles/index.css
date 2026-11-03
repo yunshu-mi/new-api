@@ -614,10 +614,11 @@ For commercial licensing, please contact support@quantumnous.com
  * Cells and strength are declared once so the hero, cards and footer all sit
  * on the same lattice; the line color is mixed from `--foreground`, which keeps
  * it legible on a near-white canvas and inverts with the dark theme. */
-.home-grid {
+.home-grid,
+.sign-in-page {
   position: relative;
-  --home-grid-cell: calc(8rem / 9);
-  --home-grid-line: color-mix(in oklch, var(--foreground) 3%, transparent);
+  --home-grid-cell: 1rem;
+  --home-grid-line: color-mix(in oklch, var(--foreground) 2.5%, transparent);
 }
 
 .home-first-screen {
@@ -630,7 +631,8 @@ For commercial licensing, please contact support@quantumnous.com
   }
 }
 
-.home-grid::before {
+.home-grid::before,
+.sign-in-page::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -640,6 +642,44 @@ For commercial licensing, please contact support@quantumnous.com
     linear-gradient(to right, var(--home-grid-line) 1px, transparent 1px),
     linear-gradient(to bottom, var(--home-grid-line) 1px, transparent 1px);
   background-size: var(--home-grid-cell) var(--home-grid-cell);
+}
+
+/* 首页与登录页共用柔和渐变，网格单独绘制在渐变上方。 */
+.page-glow,
+.sign-in-page::after {
+  background-image:
+    radial-gradient(
+      ellipse 60% 50% at 20% 20%,
+      oklch(0.72 0.18 250 / 80%) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 50% 40% at 80% 15%,
+      oklch(0.65 0.15 200 / 60%) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 40% 35% at 40% 80%,
+      oklch(0.7 0.12 280 / 40%) 0%,
+      transparent 70%
+    );
+}
+
+.sign-in-page::before {
+  z-index: -1;
+}
+
+.sign-in-page::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  opacity: 0.25;
+}
+
+.dark .sign-in-page::after {
+  opacity: 0.12;
 }
 
 /* Micro-interactions — Vercel-style subtle hover/active feedback */

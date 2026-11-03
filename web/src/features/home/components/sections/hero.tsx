@@ -73,28 +73,28 @@ export function Hero(props: HeroProps) {
             role='group'
             aria-label={t('API Base URL')}
             aria-describedby={baseUrlHintId}
-            className='landing-animate-fade-up border-border/60 bg-card mt-2.5 flex w-full max-w-md min-w-0 items-center gap-2 rounded-xl border py-1.5 pr-2 pl-4 opacity-0 shadow-xs lg:max-w-[32.5rem]'
+            className='landing-animate-fade-up border-border/60 bg-card mt-2.5 flex w-full max-w-xs min-w-0 items-center gap-1 rounded-xl border py-0.5 pr-1 pl-2 opacity-0 shadow-xs sm:max-w-[26rem]'
             style={{ animationDelay: '180ms' }}
           >
             {/* 基址居左，轮播路径靠右排列，复制按钮保持在最右侧。 */}
-            <div className='flex min-w-0 flex-1 flex-wrap items-center gap-x-2 font-mono text-xs sm:text-sm'>
+            <div className='flex min-w-0 flex-1 items-center gap-x-4 font-mono text-xs sm:text-sm'>
               <code className='text-foreground/90 min-w-0 break-all'>
                 {apiBaseUrl}
               </code>
               <div
                 aria-hidden='true'
-                className='ml-auto hidden h-6 w-48 shrink-0 overflow-hidden pr-3 text-right text-[13px] font-medium text-blue-600 sm:block dark:text-blue-400'
+                className='ml-auto hidden h-[1.5rem] w-32 shrink-0 overflow-hidden pr-1 text-right text-[13px] font-medium text-blue-600 sm:block dark:text-blue-400'
               >
                 <div className='landing-endpoint-scroll'>
                   {HOME_API_ENDPOINTS.map((endpoint) => (
                     <code
                       key={endpoint}
-                      className='flex h-6 items-center justify-end'
+                      className='flex h-[1.5rem] items-center justify-end'
                     >
                       {endpoint}
                     </code>
                   ))}
-                  <code className='flex h-6 items-center justify-end'>
+                  <code className='flex h-[1.5rem] items-center justify-end'>
                     {HOME_API_ENDPOINTS[0]}
                   </code>
                 </div>
@@ -103,7 +103,8 @@ export function Hero(props: HeroProps) {
             <CopyButton
               value={apiBaseUrl}
               variant='outline'
-              className='size-9 shrink-0 rounded-lg'
+              className='size-6 shrink-0 rounded-lg'
+              iconClassName='size-3.5'
               aria-label={t('Copy base URL')}
             />
           </div>
@@ -113,12 +114,12 @@ export function Hero(props: HeroProps) {
             style={{ animationDelay: '240ms' }}
           >
             <Button
-              className='group h-10 rounded-lg px-5 text-sm font-medium'
+              className='group h-7 gap-1 rounded-lg px-2 text-sm font-medium'
               render={
                 <Link to={props.isAuthenticated ? '/keys' : '/sign-up'} />
               }
             >
-              <Play aria-hidden='true' className='mr-1 size-3.5 fill-current' />
+              <Play aria-hidden='true' className='size-3.5 fill-current' />
               {t('Get API Key')}
             </Button>
           </div>

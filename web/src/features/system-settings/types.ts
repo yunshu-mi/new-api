@@ -141,9 +141,11 @@ export type SystemTaskFilters = {
 }
 
 export type SiteSettings = {
+  'console_setting.customer_support': string
   Notice: string
   SystemName: string
   Logo: string
+  'general_setting.logo_dark': string
   Footer: string
   About: string
   HomePageContent: string

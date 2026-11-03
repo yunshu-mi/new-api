@@ -18,27 +18,24 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
-import { ConfirmDialog } from '@/components/confirm-dialog'
 import { logout } from '@/features/auth/api'
 import { clearAuthenticatedClientState } from '@/lib/auth-session'
 import { handleServerError } from '@/lib/handle-server-error'
 
-interface SignOutDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-}
-
-export function SignOutDialog({ open, onOpenChange }: SignOutDialogProps) {
+export function useSignOut(onSignedOut?: () => void) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [isSigningOut, setIsSigningOut] = useState(false)
+  const signingOut = useRef(false)
 
-  const handleSignOut = async () => {
+  const signOut = async () => {
+    if (signingOut.current) return
+    signingOut.current = true
     setIsSigningOut(true)
     try {
       const response = await logout()
@@ -48,27 +45,16 @@ export function SignOutDialog({ open, onOpenChange }: SignOutDialogProps) {
       }
 
       clearAuthenticatedClientState(queryClient)
+      onSignedOut?.()
       toast.success(t('Signed out'))
-      void navigate({ to: '/sign-in', replace: true })
+      void navigate({ to: '/', replace: true })
     } catch (error: unknown) {
       handleServerError(error, t('Failed to sign out session'))
     } finally {
+      signingOut.current = false
       setIsSigningOut(false)
     }
   }
 
-  return (
-    <ConfirmDialog
-      open={open}
-      onOpenChange={onOpenChange}
-      title={t('Sign out')}
-      desc={t(
-        'Are you sure you want to sign out? You will need to sign in again to access your account.'
-      )}
-      confirmText={t('Sign out')}
-      handleConfirm={handleSignOut}
-      isLoading={isSigningOut}
-      className='sm:max-w-sm'
-    />
-  )
+  return { signOut, isSigningOut }
 }

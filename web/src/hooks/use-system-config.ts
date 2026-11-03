@@ -19,6 +19,7 @@ For commercial licensing, please contact support@quantumnous.com
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useCallback } from 'react'
 
+import { useTheme } from '@/context/theme-provider'
 import { DEFAULT_LOGO } from '@/lib/constants'
 import { applyFaviconToDom } from '@/lib/dom-utils'
 import { ensureStatus } from '@/lib/status-query'
@@ -62,6 +63,9 @@ export function useSystemConfig(options: UseSystemConfigOptions = {}) {
   const queryClient = useQueryClient()
   const { config, loading, loadedLogoUrl, setLoadedLogoUrl, setLoading } =
     useSystemConfigStore()
+  const { resolvedTheme } = useTheme()
+  const logo =
+    resolvedTheme === 'dark' && config.logoDark ? config.logoDark : config.logo
 
   // Load config from backend via the shared `/api/status` cache.
   // `ensureStatus` writes the mapped config into this store itself, so there is
@@ -84,8 +88,6 @@ export function useSystemConfig(options: UseSystemConfigOptions = {}) {
 
   // Preload logo image when URL changes
   useEffect(() => {
-    const { logo } = config
-
     // Skip if logo is already loaded
     if (!logo || logo === loadedLogoUrl) return
 
@@ -106,11 +108,12 @@ export function useSystemConfig(options: UseSystemConfigOptions = {}) {
       }
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config.logo, loadedLogoUrl, setLoadedLogoUrl])
+  }, [logo, loadedLogoUrl, setLoadedLogoUrl])
 
   return {
     ...config,
+    logo,
     loading,
-    logoLoaded: config.logo === loadedLogoUrl && !!loadedLogoUrl,
+    logoLoaded: logo === loadedLogoUrl && !!loadedLogoUrl,
   }
 }

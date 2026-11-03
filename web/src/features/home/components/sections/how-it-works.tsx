@@ -1,4 +1,3 @@
-import { Link } from '@tanstack/react-router'
 /*
 Copyright (C) 2023-2026 QuantumNous
 
@@ -30,7 +29,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { useStatus } from '@/hooks/use-status'
 // 左栏只放三句接入时能立刻验证的短事实，保持一行一条，不与上方能力卡和
 // 右栏三条承诺重复。
 const DEVELOPER_POINTS = [
@@ -42,9 +40,7 @@ const DEVELOPER_POINTS = [
 export function HowItWorks() {
   const { t } = useTranslation()
   const headingId = useId()
-  const { status } = useStatus()
-  const docsUrl =
-    (status?.docs_link as string | undefined) || 'https://docs.newapi.pro'
+  // 渠道说明仅展示文字，不作为文档入口（https://docs.newapi.pro）。
   const integrationDescription = t(
     'Supports one-click configuration and perfectly adapts to NewAPI multi-protocol configuration.'
   )
@@ -54,24 +50,8 @@ export function HowItWorks() {
   const commitments = [
     {
       title: t('Full-Capability Official Channels'),
-      description: docsUrl.startsWith('http') ? (
-        <a
-          href={docsUrl}
-          target='_blank'
-          rel='noopener noreferrer'
-          title={integrationDescription}
-          className='hover:text-foreground transition-colors'
-        >
-          {channelDescription}
-        </a>
-      ) : (
-        <Link
-          to={docsUrl}
-          title={integrationDescription}
-          className='hover:text-foreground transition-colors'
-        >
-          {channelDescription}
-        </Link>
+      description: (
+        <span title={integrationDescription}>{channelDescription}</span>
       ),
     },
     {
@@ -112,10 +92,7 @@ export function HowItWorks() {
               <div className='mt-auto flex flex-col gap-5'>
                 <ul className='border-border/50 flex flex-col gap-2.5 border-t pt-5'>
                   {DEVELOPER_POINTS.map((point) => (
-                    <li
-                      key={point}
-                      className='flex items-center gap-2 text-sm'
-                    >
+                    <li key={point} className='flex items-center gap-2 text-sm'>
                       <Check
                         aria-hidden='true'
                         className='text-primary size-4 shrink-0'
@@ -132,7 +109,7 @@ export function HowItWorks() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className='p-0 lg:border-border/60 lg:border-l lg:pl-10'>
+            <CardContent className='lg:border-border/60 p-0 lg:border-l lg:pl-10'>
               <ul className='divide-border/60 flex h-full flex-col divide-y'>
                 {commitments.map((commitment) => (
                   <li

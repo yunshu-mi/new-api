@@ -45,7 +45,7 @@ export const THEME_PRESETS = [
   {
     value: 'simple-large',
     name: 'Simple Large-font',
-    swatches: ['oklch(0.15 0 0)', 'oklch(0.99 0 0)'],
+    swatches: ['oklch(0.692 0.141 243.716)', 'oklch(0.99 0 0)'],
   },
   {
     value: 'underground',
@@ -117,7 +117,7 @@ export type ThemeCustomization = {
 }
 
 export const DEFAULT_THEME_CUSTOMIZATION: ThemeCustomization = {
-  preset: 'paper-pixel',
+  preset: 'simple-large',
   font: 'default',
   radius: 'default',
   scale: 'default',

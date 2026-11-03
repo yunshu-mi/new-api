@@ -17,11 +17,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { ConfigDrawer } from '@/components/config-drawer'
+import { CustomerSupport } from '@/components/customer-support'
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { NotificationPopover } from '@/components/notification-popover'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
-import { SystemUpdateAction } from '@/features/system-update/system-update-action'
 import { useNotifications } from '@/hooks/use-notifications'
 import { useTopNavLinks } from '@/hooks/use-top-nav-links'
 
@@ -115,7 +115,6 @@ export function AppHeader({
     <Header>
       <div className='@container/system-brand flex min-w-0 flex-1 items-center gap-1'>
         <SystemBrand variant='inline' />
-        <SystemUpdateAction presentation='version' />
       </div>
 
       {leftContent ? (
@@ -132,6 +131,7 @@ export function AppHeader({
           {showSearch && (
             <Search className='w-8 flex-none [&>span]:hidden sm:[&>span]:inline' />
           )}
+          <CustomerSupport />
           {showNotifications && (
             <NotificationPopover
               open={notifications.popoverOpen}

@@ -30,7 +30,8 @@ export function Header({ className, children, ...props }: HeaderProps) {
       )}
       {...props}
     >
-      <div className='flex h-full items-center gap-1.5 px-2 sm:gap-2 sm:px-3'>
+      {/* Center across the header plus the inset content's 0.5rem top gap. */}
+      <div className='flex h-full items-center gap-1.5 px-2 sm:gap-2 sm:px-3 md:group-has-data-[variant=inset]/sidebar-wrapper:translate-y-1'>
         <SidebarTrigger variant='ghost' className='size-8' />
         {children}
       </div>

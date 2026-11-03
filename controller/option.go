@@ -218,6 +218,16 @@ func UpdateOption(c *gin.Context) {
 		}
 	}
 	switch option.Key {
+	case "Logo", "general_setting.logo_dark":
+		if err := operation_setting.ValidateLogoImage(option.Value.(string)); err != nil {
+			common.ApiError(c, err)
+			return
+		}
+	case "console_setting.customer_support":
+		if err := console_setting.ValidateCustomerSupport(option.Value.(string)); err != nil {
+			common.ApiError(c, err)
+			return
+		}
 	case "GitHubOAuthEnabled":
 		if option.Value == "true" && common.GitHubClientId == "" {
 			common.ApiErrorT(c, "Cannot enable {{provider}}. Enter the {{provider}} Client ID and Client Secret first.", map[string]any{"provider": "GitHub OAuth"})
