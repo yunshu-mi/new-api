@@ -157,15 +157,16 @@ describe('audit log sidebar entry', () => {
     expect(titles).toContain('Usage Logs')
   })
 
-  it('legacy configurations show a separate Audit Logs link immediately after Usage Logs', () => {
+  it('legacy configurations show a separate Audit Logs link immediately after Task Logs', () => {
     const { result } = sidebarFor(
       { console: { enabled: true, log: true } },
       { console: { enabled: true, log: true } }
     )
     const items =
       result.current.find((group) => group.id === 'general')?.items ?? []
-    const usageIndex = items.findIndex((item) => item.title === 'Usage Logs')
-    expect(items[usageIndex + 1]).toMatchObject({
+    const auditIndex = items.findIndex((item) => item.url === '/usage-logs/audit')
+    expect(items[auditIndex - 1]?.url).toBe('/usage-logs/task')
+    expect(items[auditIndex]).toMatchObject({
       title: 'Audit Logs',
       url: '/usage-logs/audit',
     })

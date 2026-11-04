@@ -17,9 +17,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 
+import { CustomerSupportSidebarItem } from '@/components/customer-support'
 import { Sidebar, SidebarContent, SidebarRail } from '@/components/ui/sidebar'
 import { useLayout } from '@/context/layout-provider'
+import { useCustomerSupport } from '@/hooks/use-customer-support'
 import { useSidebarView } from '@/hooks/use-sidebar-view'
 import { MOTION_TRANSITION, MOTION_VARIANTS } from '@/lib/motion'
 
@@ -44,9 +47,23 @@ import { SidebarViewHeader } from './sidebar-view-header'
  * in the registry; this component requires no changes.
  */
 export function AppSidebar() {
+  const { t } = useTranslation()
   const { collapsible, variant } = useLayout()
   const { key, view, navGroups } = useSidebarView()
   const shouldReduce = useReducedMotion()
+  const supportConfig = useCustomerSupport('sidebar')
+  const supportItem =
+    !view && supportConfig
+      ? {
+          afterUrl: '/wallet',
+          element: (
+            <CustomerSupportSidebarItem
+              key='customer-support'
+              config={supportConfig}
+            />
+          ),
+        }
+      : undefined
 
   return (
     <Sidebar collapsible={collapsible} variant={variant}>
@@ -65,8 +82,21 @@ export function AppSidebar() {
             className='flex flex-col'
           >
             {navGroups.map((props) => (
-              <NavGroup key={props.id || props.title} {...props} />
+              <NavGroup
+                key={props.id || props.title}
+                {...props}
+                extraItem={props.id === 'personal' ? supportItem : undefined}
+              />
             ))}
+            {supportItem &&
+              !navGroups.some((group) => group.id === 'personal') && (
+                <NavGroup
+                  key='personal'
+                  title={t('Personal')}
+                  items={[]}
+                  extraItem={supportItem}
+                />
+              )}
           </motion.div>
         </AnimatePresence>
       </SidebarContent>

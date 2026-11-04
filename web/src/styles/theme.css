@@ -65,8 +65,21 @@ For commercial licensing, please contact support@quantumnous.com
   --color-info-foreground: var(--info-foreground);
   --color-neutral: var(--neutral);
   --color-neutral-foreground: var(--neutral-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
+  --color-border: color-mix(
+    in oklch,
+    var(--border) var(--console-line-opacity, 100%),
+    transparent
+  );
+  --color-input: color-mix(
+    in oklch,
+    var(--input) var(--console-input-opacity, 100%),
+    transparent
+  );
+  --color-card-outline: color-mix(
+    in oklab,
+    var(--foreground) var(--console-card-outline-opacity, 10%),
+    transparent
+  );
   --color-ring: var(--ring);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
@@ -82,7 +95,11 @@ For commercial licensing, please contact support@quantumnous.com
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-border: color-mix(
+    in oklch,
+    var(--sidebar-border) var(--console-line-opacity, 100%),
+    transparent
+  );
   --color-sidebar-ring: var(--sidebar-ring);
 
   --radius-sm: calc(var(--radius) * 0.6);
@@ -92,6 +109,17 @@ For commercial licensing, please contact support@quantumnous.com
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* Scope the quieter lines to the console, including overlays portaled to body. */
+body:has(.console-layout) {
+  --console-line-opacity: 60%;
+  --console-input-opacity: 85%;
+  --console-card-outline-opacity: 7%;
+}
+
+.dark body:has(.console-layout) {
+  --console-line-opacity: 80%;
 }
 
 :root {

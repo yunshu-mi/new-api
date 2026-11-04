@@ -29,6 +29,7 @@ import { ThemeSwitch } from '@/components/theme-switch'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useNotifications } from '@/hooks/use-notifications'
+import { useStatus } from '@/hooks/use-status'
 import { useSystemConfig } from '@/hooks/use-system-config'
 import { useTopNavLinks } from '@/hooks/use-top-nav-links'
 import { cn } from '@/lib/utils'
@@ -39,6 +40,7 @@ import type { TopNavLink } from '../types'
 import { HeaderLogo } from './header-logo'
 
 const AUTH_PROMPT_SECONDS = 5
+const signInColors = 'bg-[#526FDB] text-white [a]:hover:bg-[#4667CC]'
 
 type AuthPromptTarget = {
   title: string
@@ -88,6 +90,7 @@ export function PublicHeader(props: PublicHeaderProps) {
     loading,
     logoLoaded,
   } = useSystemConfig()
+  const { status, loading: statusLoading } = useStatus()
   const dynamicLinks = useTopNavLinks()
   const notifications = useNotifications()
   const routerState = useRouterState()
@@ -95,6 +98,13 @@ export function PublicHeader(props: PublicHeaderProps) {
 
   const user = auth.user
   const isAuthenticated = !!user
+  const registrationAvailable =
+    !statusLoading &&
+    !status?.self_use_mode_enabled &&
+    status?.register_enabled !== false
+  const signInLabel = registrationAvailable
+    ? t('Sign in / Sign up')
+    : t('Sign in')
   const displaySiteName = customSiteName || systemName
   const links = dynamicLinks.length > 0 ? dynamicLinks : navLinks
 
@@ -112,10 +122,10 @@ export function PublicHeader(props: PublicHeaderProps) {
   let authContent = (
     <Button
       size='sm'
-      className='h-6.5 rounded-lg bg-[#526FDB] px-2 text-xs font-medium text-white [a]:hover:bg-[#4667CC]'
+      className={cn('h-6.5 rounded-lg px-2 text-xs font-medium', signInColors)}
       render={<Link to='/sign-in' />}
     >
-      {t('Sign in')}
+      {signInLabel}
     </Button>
   )
   if (isAuthenticated) authContent = <ProfileDropdown />
@@ -400,9 +410,14 @@ export function PublicHeader(props: PublicHeaderProps) {
               <Link
                 to={isAuthenticated ? '/dashboard' : '/sign-in'}
                 onClick={() => setMobileOpen(false)}
-                className='bg-foreground text-background inline-flex h-10 items-center justify-center rounded-lg text-sm font-medium transition-opacity hover:opacity-90 active:opacity-80'
+                className={cn(
+                  'inline-flex h-10 items-center justify-center rounded-lg text-sm font-medium transition active:opacity-80',
+                  isAuthenticated
+                    ? 'bg-foreground text-background hover:opacity-90'
+                    : signInColors
+                )}
               >
-                {isAuthenticated ? t('Go to Dashboard') : t('Sign in')}
+                {isAuthenticated ? t('Go to Dashboard') : signInLabel}
               </Link>
             )}
           </div>

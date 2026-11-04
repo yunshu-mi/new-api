@@ -16,19 +16,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { useQuery } from '@tanstack/react-query'
 import { Headset } from 'lucide-react'
 import type { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Dialog } from '@/components/dialog'
 import { Button } from '@/components/ui/button'
-import {
-  parseCustomerSupportConfig,
-  type CustomerSupportConfig,
-} from '@/lib/customer-support'
-import { statusQueryOptions } from '@/lib/status-query'
-import { useAuthStore } from '@/stores/auth-store'
+import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
+import { useCustomerSupport } from '@/hooks/use-customer-support'
+import type { CustomerSupportConfig } from '@/lib/customer-support'
 
 export function CustomerSupportContent(props: {
   config: CustomerSupportConfig
@@ -66,6 +62,7 @@ export function CustomerSupportContent(props: {
 export function CustomerSupportDialog(props: {
   config: CustomerSupportConfig
   trigger: ReactElement
+  contentClassName?: string
 }) {
   const { t } = useTranslation()
 
@@ -73,7 +70,7 @@ export function CustomerSupportDialog(props: {
     <Dialog
       title={props.config.title || t('Contact support')}
       trigger={props.trigger}
-      contentClassName='sm:max-w-md'
+      contentClassName={props.contentClassName ?? 'sm:max-w-md'}
       titleClassName='pr-6 break-words'
       bodyClassName='text-center'
     >
@@ -84,13 +81,9 @@ export function CustomerSupportDialog(props: {
 
 export function CustomerSupport() {
   const { t } = useTranslation()
-  const isAuthenticated = useAuthStore((state) => !!state.auth.user)
-  const { data: config } = useQuery({
-    ...statusQueryOptions,
-    select: (data) => parseCustomerSupportConfig(data?.customer_support),
-  })
+  const config = useCustomerSupport('header')
 
-  if (!isAuthenticated || !config?.enabled) return null
+  if (!config) return null
 
   return (
     <CustomerSupportDialog
@@ -107,5 +100,27 @@ export function CustomerSupport() {
         </Button>
       }
     />
+  )
+}
+
+export function CustomerSupportSidebarItem(props: {
+  config: CustomerSupportConfig
+}) {
+  const { t } = useTranslation()
+  const label = t('Contact support')
+
+  return (
+    <SidebarMenuItem>
+      <CustomerSupportDialog
+        config={props.config}
+        contentClassName='z-70 sm:max-w-md'
+        trigger={
+          <SidebarMenuButton type='button' aria-label={label} tooltip={label}>
+            <Headset aria-hidden='true' />
+            <span className='min-w-0 flex-1 truncate'>{label}</span>
+          </SidebarMenuButton>
+        }
+      />
+    </SidebarMenuItem>
   )
 }

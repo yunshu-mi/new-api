@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { Link, useLocation } from '@tanstack/react-router'
 import { ChevronRight } from 'lucide-react'
-import { type ReactNode, useState, useEffect } from 'react'
+import { type ReactElement, type ReactNode, useState, useEffect } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import {
@@ -58,47 +58,55 @@ import type {
  * Sidebar navigation group component
  * Renders a group of navigation items, supporting regular links and collapsible submenus
  */
-export function NavGroup({ title, items }: NavGroupProps) {
+export function NavGroup({
+  title,
+  items,
+  extraItem,
+}: NavGroupProps & {
+  extraItem?: { afterUrl: string; element: ReactElement }
+}) {
   const { state, isMobile } = useSidebar()
   const href = useLocation({ select: (location) => location.href })
+
+  const menuItems = items.map((item) => {
+    const key = `${item.title}-${item.url ?? ''}`
+
+    // If no sub-items, render regular link
+    if (!item.items) {
+      return <SidebarMenuLink key={key} item={item as NavLink} href={href} />
+    }
+
+    // In collapsed state on non-mobile, render dropdown menu
+    if (state === 'collapsed' && !isMobile) {
+      return (
+        <SidebarMenuCollapsedDropdown
+          key={key}
+          item={item as NavCollapsible}
+          href={href}
+        />
+      )
+    }
+
+    // Render collapsible menu
+    return (
+      <SidebarMenuCollapsible
+        key={key}
+        item={item as NavCollapsible}
+        href={href}
+      />
+    )
+  })
+  if (extraItem) {
+    const index = items.findIndex((item) => item.url === extraItem.afterUrl)
+    menuItems.splice(index + 1, 0, extraItem.element)
+  }
 
   return (
     <SidebarGroup className='px-2 py-1'>
       <SidebarGroupLabel className='text-muted-foreground/70 px-2 text-[11px] font-medium tracking-wider uppercase'>
         {title}
       </SidebarGroupLabel>
-      <SidebarMenu>
-        {items.map((item) => {
-          const key = `${item.title}-${item.url ?? ''}`
-
-          // If no sub-items, render regular link
-          if (!item.items) {
-            return (
-              <SidebarMenuLink key={key} item={item as NavLink} href={href} />
-            )
-          }
-
-          // In collapsed state on non-mobile, render dropdown menu
-          if (state === 'collapsed' && !isMobile) {
-            return (
-              <SidebarMenuCollapsedDropdown
-                key={key}
-                item={item as NavCollapsible}
-                href={href}
-              />
-            )
-          }
-
-          // Render collapsible menu
-          return (
-            <SidebarMenuCollapsible
-              key={key}
-              item={item as NavCollapsible}
-              href={href}
-            />
-          )
-        })}
-      </SidebarMenu>
+      <SidebarMenu>{menuItems}</SidebarMenu>
     </SidebarGroup>
   )
 }

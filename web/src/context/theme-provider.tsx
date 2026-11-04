@@ -21,6 +21,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
 } from 'react'
@@ -72,6 +73,13 @@ function resolveTheme(theme: Theme): ResolvedTheme {
   return theme === 'system' ? getSystemTheme() : theme
 }
 
+function applyDocumentTheme(theme: ResolvedTheme) {
+  const root = document.documentElement
+  const appliedTheme = root.hasAttribute('data-force-light') ? 'light' : theme
+  root.classList.toggle('light', appliedTheme === 'light')
+  root.classList.toggle('dark', appliedTheme === 'dark')
+}
+
 export function ThemeProvider({
   children,
   defaultTheme = DEFAULT_THEME,
@@ -86,13 +94,11 @@ export function ThemeProvider({
   )
 
   useEffect(() => {
-    const root = window.document.documentElement
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 
     const applyTheme = () => {
-      const nextResolvedTheme = theme === 'system' ? getSystemTheme() : theme
-      root.classList.remove('light', 'dark')
-      root.classList.add(nextResolvedTheme)
+      const nextResolvedTheme = resolveTheme(theme)
+      applyDocumentTheme(nextResolvedTheme)
       setResolvedTheme(nextResolvedTheme)
     }
 
@@ -141,4 +147,20 @@ export const useTheme = () => {
   if (!context) throw new Error('useTheme must be used within a ThemeProvider')
 
   return context
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function useLightPageTheme() {
+  const { resolvedTheme } = useTheme()
+
+  useLayoutEffect(() => {
+    const root = document.documentElement
+    root.setAttribute('data-force-light', '')
+    applyDocumentTheme(resolvedTheme)
+
+    return () => {
+      root.removeAttribute('data-force-light')
+      applyDocumentTheme(resolvedTheme)
+    }
+  }, [resolvedTheme])
 }

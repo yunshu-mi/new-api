@@ -17,17 +17,28 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { useQueryClient } from '@tanstack/react-query'
-import { useEffect, useCallback } from 'react'
+import { useCallback, useEffect, useSyncExternalStore } from 'react'
 
-import { useTheme } from '@/context/theme-provider'
 import { DEFAULT_LOGO } from '@/lib/constants'
-import { applyFaviconToDom } from '@/lib/dom-utils'
 import { ensureStatus } from '@/lib/status-query'
 import { useSystemConfigStore } from '@/stores/system-config-store'
 
 interface UseSystemConfigOptions {
   /** Automatically fetch config from backend (use only in root component) */
   autoLoad?: boolean
+}
+
+function subscribeToAppliedTheme(onChange: () => void) {
+  const observer = new MutationObserver(onChange)
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class'],
+  })
+  return () => observer.disconnect()
+}
+
+function isDarkThemeApplied() {
+  return document.documentElement.classList.contains('dark')
 }
 
 /** Preload an image, returning a cleanup that detaches the pending handlers. */
@@ -63,9 +74,13 @@ export function useSystemConfig(options: UseSystemConfigOptions = {}) {
   const queryClient = useQueryClient()
   const { config, loading, loadedLogoUrl, setLoadedLogoUrl, setLoading } =
     useSystemConfigStore()
-  const { resolvedTheme } = useTheme()
-  const logo =
-    resolvedTheme === 'dark' && config.logoDark ? config.logoDark : config.logo
+  // 首页会覆盖用户偏好的主题，Logo 跟随页面实际应用的主题。
+  const isDark = useSyncExternalStore(
+    subscribeToAppliedTheme,
+    isDarkThemeApplied,
+    () => false
+  )
+  const logo = (isDark && config.logoDark) || config.logo
 
   // Load config from backend via the shared `/api/status` cache.
   // `ensureStatus` writes the mapped config into this store itself, so there is
@@ -94,10 +109,7 @@ export function useSystemConfig(options: UseSystemConfigOptions = {}) {
     // Preload new logo
     return preloadImage(
       logo,
-      () => {
-        setLoadedLogoUrl(logo)
-        applyFaviconToDom(logo)
-      },
+      () => setLoadedLogoUrl(logo),
       () => {
         if (logo !== DEFAULT_LOGO) {
           // eslint-disable-next-line no-console

@@ -40,8 +40,10 @@ import { act } from 'react'
 import { afterEach, assert, expect, test, vi } from 'vitest'
 
 import { Footer } from '@/components/layout/components/footer'
+import { ThemeProvider } from '@/context/theme-provider'
 import { api } from '@/lib/api'
 import { STATUS_QUERY_KEY } from '@/lib/status-query'
+import { THEME_STORAGE_KEYS } from '@/lib/theme-storage'
 import { useSystemConfigStore } from '@/stores/system-config-store'
 
 import { Home } from '../../..'
@@ -51,7 +53,7 @@ import { HowItWorks } from '../how-it-works'
 import { Providers } from '../providers'
 
 const clients: QueryClient[] = []
-const initialSystemConfig = useSystemConfigStore.getState().config
+const initialSystemConfig = useSystemConfigStore.getState()
 
 test.each([
   { direction: 1, current: 0, next: 1 },
@@ -438,13 +440,35 @@ test('分屏首页样式不应用于自定义 Markdown 首页', async () => {
   expect(document.querySelector('.home-slides')).not.toBeInTheDocument()
 })
 
+test('首页以浅色显示时，导航使用浅色 Logo，即使用户偏好深色', async () => {
+  vi.spyOn(api, 'get').mockResolvedValue({
+    data: { success: true, data: '' },
+  })
+  localStorage.setItem(THEME_STORAGE_KEYS.mode, 'dark')
+  useSystemConfigStore.getState().setLoading(false)
+  useSystemConfigStore.getState().setConfig({
+    logo: '/light-logo.png',
+    logoDark: '/dark-logo.png',
+  })
+
+  await renderHero({}, false, true, true)
+
+  await waitFor(() => {
+    expect(document.documentElement).toHaveClass('light')
+    expect(
+      within(screen.getByRole('banner')).getByRole('img', { name: 'logo' })
+    ).toHaveAttribute('src', '/light-logo.png')
+  })
+})
+
 afterEach(async () => {
   vi.useRealTimers()
   vi.unstubAllGlobals()
   cleanup()
   for (const client of clients) client.clear()
   clients.length = 0
-  useSystemConfigStore.getState().setConfig(initialSystemConfig)
+  useSystemConfigStore.setState(initialSystemConfig)
+  document.documentElement.classList.remove('light', 'dark')
   window.localStorage.clear()
   await i18next.changeLanguage('en')
   i18next.removeResourceBundle('zh', 'translation')
@@ -482,7 +506,9 @@ async function renderHero(
   await router.load()
   render(
     <QueryClientProvider client={client}>
-      <RouterProvider router={router} />
+      <ThemeProvider>
+        <RouterProvider router={router} />
+      </ThemeProvider>
     </QueryClientProvider>
   )
   await screen.findByRole('heading', { level: 1 })
@@ -509,13 +535,18 @@ test('首页以居中单列展示介绍，不再展示右侧 API 演示', async 
   expect(
     screen.queryByRole('button', { name: 'Responses' })
   ).not.toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Get API Key' })).toHaveAttribute(
-    'href',
-    '/sign-up'
-  )
   expect(
     screen.queryByRole('link', { name: /Cherry Studio/ })
   ).not.toBeInTheDocument()
+})
+
+test('未登录时获取密钥入口指向登录页', async () => {
+  await renderHero()
+
+  expect(screen.getByRole('button', { name: 'Get API Key' })).toHaveAttribute(
+    'href',
+    '/sign-in'
+  )
 })
 
 test('首屏在导航下方铺开介绍和五张卡片，承诺区紧接下一屏', async () => {

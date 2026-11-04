@@ -17,21 +17,32 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import {
+  createMemoryHistory,
+  createRootRoute,
+  createRouter,
+  RouterProvider,
+} from '@tanstack/react-router'
 import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { CustomerSupport } from '@/components/customer-support'
+import { AppSidebar } from '@/components/layout/components/app-sidebar'
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import { LayoutProvider } from '@/context/layout-provider'
 import { parseCustomerSupportConfig } from '@/lib/customer-support'
+import { ROLE } from '@/lib/roles'
 import { STATUS_QUERY_KEY } from '@/lib/status-query'
 import { useAuthStore } from '@/stores/auth-store'
 
-beforeEach(() => {
-  useAuthStore.getState().auth.setUser({ id: 1, username: 'user', role: 1 })
-})
+const admin = { id: 1, username: 'admin', role: ROLE.ADMIN }
+
+beforeEach(() => useAuthStore.getState().auth.setUser(admin))
 
 afterEach(() => {
   useAuthStore.getState().auth.reset()
+  vi.unstubAllGlobals()
 })
 
 function renderSupport(config: unknown) {
@@ -45,6 +56,35 @@ function renderSupport(config: unknown) {
   return client
 }
 
+async function renderSupportNavigation(sidebarModules?: string) {
+  const client = new QueryClient()
+  client.setQueryData(STATUS_QUERY_KEY, {
+    customer_support: { enabled: true, name: 'Support team' },
+    SidebarModulesAdmin: sidebarModules,
+  })
+  const routeTree = createRootRoute({
+    component: () => (
+      <LayoutProvider>
+        <SidebarProvider>
+          <header>
+            <SidebarTrigger />
+            <CustomerSupport />
+          </header>
+          <AppSidebar />
+        </SidebarProvider>
+      </LayoutProvider>
+    ),
+  })
+  const router = createRouter({ routeTree, history: createMemoryHistory() })
+  await router.load()
+  render(
+    <QueryClientProvider client={client}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  )
+  return client
+}
+
 describe('customer support', () => {
   it('hides for visitors, appears after login and closes an open dialog on logout', async () => {
     useAuthStore.getState().auth.reset()
@@ -53,9 +93,7 @@ describe('customer support', () => {
       screen.queryByRole('button', { name: 'Contact support' })
     ).not.toBeInTheDocument()
 
-    act(() =>
-      useAuthStore.getState().auth.setUser({ id: 1, username: 'user', role: 1 })
-    )
+    act(() => useAuthStore.getState().auth.setUser(admin))
     await userEvent
       .setup()
       .click(screen.getByRole('button', { name: 'Contact support' }))
@@ -68,6 +106,69 @@ describe('customer support', () => {
       screen.queryByRole('button', { name: 'Contact support' })
     ).not.toBeInTheDocument()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    client.clear()
+  })
+
+  it('places support directly below Wallet for a regular user and opens the support dialog', async () => {
+    useAuthStore
+      .getState()
+      .auth.setUser({ id: 2, username: 'user', role: ROLE.USER })
+    const client = await renderSupportNavigation()
+    const trigger = await screen.findByRole('button', {
+      name: 'Contact support',
+    })
+    const wallet = screen.getByRole('link', { name: 'Wallet' })
+    expect(trigger.closest('li')?.previousElementSibling).toBe(
+      wallet.closest('li')
+    )
+    expect(
+      within(screen.getByRole('banner')).queryByRole('button', {
+        name: 'Contact support',
+      })
+    ).not.toBeInTheDocument()
+    const user = userEvent.setup()
+    await user.click(trigger)
+    expect(
+      await screen.findByRole('dialog', { name: 'Contact support' })
+    ).toHaveTextContent('Support team')
+    await user.keyboard('{Escape}')
+    expect(trigger).toHaveFocus()
+    client.clear()
+  })
+
+  it('keeps the administrator support entry in the header', async () => {
+    const client = await renderSupportNavigation()
+    const trigger = await screen.findByRole('button', {
+      name: 'Contact support',
+    })
+    expect(screen.getByRole('banner')).toContainElement(trigger)
+    client.clear()
+  })
+
+  it('opens support from the mobile sidebar even if the personal links are hidden', async () => {
+    vi.stubGlobal('innerWidth', 390)
+    useAuthStore
+      .getState()
+      .auth.setUser({ id: 2, username: 'user', role: ROLE.USER })
+    const client = await renderSupportNavigation(
+      JSON.stringify({ personal: { enabled: false } })
+    )
+    const user = userEvent.setup()
+    await user.click(
+      await screen.findByRole('button', { name: 'Toggle Sidebar' })
+    )
+    const sidebar = await screen.findByRole('dialog', { name: 'Sidebar' })
+    expect(
+      within(sidebar).queryByRole('link', { name: 'Wallet' })
+    ).not.toBeInTheDocument()
+    await user.click(
+      within(sidebar).getByRole('button', { name: 'Contact support' })
+    )
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Contact support',
+    })
+    expect(dialog).toHaveClass('z-70')
+    expect(dialog).toHaveTextContent('Support team')
     client.clear()
   })
   it.each([undefined, {}, { enabled: false }, { enabled: 'true' }])(

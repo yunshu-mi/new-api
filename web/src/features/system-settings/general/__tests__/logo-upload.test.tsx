@@ -27,11 +27,11 @@ import {
   createRouter,
   RouterProvider,
 } from '@tanstack/react-router'
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ThemeProvider, useTheme } from '@/context/theme-provider'
 import { useSystemConfig } from '@/hooks/use-system-config'
@@ -49,7 +49,7 @@ const originalDecode = Object.getOwnPropertyDescriptor(
   'decode'
 )
 
-const initialConfig = useSystemConfigStore.getState().config
+const initialConfig = useSystemConfigStore.getState()
 
 async function renderSettings(logo = '', logoDark = '') {
   function Fixture() {
@@ -121,7 +121,9 @@ beforeEach(() => {
 
 afterEach(() => {
   client?.clear()
-  useSystemConfigStore.setState({ config: initialConfig })
+  useSystemConfigStore.setState(initialConfig)
+  document.head.querySelector('link[rel="icon"]')?.remove()
+  vi.unstubAllGlobals()
   localStorage.clear()
   document.documentElement.classList.remove('light', 'dark')
   if (originalDecode) {
@@ -154,7 +156,13 @@ describe('logo upload settings', () => {
     )
   })
 
-  it('saves separate light and dark uploads and switches the published logo with the theme', async () => {
+  it('switches the published logo with the theme while keeping the saved light favicon', async () => {
+    const createdImages: HTMLImageElement[] = []
+    vi.stubGlobal('Image', function () {
+      const image = document.createElement('img')
+      createdImages.push(image)
+      return image
+    })
     const input = await renderSettings()
     const user = userEvent.setup()
     const lightData = 'data:image/png;base64,bGlnaHQ='
@@ -205,10 +213,29 @@ describe('logo upload settings', () => {
         lightData
       )
     )
+    const lightPreload = createdImages.find(
+      (image) => image.src === lightData && image.onload
+    )
+    assert.isDefined(lightPreload)
+    fireEvent.load(lightPreload)
+    expect(document.head.querySelector('link[rel="icon"]')).toHaveAttribute(
+      'href',
+      lightData
+    )
+
     await user.click(screen.getByRole('button', { name: 'Use dark theme' }))
     expect(screen.getByAltText('Published logo')).toHaveAttribute(
       'src',
       darkData
+    )
+    const darkPreload = createdImages.find(
+      (image) => image.src === darkData && image.onload
+    )
+    assert.isDefined(darkPreload)
+    fireEvent.load(darkPreload)
+    expect(document.head.querySelector('link[rel="icon"]')).toHaveAttribute(
+      'href',
+      lightData
     )
     await user.click(screen.getByRole('button', { name: 'Use light theme' }))
     expect(screen.getByAltText('Published logo')).toHaveAttribute(
@@ -359,6 +386,10 @@ describe('logo upload settings', () => {
         'src',
         DEFAULT_LOGO
       )
+    )
+    expect(document.head.querySelector('link[rel="icon"]')).toHaveAttribute(
+      'href',
+      DEFAULT_LOGO
     )
   })
 

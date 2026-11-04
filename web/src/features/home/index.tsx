@@ -22,7 +22,7 @@ import { useTranslation } from 'react-i18next'
 import { PublicLayout } from '@/components/layout'
 import { Footer } from '@/components/layout/components/footer'
 import { RichContent } from '@/components/rich-content'
-import { useTheme } from '@/context/theme-provider'
+import { useLightPageTheme, useTheme } from '@/context/theme-provider'
 import { isLikelyHtml } from '@/lib/content-format'
 import { useAuthStore } from '@/stores/auth-store'
 
@@ -34,6 +34,7 @@ export function Home() {
   const { i18n, t } = useTranslation()
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const { resolvedTheme } = useTheme()
+  useLightPageTheme()
   const { auth } = useAuthStore()
   const isAuthenticated = !!auth.user
   const { content, isLoaded, isUrl } = useHomePageContent()
@@ -59,20 +60,6 @@ export function Home() {
       syncIframePreferences()
     }
   }, [isUrl, syncIframePreferences])
-
-  // 首页强制浅色：按设计稿首页始终以浅色呈现，离开首页后恢复用户偏好主题。
-  useEffect(() => {
-    const root = document.documentElement
-    const timer = window.setTimeout(() => {
-      root.classList.remove('dark')
-      root.classList.add('light')
-    }, 0)
-    return () => {
-      window.clearTimeout(timer)
-      root.classList.remove('light', 'dark')
-      root.classList.add(resolvedTheme)
-    }
-  }, [resolvedTheme])
 
   if (!isLoaded) {
     return (

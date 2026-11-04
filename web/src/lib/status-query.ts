@@ -20,6 +20,7 @@ import { queryOptions, type QueryClient } from '@tanstack/react-query'
 
 import { getStatus } from '@/lib/api'
 import { DEFAULT_SYSTEM_NAME, DEFAULT_LOGO } from '@/lib/constants'
+import { applyFaviconToDom } from '@/lib/dom-utils'
 import {
   useSystemConfigStore,
   type CurrencyConfig,
@@ -131,15 +132,17 @@ function writeCachedStatus(status: StatusData | null): void {
 /**
  * The single `/api/status` request.
  *
- * Owns both side effects of a successful read — syncing the system-config store
- * and writing the localStorage snapshot — so consumers never repeat either one.
+ * Syncs the system config, light favicon, and localStorage snapshot on a
+ * successful read so consumers never repeat these updates.
  */
 async function fetchStatus(): Promise<StatusData | null> {
   const status = (await getStatus()) as StatusData | null
 
   if (status) {
     try {
-      useSystemConfigStore.getState().setConfig(mapStatusDataToConfig(status))
+      const config = mapStatusDataToConfig(status)
+      useSystemConfigStore.getState().setConfig(config)
+      applyFaviconToDom(config.logo ?? DEFAULT_LOGO)
     } catch (err) {
       if (import.meta.env.DEV) {
         // eslint-disable-next-line no-console

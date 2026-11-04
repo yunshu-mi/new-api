@@ -85,13 +85,12 @@ if (!rootElement) {
 
     // Background refresh through the shared cache. This primes ['status']
     // before React mounts, so the root guard and every status consumer reuse
-    // this one request instead of firing their own. `fetchStatus` owns the
-    // localStorage write and the system-config store sync.
+    // this one request instead of firing their own. `fetchStatus` updates the
+    // favicon, localStorage snapshot, and system config.
     queryClient
       .ensureQueryData(statusQueryOptions)
       .then((s) => {
         if (s?.system_name) apply(s.system_name as string)
-        if (s?.logo) applyFaviconToDom(s.logo as string)
       })
       .catch(() => {
         /* empty */

@@ -10,14 +10,23 @@ import {
   Outlet,
   RouterProvider,
 } from '@tanstack/react-router'
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Toaster } from 'sonner'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
+import { ThemeProvider } from '@/context/theme-provider'
 import type { SystemStatus } from '@/features/auth/types'
 import { api } from '@/lib/api'
 import { STATUS_QUERY_KEY } from '@/lib/status-query'
+import { THEME_STORAGE_KEYS } from '@/lib/theme-storage'
 import { useAuthStore } from '@/stores/auth-store'
 import { useSystemConfigStore } from '@/stores/system-config-store'
 
@@ -70,7 +79,9 @@ function renderSignIn(status: SystemStatus = {}) {
   })
   render(
     <QueryClientProvider client={client}>
-      <RouterProvider router={router} />
+      <ThemeProvider>
+        <RouterProvider router={router} />
+      </ThemeProvider>
     </QueryClientProvider>
   )
   return { router, client }
@@ -90,7 +101,33 @@ afterEach(() => {
   vi.restoreAllMocks()
   useAuthStore.getState().auth.reset('idle')
   useSystemConfigStore.setState(initialSystemConfig)
+  document.documentElement.classList.remove('light', 'dark')
   localStorage.clear()
+})
+
+it('uses the light theme and logos on sign-in, then restores the saved dark theme on departure', async () => {
+  localStorage.setItem(THEME_STORAGE_KEYS.mode, 'dark')
+  useSystemConfigStore.getState().setConfig({
+    logo: '/light-logo.png',
+    logoDark: '/dark-logo.png',
+  })
+  const { router } = renderSignIn()
+
+  const logos = await screen.findAllByRole('img', { name: 'Logo' })
+  expect(logos).toHaveLength(2)
+  await waitFor(() => {
+    expect(document.documentElement).toHaveClass('light')
+    expect(document.documentElement).not.toHaveClass('dark')
+    for (const logo of logos) {
+      expect(logo).toHaveAttribute('src', '/light-logo.png')
+    }
+  })
+  expect(localStorage.getItem(THEME_STORAGE_KEYS.mode)).toBe('dark')
+
+  await act(() => router.navigate({ to: '/pricing' }))
+  expect(await screen.findByRole('heading', { name: 'Pricing' })).toBeVisible()
+  expect(document.documentElement).toHaveClass('dark')
+  expect(document.documentElement).not.toHaveClass('light')
 })
 
 it('keeps accessible input labels and password visibility controls in the redesigned card', async () => {

@@ -86,7 +86,7 @@ export function Hero(props: HeroProps) {
             <Button
               className='h-8 gap-2 rounded-xl bg-[#526FDB] px-5 text-sm font-medium text-white hover:bg-[#4667CC] [a]:hover:bg-[#4667CC]'
               render={
-                <Link to={props.isAuthenticated ? '/keys' : '/sign-up'} />
+                <Link to={props.isAuthenticated ? '/keys' : '/sign-in'} />
               }
             >
               {t('Get API Key')}
