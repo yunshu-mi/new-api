@@ -291,15 +291,17 @@ test('分屏首页共用固定的网格柔光背景，切页时背景不随内�
     resolve(import.meta.dirname, '../../../../../styles/index.css'),
     'utf8'
   )
-  const surface = css.match(/\.home-slides\s*\{([^}]+)\}/)?.[1]
+  const surface = css.match(
+    /\.home-slides(?=\s*[,{])[^{}]*\{([^}]+)\}/
+  )?.[1]
   expect(surface).toContain('isolation: isolate')
   const background = css.match(
-    /\.home-slides::before,\s*\.home-slides::after\s*\{([^}]+)\}/
+    /\.home-slides::before,\s*\.home-slides::after[^{}]*\{([^}]+)\}/
   )?.[1]
   expect(background).toContain('position: fixed')
   expect(background).toContain('pointer-events: none')
   expect(css).toMatch(
-    /\.page-glow,\s*\.home-slides::after,\s*\.sign-in-page::after\s*\{\s*background-image:\s*radial-gradient\(/
+    /\.home-slides::after(?=\s*[,{])[^{}]*\{[^}]*background-image:\s*radial-gradient\(/
   )
 })
 
@@ -307,7 +309,7 @@ test('分屏首页 API 地址栏收紧上下留白并保留复制按钮尺寸', 
   await renderHero()
 
   const address = screen.getByRole('group', { name: 'API Base URL' })
-  expect(address).toHaveClass('px-4', 'py-2')
+  expect(address).toHaveClass('px-4', 'py-[0.2rem]')
   expect(
     within(address).getByText('API endpoint · OpenAI-compatible').parentElement
   ).toHaveClass('gap-0.5')
@@ -514,30 +516,25 @@ async function renderHero(
   await screen.findByRole('heading', { level: 1 })
 }
 
-test('首页以居中单列展示介绍，不再展示右侧 API 演示', async () => {
+test('首页首屏在宽屏并排展示介绍和可切换的 API 演示', async () => {
   await renderHero()
 
   const heading = screen.getByRole('heading', { level: 1 })
-  expect(heading.parentElement).toHaveClass('items-center', 'text-center')
-  expect(heading).toHaveTextContent('Unified Large Model API Gateway')
+  expect(heading).toHaveTextContent(/One endpoint,\s*for every large model/)
   const hero = heading.closest('section')
   assert(hero)
-  // 首页首屏不再展示品牌 logo 与状态徽标，标题为第一块内容。
-  expect(within(hero).queryByRole('img')).not.toBeInTheDocument()
-  expect(within(hero).queryByText('Ready?')).not.toBeInTheDocument()
+  expect(hero.firstElementChild).toHaveClass(
+    'grid',
+    'lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]'
+  )
   expect(
-    screen.getByText('Enterprise-grade stability and speed')
-  ).toBeInTheDocument()
-  expect(
-    screen.getByRole('group', { name: 'API Base URL' })
-  ).toHaveAccessibleDescription('Just replace your model base URL with:')
-  expect(screen.queryByRole('button', { name: 'Chat' })).not.toBeInTheDocument()
-  expect(
-    screen.queryByRole('button', { name: 'Responses' })
-  ).not.toBeInTheDocument()
-  expect(
-    screen.queryByRole('link', { name: /Cherry Studio/ })
-  ).not.toBeInTheDocument()
+    within(hero).getByRole('group', { name: 'API Base URL' })
+  ).toHaveAccessibleDescription('API endpoint · OpenAI-compatible')
+
+  expect(within(hero).getByText('/v1/chat/completions')).toBeVisible()
+  await userEvent.click(within(hero).getByRole('button', { name: 'Responses' }))
+  expect(await within(hero).findByText('/v1/responses')).toBeVisible()
+  expect(within(hero).queryByText('/v1/chat/completions')).not.toBeInTheDocument()
 })
 
 test('未登录时获取密钥入口指向登录页', async () => {
@@ -547,119 +544,6 @@ test('未登录时获取密钥入口指向登录页', async () => {
     'href',
     '/sign-in'
   )
-})
-
-test('首屏在导航下方铺开介绍和五张卡片，承诺区紧接下一屏', async () => {
-  vi.spyOn(api, 'get').mockResolvedValue({
-    data: { success: true, data: '' },
-  })
-  await renderHero({}, false, true, true)
-
-  const hero = screen.getByRole('heading', { level: 1 }).closest('section')
-  const firstScreen = hero?.parentElement
-  expect(firstScreen).toHaveClass(
-    'relative',
-    'isolate',
-    'min-h-svh',
-    'flex',
-    'flex-col',
-    'home-first-screen',
-    'pt-[calc(5rem+var(--home-space,0px)*3)]',
-    'pb-2'
-  )
-  expect(firstScreen).not.toHaveClass('justify-center')
-  const background = firstScreen?.querySelector(':scope > [aria-hidden="true"]')
-  expect(background).toHaveClass('absolute', 'inset-0', 'pointer-events-none')
-  const features = screen.getByRole('region', {
-    name: 'Built for developers, not for slide decks.',
-  })
-  expect(firstScreen).toContainElement(features)
-  expect(features).toHaveClass('flex', 'flex-1', 'flex-col')
-  expect(features.firstElementChild).toHaveClass('max-w-4xl', 'justify-center')
-  expect(within(features).getByRole('list')).toHaveClass(
-    'flex-1',
-    'auto-rows-fr',
-    'lg:max-h-[44svh]'
-  )
-  expect(within(features).getAllByRole('article')).toHaveLength(5)
-  const commitments = screen.getByRole('region', { name: 'Our Commitments' })
-  expect(firstScreen).not.toContainElement(commitments)
-  expect(firstScreen?.nextElementSibling).toBe(commitments)
-})
-
-test('品牌区按指定顺序仅显示八个图标，不展示分类或可见名称', async () => {
-  await renderHero()
-
-  const hero = screen.getByRole('heading', { level: 1 }).closest('section')
-  assert(hero)
-  expect(
-    within(hero).queryByRole('button', { name: 'Docs' })
-  ).not.toBeInTheDocument()
-  expect(
-    within(hero).queryByRole('link', { name: /Cherry Studio/ })
-  ).not.toBeInTheDocument()
-  expect(hero).not.toHaveClass('pt-24', 'lg:pt-20')
-  expect(hero).not.toHaveClass('md:min-h-[90svh]')
-  const providers = screen.getByRole('region', {
-    name: 'Supported AI Providers',
-  })
-  expect(within(providers).getAllByRole('list')).toHaveLength(1)
-  const brands = [
-    'DeepSeek',
-    'Zhipu',
-    'Kimi',
-    'GPT',
-    'Claude',
-    'Gemini',
-    'Seedance',
-    'MiniMax',
-  ]
-  const items = within(providers).getAllByRole('listitem')
-  expect(items.map((item) => item.getAttribute('aria-label'))).toEqual(brands)
-  for (const item of items) {
-    // The tile needs a filled surface so it reads as a card, not a bare ring.
-    // `bg-card` keeps that fill brighter than the paper canvas instead of
-    // darkening it, so the icons stay the only strong marks in the row.
-    expect(item).toHaveClass(
-      'border',
-      'border-border',
-      'bg-card',
-      'rounded-2xl',
-      'size-9.5'
-    )
-  }
-  for (const brand of brands) {
-    const item = within(providers).getByRole('listitem', { name: brand })
-    expect(within(item).getByText(brand)).toHaveClass('sr-only')
-  }
-  expect(
-    await within(
-      within(providers).getByRole('listitem', { name: 'Kimi' })
-    ).findByTitle('MoonshotAI')
-  ).toBeInTheDocument()
-  const kimiIcon = within(
-    within(providers).getByRole('listitem', { name: 'Kimi' })
-  )
-    .getByTitle('MoonshotAI')
-    .closest('svg')
-  expect(kimiIcon).toHaveAttribute('width', '22')
-  expect(kimiIcon).toHaveAttribute('height', '22')
-  const seedanceIcon = within(providers)
-    .getByRole('listitem', { name: 'Seedance' })
-    .querySelector('img')
-  expect(seedanceIcon).toHaveClass('size-[22px]', 'object-contain')
-  expect(
-    within(providers).queryByText('Domestic Providers')
-  ).not.toBeInTheDocument()
-  expect(
-    within(providers).queryByText('International Providers')
-  ).not.toBeInTheDocument()
-  expect(
-    within(providers).queryByText('Supported Applications')
-  ).not.toBeInTheDocument()
-  expect(
-    within(providers).queryByRole('button', { name: 'Docs' })
-  ).not.toBeInTheDocument()
 })
 
 test('紧凑页脚显示品牌图标和版权，保留法律链接并移除右侧署名', async () => {
@@ -692,44 +576,9 @@ test('未启用紧凑模式时页脚保留原有纵向间距', async () => {
   expect(within(footer).getByRole('img', { name: 'New API' })).toBeVisible()
 })
 
-test('优势卡在不同断点分别排列一至三列，承诺区展示三项能力', async () => {
+test('承诺区展示三项服务承诺，宽屏下左右栏底部对齐', async () => {
   await renderHero()
 
-  const features = screen.getByRole('region', {
-    name: 'Built for developers, not for slide decks.',
-  })
-  expect(screen.queryByText('Core Features')).not.toBeInTheDocument()
-  const cards = within(features).getAllByRole('article')
-  expect(cards).toHaveLength(5)
-  for (const card of cards) {
-    expect(card).toHaveClass('text-center', 'justify-center')
-    expect(card.querySelector('svg')).toHaveClass('h-full', 'w-auto')
-  }
-  expect(features).toHaveClass('py-2')
-  const list = within(features).getByRole('list')
-  // 五张卡片：窄屏单列、平板两列、宽屏三列；末行两张各占半行，末屏两张
-  // 在平板下并成整行，宽屏下铺满六列，因此任何断点都不会留下空位。
-  expect(list).toHaveClass('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-6')
-  const items = within(list).getAllByRole('listitem')
-  expect(items).toHaveLength(5)
-  for (const item of items.slice(0, 3)) {
-    expect(item).toHaveClass('lg:col-span-2')
-  }
-  for (const item of items.slice(3)) {
-    expect(item).toHaveClass('lg:col-span-3')
-  }
-  expect(items[4]).toHaveClass('sm:col-span-2')
-  expect(
-    within(features)
-      .getAllByRole('heading', { level: 3 })
-      .map((heading) => heading.textContent)
-  ).toEqual([
-    'Unified Access',
-    'Transparent Billing',
-    'Secure & Reliable',
-    'No Request Storage',
-    'Automatic Load Balancing',
-  ])
   const commitments = screen.getByRole('region', { name: 'Our Commitments' })
   const [points, serviceItems] = within(commitments).getAllByRole('list')
   expect(within(points).getAllByRole('listitem')).toHaveLength(3)
@@ -808,6 +657,7 @@ test('配置 API 地址时显示并通过键盘复制基址，不包含示例接
   expect(
     within(address).getByText('https://gateway.example.com/proxy')
   ).toBeInTheDocument()
+  expect(within(address).queryByText(/^\/v1\//)).not.toBeInTheDocument()
   const copyButton = within(address).getByRole('button', {
     name: 'Copy base URL',
   })
@@ -832,71 +682,35 @@ test.each([undefined, '', '   ', 123])(
   }
 )
 
-test('收窄地址栏后，超长 API 基址允许换行且复制按钮不会被挤出', async () => {
+test('超长 API 基址单行截断，且可复制完整地址', async () => {
+  const user = userEvent.setup()
+  const writeText = vi.spyOn(navigator.clipboard, 'writeText')
   const address =
     'https://gateway.example.com/a-long-deployment-prefix/another-long-routing-prefix/public-api'
   await renderHero({ server_address: address })
 
   const group = screen.getByRole('group', { name: 'API Base URL' })
-  expect(group).toHaveClass(
-    'w-full',
-    'max-w-xs',
-    'sm:max-w-[26rem]',
-    'min-w-0',
-    'py-0.5'
-  )
-  expect(within(group).getByText(address)).toHaveClass('min-w-0', 'break-all')
-  expect(within(group).getByText(address).parentElement).not.toHaveClass(
-    'flex-wrap'
-  )
-  expect(
-    within(group).getByRole('button', { name: 'Copy base URL' })
-  ).toHaveClass('size-6', 'shrink-0')
+  const addressText = within(group).getByText(address)
+  expect(addressText).toHaveClass('truncate')
+  expect(addressText.parentElement).toHaveClass('min-w-0')
+
+  const copyButton = within(group).getByRole('button', { name: 'Copy base URL' })
+  expect(copyButton).toHaveClass('shrink-0')
+  await user.click(copyButton)
+  expect(writeText).toHaveBeenCalledWith(address)
 })
 
-test('获取密钥按钮保持内容宽度，并使用紧凑的水平间距', async () => {
+test('获取密钥和查看文档按钮等高，按内容宽度并排', async () => {
   await renderHero()
 
-  const button = screen.getByRole('button', { name: 'Get API Key' })
-  expect(button).toHaveClass('h-7', 'px-2', 'gap-1')
-  expect(button).not.toHaveClass('w-full')
-})
-
-test('地址栏轮播四个 OpenAI 兼容路径，并以首项补位形成无缝循环', async () => {
-  await renderHero()
-
-  const address = screen.getByRole('group', { name: 'API Base URL' })
-  const endpoints = within(address).getAllByText(/^\/v1\//)
-  // 四个路径依次滚动，末尾再补一份首项，动画回到起点时画面才不会跳。
-  expect(endpoints.map((endpoint) => endpoint.textContent)).toEqual([
-    '/v1/chat/completions',
-    '/v1/responses',
-    '/v1/embeddings',
-    '/v1/models',
-    '/v1/chat/completions',
-  ])
-  expect(endpoints[0].parentElement).toHaveClass('landing-endpoint-scroll')
-  const pathWindow = endpoints[0].parentElement?.parentElement
-  expect(pathWindow).toHaveClass(
-    'ml-auto',
-    'h-[1.5rem]',
-    'w-32',
-    'pr-1',
-    'text-right'
-  )
-  expect(pathWindow?.parentElement).toHaveClass('gap-x-4')
-  for (const endpoint of endpoints) {
-    expect(endpoint).toHaveClass('h-[1.5rem]', 'justify-end')
+  const getKey = screen.getByRole('button', { name: 'Get API Key' })
+  const viewDocs = screen.getByRole('button', { name: 'View Docs' })
+  expect(getKey.parentElement).toContainElement(viewDocs)
+  expect(getKey.parentElement).toHaveClass('flex-wrap')
+  for (const button of [getKey, viewDocs]) {
+    expect(button).toHaveClass('h-8')
+    expect(button).not.toHaveClass('w-full')
   }
-
-  // 每次滑动必须正好一行（固定 1.5rem，不受主题间距影响）；总位移对不上整行数时，
-  // 路径会停在半行位置，显示成被裁掉的模糊文字。
-  const css = readFileSync(
-    resolve(import.meta.dirname, '../../../../../styles/index.css'),
-    'utf8'
-  )
-  const rolledRows = endpoints.length - 1
-  expect(css).toContain(`translate3d(0, -${rolledRows * 1.5}rem, 0)`)
 })
 
 test('登录用户可前往密钥页，且不显示注册入口', async () => {
