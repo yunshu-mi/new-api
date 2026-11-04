@@ -84,26 +84,28 @@ export function LogoUpload(props: LogoUploadProps) {
   }
 
   return (
-    <div className='bg-muted/30 flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center'>
-      <div
-        className='bg-muted text-muted-foreground flex size-10 shrink-0 items-center justify-center rounded-lg border'
-        data-testid='logo-upload-icon'
-        aria-hidden='true'
-      >
-        <HugeiconsIcon icon={Image01Icon} className='size-5' />
+    <div className='bg-muted/30 flex min-w-0 flex-col gap-3 rounded-lg border p-4 @xl:flex-row @xl:items-center'>
+      <div className='flex min-w-0 flex-1 items-start gap-3'>
+        <div
+          className='bg-muted text-muted-foreground flex size-10 shrink-0 items-center justify-center rounded-lg border'
+          data-testid='logo-upload-icon'
+          aria-hidden='true'
+        >
+          <HugeiconsIcon icon={Image01Icon} className='size-5' />
+        </div>
+        <div className='flex min-w-0 flex-col gap-1'>
+          <FormLabel>{props.label}</FormLabel>
+          <FormDescription>
+            {t(
+              'Upload a PNG or WebP image up to 100 KB. A transparent background is recommended.'
+            )}
+          </FormDescription>
+          <p className='text-primary text-xs' role='status'>
+            {status}
+          </p>
+        </div>
       </div>
-      <div className='min-w-0 flex-1 space-y-1'>
-        <FormLabel>{props.label}</FormLabel>
-        <FormDescription>
-          {t(
-            'Upload a PNG or WebP image up to 100 KB. A transparent background is recommended.'
-          )}
-        </FormDescription>
-        <p className='text-primary text-xs' role='status'>
-          {status}
-        </p>
-      </div>
-      <div className='flex flex-wrap items-center gap-2'>
+      <div className='flex flex-wrap items-center gap-2 @xl:justify-end'>
         <FormControl>
           <input
             ref={inputRef}

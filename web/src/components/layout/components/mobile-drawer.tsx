@@ -27,6 +27,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useIsSidebarModuleVisible } from '@/hooks/use-sidebar-config'
 import { useSignOut } from '@/hooks/use-sign-out'
 import { useUserDisplay } from '@/hooks/use-user-display'
+import { getUserAvatarUrl } from '@/lib/avatar'
 import type { AuthUser } from '@/stores/auth-store'
 
 import { MOBILE_DRAWER_ANIMATION, MOBILE_DRAWER_CONFIG } from '../constants'
@@ -91,7 +92,7 @@ function MobileUserProfile({ user, onNavigate }: MobileUserProfileProps) {
       {/* User header - simplified */}
       <div className='border-border flex items-center gap-2.5 border-b p-2.5'>
         <Avatar className='size-9'>
-          <AvatarImage src='/avatars/01.png' alt={`@${displayName}`} />
+          <AvatarImage src={getUserAvatarUrl(user.avatar)} alt='' />
           <AvatarFallback className='text-xs'>{initials}</AvatarFallback>
         </Avatar>
         <div className='flex flex-1 flex-col gap-0.5 overflow-hidden'>

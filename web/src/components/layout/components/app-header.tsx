@@ -109,7 +109,7 @@ export function AppHeader({
   const links = dynamicLinks.length > 0 ? dynamicLinks : navLinks
 
   // Notifications hook
-  const notifications = useNotifications()
+  const notifications = useNotifications(showNotifications && !rightContent)
 
   return (
     <Header>
@@ -136,6 +136,7 @@ export function AppHeader({
             <NotificationPopover
               open={notifications.popoverOpen}
               onOpenChange={notifications.setPopoverOpen}
+              onCloseToday={notifications.closeToday}
               unreadCount={notifications.unreadCount}
               activeTab={notifications.activeTab}
               onTabChange={notifications.setActiveTab}

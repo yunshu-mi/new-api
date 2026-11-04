@@ -17,7 +17,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { Check, Copy } from 'lucide-react'
-import { type ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
@@ -37,6 +37,7 @@ interface CopyButtonProps {
   variant?: 'ghost' | 'outline' | 'default' | 'secondary' | 'destructive'
   size?: 'default' | 'sm' | 'lg' | 'icon'
   tooltip?: string
+  tooltipVariant?: ComponentProps<typeof TooltipContent>['variant']
   successTooltip?: string
   'aria-label'?: string
 }
@@ -49,6 +50,7 @@ export function CopyButton({
   variant = 'ghost',
   size = 'icon',
   tooltip,
+  tooltipVariant,
   successTooltip,
   'aria-label': ariaLabel,
 }: CopyButtonProps) {
@@ -80,8 +82,8 @@ export function CopyButton({
   if (tooltip || successTooltip) {
     return (
       <Tooltip>
-        <TooltipTrigger render={button}></TooltipTrigger>
-        <TooltipContent>
+        <TooltipTrigger render={button} />
+        <TooltipContent variant={tooltipVariant}>
           <p>{isCopied ? resolvedSuccessTooltip : resolvedTooltip}</p>
         </TooltipContent>
       </Tooltip>

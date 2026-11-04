@@ -26,6 +26,7 @@ import {
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
 
+import { ROLE } from '@/lib/roles'
 import { useAuthStore } from '@/stores/auth-store'
 import { useSystemConfigStore } from '@/stores/system-config-store'
 
@@ -53,7 +54,13 @@ async function renderPublicHeader(
   useSystemConfigStore.getState().setLoading(false)
   queryClient = new QueryClient()
   queryClient.setQueryData(['status'], {
-    HeaderNavModules: { home: true, console: false, docs: false, about: false },
+    HeaderNavModules: {
+      home: true,
+      console: true,
+      pricing: { enabled: true, requireAuth: false },
+      docs: false,
+      about: false,
+    },
     ...registrationStatus,
   })
   queryClient.setQueryData(['notice'], { success: true, data: '' })
@@ -97,6 +104,67 @@ it('keeps the floating header aligned with the home content when scrolling down 
     expect(
       within(nav).getByRole('button', { name: 'Sign in / Sign up' })
     ).toHaveClass('h-6.5', 'px-2')
+  }
+})
+
+it.each([
+  { reducedMotion: false, behavior: 'smooth' },
+  { reducedMotion: true, behavior: 'instant' },
+])(
+  'returns to the top with $behavior scrolling when the logo is clicked on the home page',
+  async ({ reducedMotion, behavior }) => {
+    vi.spyOn(window, 'matchMedia').mockReturnValue({
+      ...window.matchMedia('(prefers-reduced-motion: reduce)'),
+      matches: reducedMotion,
+    })
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+    await renderPublicHeader()
+    const logoLink = within(await screen.findByRole('banner')).getByRole(
+      'link',
+      {
+        name: `logo ${initialConfig.config.systemName}`,
+      }
+    )
+
+    vi.spyOn(window, 'scrollY', 'get').mockReturnValue(300)
+    scrollTo.mockClear()
+    fireEvent.click(logoLink)
+
+    expect(logoLink).toHaveAttribute('href', '/')
+    expect(scrollTo).toHaveBeenLastCalledWith({ top: 0, left: 0, behavior })
+  }
+)
+
+it('shows Home and Console in both public menus only after sign-in', async () => {
+  await renderPublicHeader()
+  const header = await screen.findByRole('banner')
+  fireEvent.click(
+    within(header).getByRole('button', { name: 'Toggle navigation menu' })
+  )
+
+  const modelSquareLinks = screen.getAllByRole('link', { name: 'Model Square' })
+  expect(modelSquareLinks).toHaveLength(2)
+  for (const link of modelSquareLinks) {
+    expect(link).toHaveAttribute('href', '/pricing')
+  }
+  expect(screen.queryAllByRole('link', { name: 'Home' })).toHaveLength(0)
+  expect(screen.queryAllByRole('link', { name: 'Console' })).toHaveLength(0)
+
+  act(() => {
+    useAuthStore.getState().auth.setUser({
+      id: 1,
+      username: 'user',
+      role: ROLE.USER,
+    })
+  })
+
+  const homeLinks = screen.queryAllByRole('link', { name: 'Home' })
+  const consoleLinks = screen.queryAllByRole('link', { name: 'Console' })
+  expect(homeLinks).toHaveLength(2)
+  expect(consoleLinks).toHaveLength(2)
+  for (const link of homeLinks) expect(link).toHaveAttribute('href', '/')
+  for (const link of consoleLinks) {
+    expect(link).toHaveAttribute('href', '/dashboard')
   }
 })
 

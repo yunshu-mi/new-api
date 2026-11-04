@@ -349,6 +349,66 @@ async function renderKeysPage(status = 1, overrides: Partial<ApiKey> = {}) {
   return { post, put }
 }
 
+it('shows the left-aligned create button above API addresses and filters', async () => {
+  await renderKeysPage()
+  const filter = screen.getByPlaceholderText('Filter by name...')
+  const addresses = screen.getByRole('list', { name: 'API Addresses' })
+  const createButton = screen.getByRole('button', { name: 'Create API Key' })
+  const table = screen.getByRole('table')
+
+  expect(addresses).toBeVisible()
+  expect(filter).toHaveClass('h-8', 'border-input')
+  expect(within(addresses).getByRole('listitem')).toHaveClass(
+    'min-h-8',
+    'py-px',
+    'border-input'
+  )
+  expect(createButton).toHaveClass('h-8', 'self-start')
+  expect(
+    createButton.compareDocumentPosition(addresses) &
+      Node.DOCUMENT_POSITION_FOLLOWING
+  ).toBeTruthy()
+  expect(
+    addresses.compareDocumentPosition(filter) & Node.DOCUMENT_POSITION_FOLLOWING
+  ).toBeTruthy()
+  expect(
+    filter.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_FOLLOWING
+  ).toBeTruthy()
+})
+
+it('distinguishes the selected status and shows an outlined reset control', async () => {
+  await renderKeysPage()
+  const user = userEvent.setup()
+  const status = screen.getByRole('button', { name: 'Status' })
+  expect(status).toHaveClass('border-input')
+  expect(status).not.toHaveClass('border-dashed')
+  await user.click(status)
+  for (const [name, tone] of [
+    ['Enabled', 'success'],
+    ['Disabled', 'color-slate-500'],
+    ['Expired', 'warning'],
+    ['Exhausted', 'destructive'],
+  ]) {
+    const option = await screen.findByRole('option', { name })
+    expect(option).toHaveAttribute('aria-checked', 'false')
+    await user.click(option)
+    const toneClass = `[--filter-tone:var(--${tone})]`
+    expect(option).toHaveAttribute('aria-checked', 'true')
+    expect(option).toHaveClass(toneClass, 'bg-(--filter-tone)/15')
+    expect(within(status).getByText(name)).toHaveClass(
+      toneClass,
+      'bg-(--filter-tone)/20'
+    )
+  }
+
+  await user.keyboard('{Escape}')
+  const reset = screen.getByRole('button', { name: 'Reset' })
+  expect(reset).toHaveClass('border-input', 'bg-background')
+  await user.click(reset)
+  expect(screen.getByRole('button', { name: 'Status' })).toBeVisible()
+  expect(reset).not.toBeInTheDocument()
+})
+
 it('combines creation and last use while keeping expiry, models and IP restrictions separate', async () => {
   await renderKeysPage()
   for (const name of ['Name', 'API Key', 'Group', 'Models', 'IP Restriction']) {

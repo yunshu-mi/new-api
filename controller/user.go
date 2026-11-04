@@ -499,6 +499,7 @@ func buildSelfUserData(user *model.User) map[string]any {
 		"id":                user.Id,
 		"username":          user.Username,
 		"display_name":      user.DisplayName,
+		"avatar":            user.Avatar,
 		"has_password":      user.HasPassword,
 		"role":              user.Role,
 		"status":            user.Status,
@@ -776,6 +777,28 @@ func AdminClearUserBinding(c *gin.Context) {
 		"success": true,
 		"message": "success",
 	})
+}
+
+func UpdateSelfAvatar(c *gin.Context) {
+	var req struct {
+		Avatar *string `json:"avatar"`
+	}
+	if err := common.DecodeJson(c.Request.Body, &req); err != nil || req.Avatar == nil {
+		common.ApiErrorT(c, "Invalid parameters")
+		return
+	}
+
+	switch *req.Avatar {
+	case "", "01_default_user", "01_long_hair_woman", "02_glasses_boy", "05_mountain", "06_sunset", "07_moon":
+	default:
+		common.ApiErrorT(c, "Invalid input")
+		return
+	}
+	if err := model.UpdateUserAvatar(c.GetInt("id"), *req.Avatar); err != nil {
+		common.ApiErrorT(c, "Update failed")
+		return
+	}
+	common.ApiSuccessT(c, "Update successful", nil)
 }
 
 func UpdateSelf(c *gin.Context) {

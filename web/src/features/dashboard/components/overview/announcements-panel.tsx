@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next'
 
 import { IconBadge } from '@/components/ui/icon-badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
 import { useAnnouncements } from '@/features/dashboard/hooks/use-status-data'
 import { getPreviewText } from '@/features/dashboard/lib'
 import type { AnnouncementItem } from '@/features/dashboard/types'
@@ -37,6 +38,7 @@ const AnnouncementStatusDot = memo(function AnnouncementStatusDot(props: {
 }) {
   return (
     <span
+      aria-hidden='true'
       className={cn(
         'mt-1.5 inline-block size-2 shrink-0 rounded-full',
         getAnnouncementColorClass(props.type)
@@ -64,35 +66,43 @@ export function AnnouncementsPanel() {
           <IconBadge tone='warning' size='sm'>
             <Megaphone />
           </IconBadge>
-          {t('Announcements')}
+          {t('System Announcements')}
         </span>
       }
       description={t('Latest platform updates and notices')}
       loading={loading}
       empty={!list.length}
       emptyMessage={t('No announcements at this time')}
-      height='h-72'
-      contentClassName='p-0'
+      height='h-80'
+      className='flex h-full flex-col'
+      contentClassName='grow p-0'
     >
-      <ScrollArea className='h-72'>
+      <ScrollArea className='h-80'>
         <div>
           {list.map((item: AnnouncementItem, idx: number) => {
             const key = item.id ?? `announcement-${idx}`
+            const title =
+              typeof item.extra === 'string' ? item.extra.trim() : ''
             return (
               <button
                 key={key}
                 type='button'
                 onClick={() => handleAnnouncementClick(item)}
-                className={cn(
-                  'group hover:bg-muted/40 w-full px-3 py-3 text-left transition-colors sm:px-5 sm:py-3.5',
-                  idx < list.length - 1 && 'border-border/60 border-b'
-                )}
+                className='group hover:bg-muted/40 relative block w-full px-3 py-3 text-left transition-colors sm:px-5 sm:py-3.5'
               >
+                {idx < list.length - 1 && (
+                  <Separator
+                    aria-hidden='true'
+                    orientation='vertical'
+                    render={<span />}
+                    className='bg-muted-foreground/50 pointer-events-none absolute start-[calc(var(--spacing)*4_-_0.25px)] top-7 -bottom-3.5 z-10 data-vertical:w-[0.5px] sm:start-[calc(var(--spacing)*6_-_0.25px)] sm:top-7.5 sm:-bottom-4'
+                  />
+                )}
                 <div className='flex items-start gap-2.5'>
                   <AnnouncementStatusDot type={item.type} />
                   <div className='flex min-w-0 flex-1 flex-col gap-1'>
                     <p className='line-clamp-1 text-sm font-medium'>
-                      {getPreviewText(item.content)}
+                      {title || getPreviewText(item.content)}
                     </p>
                     <div className='flex items-center justify-between'>
                       {item.publishDate && (

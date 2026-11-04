@@ -126,11 +126,11 @@ export type AnnouncementType =
  * Announcement status color mapping
  */
 export const ANNOUNCEMENT_TYPE_COLORS: Record<AnnouncementType, string> = {
-  default: 'bg-neutral',
-  ongoing: 'bg-info',
-  success: 'bg-success',
-  warning: 'bg-warning',
-  error: 'bg-destructive',
+  default: 'bg-[#8b9aa7]',
+  ongoing: 'bg-[#3b82f6]',
+  success: 'bg-[#10b981]',
+  warning: 'bg-[#f59e0b]',
+  error: 'bg-[#ef4444]',
 }
 
 /**

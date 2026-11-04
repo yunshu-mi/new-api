@@ -23,6 +23,7 @@ export { BadgeListCell } from './core/badge-list-cell'
 export { TruncatedCell } from './core/truncated-cell'
 export { DataTableViewOptions } from './toolbar/view-options'
 export { DataTableToolbar } from './toolbar/toolbar'
+export type { DataTableFilterOption } from './toolbar/faceted-filter'
 export { DataTableMobileFilterPanel } from './toolbar/mobile-filter-panel'
 export { DataTableBulkActions } from './toolbar/bulk-actions'
 export {

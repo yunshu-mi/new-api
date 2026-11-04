@@ -27,7 +27,13 @@ import {
   createRouter,
   RouterProvider,
 } from '@tanstack/react-router'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -134,6 +140,32 @@ afterEach(() => {
 })
 
 describe('logo upload settings', () => {
+  it('groups settings by their purpose so related fields can be found together', async () => {
+    await renderSettings()
+
+    for (const [group, names] of [
+      [
+        'Basic Information',
+        ['System Name', 'Server Address', 'Async Task Public Address'],
+      ],
+      ['Page Content', ['Documentation Link', 'About', 'Home Page Content']],
+      ['Footer Settings', ['Footer', 'ICP filing number']],
+      ['Legal Agreements', ['User Agreement', 'Privacy Policy']],
+    ] as const) {
+      const fields = within(screen.getByRole('group', { name: group }))
+      expect(fields.getAllByRole('textbox')).toHaveLength(names.length)
+      for (const name of names) {
+        expect(fields.getByRole('textbox', { name })).toBeVisible()
+      }
+    }
+
+    expect(screen.queryByText('Service Addresses')).not.toBeInTheDocument()
+
+    const logo = within(screen.getByRole('group', { name: 'Logo' }))
+    expect(logo.getByLabelText('Light mode logo')).toBeInTheDocument()
+    expect(logo.getByAltText('Dark logo preview')).toBeVisible()
+  })
+
   it('shows image placeholders beside upload controls and configured logos in the previews below', async () => {
     const lightLogo = 'https://example.com/light.png'
     const darkLogo = 'https://example.com/dark.webp'

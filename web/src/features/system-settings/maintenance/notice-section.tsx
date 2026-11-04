@@ -17,11 +17,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect } from 'react'
+import { Minus } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import * as z from 'zod'
 
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -50,6 +52,7 @@ type NoticeSectionProps = {
 export function NoticeSection({ defaultValue }: NoticeSectionProps) {
   const { t } = useTranslation()
   const updateOption = useUpdateOption()
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const form = useForm<NoticeFormValues>({
     resolver: zodResolver(noticeSchema),
     defaultValues: {
@@ -72,6 +75,16 @@ export function NoticeSection({ defaultValue }: NoticeSectionProps) {
     })
   }
 
+  function insertSeparator() {
+    const textarea = textareaRef.current
+    if (!textarea) return
+
+    const cursor = textarea.selectionStart
+    textarea.setRangeText('\n\n---\n\n', cursor, cursor, 'end')
+    form.setValue('Notice', textarea.value, { shouldDirty: true })
+    textarea.focus()
+  }
+
   return (
     <SettingsSection title={t('System Notice')}>
       <Form {...form}>
@@ -86,7 +99,18 @@ export function NoticeSection({ defaultValue }: NoticeSectionProps) {
             name='Notice'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t('Announcement content')}</FormLabel>
+                <div className='flex flex-wrap items-center justify-between gap-2'>
+                  <FormLabel>{t('Announcement content')}</FormLabel>
+                  <Button
+                    type='button'
+                    variant='outline'
+                    size='sm'
+                    onClick={insertSeparator}
+                  >
+                    <Minus aria-hidden='true' data-icon='inline-start' />
+                    {t('Insert separator')}
+                  </Button>
+                </div>
                 <FormControl>
                   <Textarea
                     rows={8}
@@ -94,6 +118,10 @@ export function NoticeSection({ defaultValue }: NoticeSectionProps) {
                       'Planned maintenance on Friday at 22:00 UTC...'
                     )}
                     {...field}
+                    ref={(textarea) => {
+                      field.ref(textarea)
+                      textareaRef.current = textarea
+                    }}
                   />
                 </FormControl>
                 <FormMessage />

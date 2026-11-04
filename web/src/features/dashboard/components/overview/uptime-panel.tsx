@@ -109,7 +109,8 @@ export function UptimePanel() {
       empty={!groups.length}
       emptyMessage={t('No uptime monitoring configured')}
       height='h-80'
-      contentClassName='p-0'
+      className='flex h-full flex-col'
+      contentClassName='grow p-0'
       headerActions={
         <Button
           variant='ghost'

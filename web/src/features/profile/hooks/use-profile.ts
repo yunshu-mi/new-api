@@ -21,6 +21,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
 
 import { handleServerError } from '@/lib/handle-server-error'
+import { useAuthStore } from '@/stores/auth-store'
 
 import { getUserProfile, updateUserProfile, updateUserSettings } from '../api'
 import type {
@@ -37,6 +38,14 @@ export function useProfile() {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
+
+  const setProfileAvatar = (userId: number, avatar: string) => {
+    setProfile((current) =>
+      current?.id === userId ? { ...current, avatar } : current
+    )
+    const { user, setUser } = useAuthStore.getState().auth
+    if (user?.id === userId) setUser({ ...user, avatar })
+  }
 
   // Fetch user profile (with optional silent mode)
   const fetchProfile = useCallback(async (silent = false) => {
@@ -130,5 +139,6 @@ export function useProfile() {
     refreshProfile,
     updateProfile,
     updateSettings,
+    setProfileAvatar,
   }
 }

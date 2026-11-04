@@ -724,3 +724,51 @@ func TestUpdateUserSettingKeepsWhatTheRequestLeavesOut(t *testing.T) {
 		})
 	}
 }
+
+func TestUpdateSelfAvatarPersistsOnlyAllowedChoicesForCurrentUser(t *testing.T) {
+	db := setupManageUserTestDB(t)
+	owner := model.User{Username: "avatar-owner", AffCode: "avatar-owner", Setting: `{"language":"zhCN"}`}
+	other := model.User{Username: "avatar-other", AffCode: "avatar-other", Avatar: "06_sunset"}
+	require.NoError(t, db.Create(&owner).Error)
+	require.NoError(t, db.Create(&other).Error)
+	bundle, err := service.CreateLoginSession(owner.Id, "password", "127.0.0.1", "avatar-test")
+	require.NoError(t, err)
+	engine := gin.New()
+	engine.PUT("/api/user/self/avatar", middleware.UserAuth(), UpdateSelfAvatar)
+
+	t.Run("reject unauthenticated update", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
+		request := httptest.NewRequest(http.MethodPut, "/api/user/self/avatar", strings.NewReader(`{"avatar":"07_moon"}`))
+		engine.ServeHTTP(recorder, request)
+		assert.Equal(t, http.StatusUnauthorized, recorder.Code)
+		profile, err := model.GetSelfUserById(owner.Id)
+		require.NoError(t, err)
+		assert.Empty(t, profile.Avatar)
+	})
+
+	for _, tc := range []struct {
+		name, body, wantAvatar string
+		wantSuccess            bool
+	}{
+		{"save for current user", fmt.Sprintf(`{"avatar":"07_moon","id":%d}`, other.Id), "07_moon", true},
+		{"reject unknown avatar", `{"avatar":"../07_moon"}`, "07_moon", false},
+		{"reject missing avatar", `{}`, "07_moon", false},
+		{"restore default avatar", `{"avatar":"01_default_user"}`, "01_default_user", true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			recorder := httptest.NewRecorder()
+			request := httptest.NewRequest(http.MethodPut, "/api/user/self/avatar", strings.NewReader(tc.body))
+			request.Header.Set("Authorization", "Bearer "+bundle.AccessToken)
+			engine.ServeHTTP(recorder, request)
+
+			assert.Contains(t, recorder.Body.String(), fmt.Sprintf(`"success":%t`, tc.wantSuccess))
+			profile, err := model.GetSelfUserById(owner.Id)
+			require.NoError(t, err)
+			assert.Equal(t, tc.wantAvatar, buildSelfUserData(profile)["avatar"])
+			assert.Equal(t, owner.Setting, profile.Setting)
+		})
+	}
+	profile, err := model.GetSelfUserById(other.Id)
+	require.NoError(t, err)
+	assert.Equal(t, other.Avatar, profile.Avatar)
+}

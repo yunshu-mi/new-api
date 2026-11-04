@@ -20,16 +20,21 @@ import { Activity, BarChart3, WalletCards } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { StatusBadge } from '@/components/status-badge'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent } from '@/components/ui/card'
 import { IconBadge, type IconBadgeTone } from '@/components/ui/icon-badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { getUserAvatarFallback, getUserAvatarStyle } from '@/lib/avatar'
+import {
+  getUserAvatarFallback,
+  getUserAvatarStyle,
+  getUserAvatarUrl,
+} from '@/lib/avatar'
 import { formatCompactNumber, formatQuota } from '@/lib/format'
 import { getRoleLabel } from '@/lib/roles'
 
 import { getDisplayName } from '../lib'
 import type { UserProfile } from '../types'
+import { AvatarSettingsDialog } from './avatar-settings-dialog'
 
 // ============================================================================
 // Profile Header Component
@@ -38,9 +43,14 @@ import type { UserProfile } from '../types'
 interface ProfileHeaderProps {
   profile: UserProfile | null
   loading: boolean
+  onAvatarChange: (userId: number, avatar: string) => void
 }
 
-export function ProfileHeader({ profile, loading }: ProfileHeaderProps) {
+export function ProfileHeader({
+  profile,
+  loading,
+  onAvatarChange,
+}: ProfileHeaderProps) {
   const { t } = useTranslation()
 
   if (loading) {
@@ -48,7 +58,7 @@ export function ProfileHeader({ profile, loading }: ProfileHeaderProps) {
       <Card data-card-hover='false' className='gap-0 overflow-hidden py-0'>
         <CardContent className='p-4 sm:p-5'>
           <div className='flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left'>
-            <Skeleton className='h-16 w-16 rounded-2xl' />
+            <Skeleton className='size-12 rounded-full sm:size-16' />
             <div className='space-y-3'>
               <div className='flex flex-col items-center gap-2 sm:flex-row sm:justify-start'>
                 <Skeleton className='h-8 w-48' />
@@ -117,49 +127,61 @@ export function ProfileHeader({ profile, loading }: ProfileHeaderProps) {
   return (
     <Card data-card-hover='false' className='gap-0 overflow-hidden py-0'>
       <CardContent className='p-3 sm:p-5'>
-        <div className='flex items-center gap-3 text-left sm:gap-4'>
-          <Avatar className='ring-background h-12 w-12 rounded-xl text-sm ring-2 sm:h-16 sm:w-16 sm:rounded-2xl sm:text-lg sm:ring-4'>
-            <AvatarFallback
-              className='rounded-xl font-semibold text-white sm:rounded-2xl'
-              style={avatarFallbackStyle}
-            >
-              {avatarFallback}
-            </AvatarFallback>
-          </Avatar>
-
-          <div className='min-w-0 flex-1 space-y-1.5 sm:space-y-3'>
-            <div className='flex min-w-0 items-center gap-2'>
-              <h1 className='truncate text-xl font-semibold tracking-tight sm:text-2xl'>
-                {displayName}
-              </h1>
-              <StatusBadge
-                label={roleLabel}
-                variant='neutral'
-                copyable={false}
+        <div className='flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4'>
+          <div className='flex max-w-full min-w-0 items-center gap-3 text-left sm:gap-4'>
+            <Avatar className='size-12 overflow-hidden text-sm after:hidden sm:size-16 sm:text-lg'>
+              <AvatarImage
+                src={getUserAvatarUrl(profile.avatar)}
+                alt=''
+                className='scale-110'
               />
-              <StatusBadge
-                label={`${t('User ID')} ${profile.id}`}
-                variant='info'
-                copyText={String(profile.id)}
-              />
-            </div>
+              <AvatarFallback
+                className='font-semibold text-white'
+                style={avatarFallbackStyle}
+              >
+                {avatarFallback}
+              </AvatarFallback>
+            </Avatar>
 
-            <div className='text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs sm:gap-x-4 sm:text-sm'>
-              <span className='truncate'>@{profile.username}</span>
-              {profile.email && (
-                <>
-                  <span>•</span>
-                  <span className='truncate'>{profile.email}</span>
-                </>
-              )}
-              {profile.group && (
-                <>
-                  <span>•</span>
-                  <span className='truncate'>{profile.group}</span>
-                </>
-              )}
+            <div className='min-w-0 flex-1 space-y-1.5 sm:space-y-3'>
+              <div className='flex min-w-0 items-center gap-2'>
+                <h1 className='truncate text-xl font-semibold tracking-tight sm:text-2xl'>
+                  {displayName}
+                </h1>
+                <StatusBadge
+                  label={roleLabel}
+                  variant='neutral'
+                  copyable={false}
+                />
+                <StatusBadge
+                  label={`${t('User ID')} ${profile.id}`}
+                  variant='info'
+                  copyText={String(profile.id)}
+                />
+              </div>
+
+              <div className='text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs sm:gap-x-4 sm:text-sm'>
+                <span className='truncate'>@{profile.username}</span>
+                {profile.email && (
+                  <>
+                    <span>•</span>
+                    <span className='truncate'>{profile.email}</span>
+                  </>
+                )}
+                {profile.group && (
+                  <>
+                    <span>•</span>
+                    <span className='truncate'>{profile.group}</span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
+          <AvatarSettingsDialog
+            key={profile.id}
+            avatar={profile.avatar}
+            onSaved={(avatar) => onAvatarChange(profile.id, avatar)}
+          />
         </div>
       </CardContent>
       <div className='border-t'>

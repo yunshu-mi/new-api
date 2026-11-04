@@ -23,11 +23,22 @@ import {
   createRouter,
   RouterProvider,
 } from '@tanstack/react-router'
-import { cleanup, render, screen } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest'
 
 import { api } from '@/lib/api'
 import { ROLE } from '@/lib/roles'
+import { STATUS_STORAGE_KEY } from '@/lib/status-query'
 import { useAuthStore } from '@/stores/auth-store'
 import { useSystemConfigStore } from '@/stores/system-config-store'
 
@@ -35,8 +46,32 @@ import { OverviewDashboard } from '../overview-dashboard'
 
 let client: QueryClient
 let statusPayload: Record<string, unknown>
+const getAnimationsDescriptor = Object.getOwnPropertyDescriptor(
+  HTMLElement.prototype,
+  'getAnimations'
+)
+
+beforeAll(() => {
+  Object.defineProperty(HTMLElement.prototype, 'getAnimations', {
+    configurable: true,
+    value: () => [],
+  })
+})
+
+afterAll(() => {
+  if (getAnimationsDescriptor) {
+    Object.defineProperty(
+      HTMLElement.prototype,
+      'getAnimations',
+      getAnimationsDescriptor
+    )
+    return
+  }
+  Reflect.deleteProperty(HTMLElement.prototype, 'getAnimations')
+})
 
 beforeEach(() => {
+  window.localStorage.removeItem(STATUS_STORAGE_KEY)
   useSystemConfigStore.setState(useSystemConfigStore.getInitialState(), true)
   useAuthStore.getState().auth.setUser({
     id: 1,
@@ -61,6 +96,8 @@ beforeEach(() => {
         return { data: { data: statusPayload } }
       case '/api/data/self':
         return { data: { success: true, data: [] } }
+      case '/api/uptime/status':
+        return { data: { success: true, data: [] } }
       default:
         throw new Error(`Unexpected dashboard request: ${url}`)
     }
@@ -70,6 +107,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup()
   client.clear()
+  window.localStorage.removeItem(STATUS_STORAGE_KEY)
   useAuthStore.setState(useAuthStore.getInitialState(), true)
   useSystemConfigStore.setState(useSystemConfigStore.getInitialState(), true)
 })
@@ -107,14 +145,110 @@ describe('overview dashboard layout', () => {
     }
   })
 
-  it('still renders enabled content panels next to the usage cards', async () => {
-    statusPayload = { ...statusPayload, announcements_enabled: true }
+  it('shows announcements but omits API Info even when both are enabled', async () => {
+    statusPayload = {
+      ...statusPayload,
+      api_info_enabled: true,
+      api_info: [
+        {
+          route: 'Primary API',
+          url: 'https://api.example.com',
+          description: '',
+          color: 'blue',
+        },
+      ],
+      announcements_enabled: true,
+    }
     await renderOverview()
 
     expect(
       await screen.findByRole('heading', { name: 'Usage at a glance' })
     ).toBeVisible()
-    expect(await screen.findByText('Announcements')).toBeVisible()
-    expect(screen.queryByText('Setup guide')).not.toBeInTheDocument()
+    expect(await screen.findByText('System Announcements')).toBeVisible()
+    expect(screen.queryByText('API Info')).not.toBeInTheDocument()
   })
+
+  it('stretches the three panels to their grid row height when uptime is empty', async () => {
+    statusPayload = {
+      ...statusPayload,
+      announcements_enabled: true,
+      announcements: [{ id: 1, content: 'Service update' }],
+      faq_enabled: true,
+      faq: [
+        { id: 1, question: 'How do I get started?', answer: 'Create a key.' },
+      ],
+      uptime_kuma_enabled: true,
+    }
+    await renderOverview()
+
+    const panels = await Promise.all([
+      screen.findByRole('button', { name: /Service update/ }),
+      screen.findByRole('button', { name: 'How do I get started?' }),
+      screen.findByText('No uptime monitoring configured'),
+    ])
+
+    for (const content of panels) {
+      expect(content.closest('.bg-card')).toHaveClass('h-full')
+    }
+  })
+
+  it('shows the announcement title and falls back to the content preview', async () => {
+    statusPayload = {
+      ...statusPayload,
+      announcements_enabled: true,
+      announcements: [
+        { id: 1, content: 'Maintenance details', extra: ' Scheduled outage ' },
+        { id: 2, content: 'Service update' },
+        { id: 3, content: 'Another update', extra: '   ' },
+      ],
+    }
+    await renderOverview()
+
+    const titledAnnouncement = await screen.findByRole('button', {
+      name: /Scheduled outage/,
+    })
+    expect(titledAnnouncement).not.toHaveTextContent('Maintenance details')
+    expect(screen.getByRole('button', { name: /Service update/ })).toBeVisible()
+    expect(screen.getByRole('button', { name: /Another update/ })).toBeVisible()
+
+    await userEvent.click(titledAnnouncement)
+    const dialog = screen.getByRole('dialog', { name: 'Scheduled outage' })
+    expect(within(dialog).getByText('Maintenance details')).toBeVisible()
+  })
+
+  it.each([1, 2])(
+    'connects only adjacent entries when the list has %i announcements',
+    async (count) => {
+      const announcements = [
+        { id: 1, content: 'Service update' },
+        { id: 2, content: 'Scheduled maintenance' },
+      ].slice(0, count)
+      statusPayload = {
+        ...statusPayload,
+        announcements_enabled: true,
+        announcements,
+      }
+      await renderOverview()
+
+      for (const [index, announcement] of announcements.entries()) {
+        const row = await screen.findByRole('button', {
+          name: new RegExp(announcement.content),
+        })
+        const connector = within(row).queryByRole('separator', { hidden: true })
+
+        if (index === count - 1) {
+          expect(connector).not.toBeInTheDocument()
+        } else {
+          expect(connector).toHaveAttribute('aria-orientation', 'vertical')
+          expect(connector).toHaveAttribute('aria-hidden', 'true')
+          expect(connector).toHaveClass(
+            'data-vertical:w-[0.5px]',
+            'bg-muted-foreground/50',
+            'start-[calc(var(--spacing)*4_-_0.25px)]',
+            'sm:start-[calc(var(--spacing)*6_-_0.25px)]'
+          )
+        }
+      }
+    }
+  )
 })

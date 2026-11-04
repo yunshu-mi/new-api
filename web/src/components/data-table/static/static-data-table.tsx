@@ -68,6 +68,8 @@ export type StaticDataTableColumn<TData = unknown> = {
   header: React.ReactNode
   className?: string
   cellClassName?: string | ((row: TData, index: number) => string | undefined)
+  tooltipTriggerClassName?: string
+  tooltipVariant?: React.ComponentProps<typeof TruncatedCell>['tooltipVariant']
   cell?: (row: TData, index: number) => React.ReactNode
 }
 
@@ -188,7 +190,15 @@ function renderStaticCellContent<TData>(
 
   if (!textContent) return content
 
-  return <TruncatedCell tooltipContent={textContent}>{content}</TruncatedCell>
+  return (
+    <TruncatedCell
+      className={column.tooltipTriggerClassName}
+      tooltipContent={textContent}
+      tooltipVariant={column.tooltipVariant}
+    >
+      {content}
+    </TruncatedCell>
+  )
 }
 
 function getPrimitiveTextContent(content: React.ReactNode): string | null {

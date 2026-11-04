@@ -17,12 +17,21 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import type { TFunction } from 'i18next'
-import { Bell, Megaphone } from 'lucide-react'
+import { Bell, Megaphone, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { RichContent } from '@/components/rich-content'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import {
   Empty,
   EmptyDescription,
@@ -30,14 +39,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty'
-import {
-  Popover,
-  PopoverContent,
-  PopoverHeader,
-  PopoverTitle,
-  PopoverTrigger,
-} from '@/components/ui/popover'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getAnnouncementColorClass } from '@/lib/colors'
@@ -55,6 +56,7 @@ interface AnnouncementItem {
 interface NotificationPopoverProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onCloseToday: () => void
   unreadCount: number
   activeTab: 'notice' | 'announcements'
   onTabChange: (tab: 'notice' | 'announcements') => void
@@ -63,6 +65,12 @@ interface NotificationPopoverProps {
   loading: boolean
   className?: string
 }
+
+const notificationTabClassName =
+  'min-h-9 flex-none rounded-lg px-3 text-xs text-[#6c6c6c] data-active:bg-[#eaf5ff] data-active:text-[#0064fa] dark:data-active:border-transparent dark:data-active:bg-blue-400/15 dark:data-active:text-blue-300'
+
+const notificationActionClassName =
+  'bg-[#e8e8e8] text-[#0059e5] hover:bg-[#e2e2e2] dark:bg-secondary dark:text-blue-300 dark:hover:bg-secondary/80'
 
 /**
  * Get relative time string from a date
@@ -129,6 +137,7 @@ function getRelativeTime(publishDate: string | Date, t: TFunction): string {
 function AnnouncementDot({ type }: { type?: string }) {
   return (
     <span
+      aria-hidden='true'
       className={cn(
         'mt-1.5 inline-block size-2 shrink-0 rounded-full',
         getAnnouncementColorClass(type)
@@ -204,9 +213,11 @@ function NoticeContent({
   }
 
   return (
-    <ScrollArea className='h-[min(52vh,28rem)] pr-3'>
-      <RichContent breaks content={notice} />
-    </ScrollArea>
+    <RichContent
+      breaks
+      content={notice}
+      className='[&_hr]:my-2 [&_li]:my-0 [&_p]:leading-5'
+    />
   )
 }
 
@@ -239,60 +250,58 @@ function AnnouncementsContent({
   }
 
   return (
-    <ScrollArea className='h-[min(52vh,28rem)] pr-3'>
-      <div className='flex flex-col'>
-        {announcements.map((item, idx) => {
-          const announcementKey = getAnnouncementRenderKey(item)
-          const publishDate = item.publishDate
-            ? new Date(item.publishDate)
-            : null
-          const relativeTime = publishDate
-            ? getRelativeTime(publishDate, t)
-            : ''
-          const absoluteTime = publishDate
-            ? formatDateTimeObject(publishDate)
-            : ''
+    <ol className='flex list-none flex-col'>
+      {announcements.map((item, idx) => {
+        const announcementKey = getAnnouncementRenderKey(item)
+        const title = typeof item.extra === 'string' ? item.extra.trim() : ''
+        const publishDate = item.publishDate ? new Date(item.publishDate) : null
+        const relativeTime = publishDate ? getRelativeTime(publishDate, t) : ''
+        const absoluteTime = publishDate
+          ? formatDateTimeObject(publishDate)
+          : ''
 
-          return (
-            <div key={announcementKey}>
-              <div className='py-3'>
-                <div className='flex items-start gap-3'>
-                  <AnnouncementDot type={item.type} />
-                  <div className='flex min-w-0 flex-1 flex-col gap-2'>
-                    <div className='text-sm'>
-                      <RichContent breaks content={item.content || ''} />
-                    </div>
-
-                    {item.extra ? (
-                      <div className='text-muted-foreground text-xs'>
-                        <RichContent breaks content={item.extra} />
-                      </div>
-                    ) : null}
-
-                    {absoluteTime ? (
-                      <div className='text-muted-foreground text-xs'>
-                        {relativeTime ? `${relativeTime} • ` : null}
-                        {absoluteTime}
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
+        return (
+          <li
+            key={announcementKey}
+            className='relative flex items-start gap-3 py-3'
+          >
+            <AnnouncementDot type={item.type} />
+            {idx < announcements.length - 1 ? (
+              <Separator
+                aria-hidden='true'
+                orientation='vertical'
+                className='bg-muted-foreground/50 pointer-events-none absolute start-[calc(var(--spacing)_-_0.25px)] top-7 -bottom-3.5 data-vertical:w-[0.5px]'
+              />
+            ) : null}
+            <div className='flex min-w-0 flex-1 flex-col gap-2'>
+              {title ? (
+                <p className='text-sm font-medium wrap-anywhere'>{title}</p>
+              ) : null}
+              <div className='text-sm'>
+                <RichContent breaks content={item.content || ''} />
               </div>
-              {idx < announcements.length - 1 ? <Separator /> : null}
+
+              {absoluteTime ? (
+                <div className='text-muted-foreground text-xs'>
+                  {relativeTime ? `${relativeTime} • ` : null}
+                  {absoluteTime}
+                </div>
+              ) : null}
             </div>
-          )
-        })}
-      </div>
-    </ScrollArea>
+          </li>
+        )
+      })}
+    </ol>
   )
 }
 
 /**
- * Notification popover with Notice and Announcements tabs
+ * Notification dialog with Notice and Announcements tabs
  */
 export function NotificationPopover({
   open,
   onOpenChange,
+  onCloseToday,
   unreadCount,
   activeTab,
   onTabChange,
@@ -303,8 +312,8 @@ export function NotificationPopover({
 }: NotificationPopoverProps) {
   const { t } = useTranslation()
   return (
-    <Popover open={open} onOpenChange={onOpenChange}>
-      <PopoverTrigger
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogTrigger
         render={
           <Button
             variant='ghost'
@@ -323,40 +332,64 @@ export function NotificationPopover({
             {unreadCount > 99 ? '99+' : unreadCount}
           </Badge>
         ) : null}
-      </PopoverTrigger>
+      </DialogTrigger>
 
-      <PopoverContent
-        align='end'
-        sideOffset={8}
-        className='w-[min(26rem,calc(100vw-1rem))] gap-3 p-3'
+      <DialogContent
+        aria-modal='true'
+        showCloseButton={false}
+        overlayClassName='bg-black/55 supports-backdrop-filter:backdrop-blur-none'
+        className={cn(
+          'bg-background top-(--notification-top) flex max-h-[min(var(--notification-height-limit,100dvh),var(--notification-available-height))] origin-top translate-y-0 flex-col gap-0 transition-none [--notification-available-height:calc(100dvh-var(--notification-top)-var(--dialog-inset-bottom,1rem))] [--notification-top:max(var(--dialog-inset-top,1rem),min(8dvh,5rem))] sm:max-w-[min(1150px,calc(100%-2rem))] sm:px-6',
+          activeTab === 'announcements' && '[--notification-height-limit:650px]'
+        )}
       >
-        <PopoverHeader className='gap-1 px-1'>
-          <PopoverTitle>{t('System Announcements')}</PopoverTitle>
-          <p className='text-muted-foreground text-xs'>
-            {t('Latest platform updates and notices')}
-          </p>
-        </PopoverHeader>
-
         <Tabs
+          className={cn(
+            'gap-4',
+            activeTab === 'notice' ? 'shrink-0' : 'min-h-0'
+          )}
           value={activeTab}
-          onValueChange={onTabChange as (value: string) => void}
+          onValueChange={onTabChange}
         >
-          <TabsList className='grid w-full grid-cols-2'>
-            <TabsTrigger value='notice' className='gap-1.5'>
-              <Bell className='size-3.5' />
-              {t('Notice')}
-            </TabsTrigger>
-            <TabsTrigger value='announcements' className='gap-1.5'>
-              <Megaphone className='size-3.5' />
-              {t('Timeline')}
-            </TabsTrigger>
-          </TabsList>
+          <DialogHeader className='relative shrink-0 flex-row flex-wrap items-center justify-between gap-x-4 gap-y-2 pe-8'>
+            <DialogTitle className='text-lg font-semibold'>
+              {t('System Announcements')}
+            </DialogTitle>
+            <TabsList className='h-auto flex-wrap justify-start gap-1 bg-transparent p-0 group-data-horizontal/tabs:h-auto'>
+              <TabsTrigger value='notice' className={notificationTabClassName}>
+                <Bell aria-hidden='true' className='size-3.5' />
+                {t('Notice')}
+              </TabsTrigger>
+              <TabsTrigger
+                value='announcements'
+                className={notificationTabClassName}
+              >
+                <Megaphone aria-hidden='true' className='size-3.5' />
+                {t('System Announcements')}
+              </TabsTrigger>
+            </TabsList>
+            <DialogClose
+              render={
+                <Button
+                  variant='ghost'
+                  size='icon-sm'
+                  className='absolute end-0 top-0'
+                  aria-label={t('Close')}
+                />
+              }
+            >
+              <X aria-hidden='true' className='size-4' />
+            </DialogClose>
+          </DialogHeader>
 
-          <TabsContent value='notice' className='mt-2'>
+          <TabsContent value='notice'>
             <NoticeContent notice={notice} loading={loading} t={t} />
           </TabsContent>
 
-          <TabsContent value='announcements' className='mt-2'>
+          <TabsContent
+            value='announcements'
+            className='min-h-0 overflow-y-auto overscroll-contain pe-2'
+          >
             <AnnouncementsContent
               announcements={announcements}
               loading={loading}
@@ -365,12 +398,26 @@ export function NotificationPopover({
           </TabsContent>
         </Tabs>
 
-        <div className='flex justify-end'>
-          <Button size='sm' onClick={() => onOpenChange(false)}>
-            {t('Close')}
+        <DialogFooter className='m-0 mt-4 shrink-0 flex-row flex-wrap justify-end rounded-none border-0 bg-transparent p-0'>
+          <Button
+            variant='secondary'
+            className={notificationActionClassName}
+            onClick={onCloseToday}
+          >
+            {t('Close Today')}
           </Button>
-        </div>
-      </PopoverContent>
-    </Popover>
+          <DialogClose
+            render={
+              <Button
+                variant='secondary'
+                className={notificationActionClassName}
+              />
+            }
+          >
+            {t('Close Announcement')}
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

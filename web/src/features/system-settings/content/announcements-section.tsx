@@ -60,7 +60,9 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import { toIntlLocale } from '@/i18n/languages'
+import { getAnnouncementColorClass, type AnnouncementType } from '@/lib/colors'
 import dayjs from '@/lib/dayjs'
 import { formatTimestampRelative } from '@/lib/format'
 import { handleServerError } from '@/lib/handle-server-error'
@@ -73,7 +75,7 @@ type Announcement = {
   id: number
   content: string
   publishDate: string
-  type: 'default' | 'ongoing' | 'success' | 'warning' | 'error'
+  type: AnnouncementType
   extra?: string
 }
 
@@ -89,54 +91,37 @@ const announcementSchema = z.object({
     .max(500, 'Content must be less than 500 characters'),
   publishDate: z.string().min(1, 'Publish date is required'),
   type: z.enum(['default', 'ongoing', 'success', 'warning', 'error']),
-  extra: z
-    .string()
-    .max(100, 'Extra must be less than 100 characters')
-    .optional(),
+  extra: z.string().trim().max(100, 'Maximum 100 characters.').optional(),
 })
 
 type AnnouncementFormValues = z.infer<typeof announcementSchema>
 
 const ANNOUNCEMENT_FORM_ID = 'announcement-form'
 
-const typeOptions = [
-  {
-    value: 'default',
-    label: 'Default',
-    color: 'bg-gray-500',
-    badgeVariant: 'neutral' as const,
-  },
-  {
-    value: 'ongoing',
-    label: 'Ongoing',
-    color: 'bg-blue-500',
-    badgeVariant: 'info' as const,
-  },
-  {
-    value: 'success',
-    label: 'Success',
-    color: 'bg-green-500',
-    badgeVariant: 'success' as const,
-  },
-  {
-    value: 'warning',
-    label: 'Warning',
-    color: 'bg-orange-500',
-    badgeVariant: 'warning' as const,
-  },
-  {
-    value: 'error',
-    label: 'Error',
-    color: 'bg-red-500',
-    badgeVariant: 'danger' as const,
-  },
-]
-
 export function AnnouncementsSection({
   enabled,
   data,
 }: AnnouncementsSectionProps) {
   const { t, i18n } = useTranslation()
+  const typeLabels: Record<AnnouncementType, string> = {
+    default: t('Default'),
+    ongoing: t('In Progress'),
+    success: t('Success'),
+    warning: t('Warning'),
+    error: t('Incident'),
+  }
+  const typeOptions = announcementSchema.shape.type.options.map((type) => ({
+    value: type,
+    label: (
+      <StatusBadge
+        label={typeLabels[type]}
+        type='text'
+        showDot
+        dotClassName={getAnnouncementColorClass(type)}
+        copyable={false}
+      />
+    ),
+  }))
   const locale = toIntlLocale(i18n.resolvedLanguage || i18n.language)
   const updateOption = useUpdateOption()
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
@@ -337,98 +322,94 @@ export function AnnouncementsSection({
           />
         </div>
 
-        <StaticDataTable
-          data={sortedAnnouncements}
-          getRowKey={(announcement) => announcement.id}
-          emptyContent={t(
-            'No announcements yet. Click "Add Announcement" to create one.'
-          )}
-          columns={[
-            {
-              id: 'select',
-              header: (
-                <Checkbox
-                  checked={
-                    selectedIds.length === announcements.length &&
-                    announcements.length > 0
-                  }
-                  onCheckedChange={toggleSelectAll}
-                />
-              ),
-              className: 'w-12',
-              cell: (announcement) => (
-                <Checkbox
-                  checked={selectedIds.includes(announcement.id)}
-                  onCheckedChange={(checked) =>
-                    toggleSelectOne(announcement.id, checked as boolean)
-                  }
-                />
-              ),
-            },
-            {
-              id: 'content',
-              header: t('Content'),
-              cellClassName: 'max-w-xs truncate',
-              cell: (announcement) => announcement.content,
-            },
-            {
-              id: 'publish-date',
-              header: t('Publish Date'),
-              cell: (announcement) => (
-                <div className='flex flex-col gap-1'>
-                  <span className='text-sm font-medium'>
-                    {formatTimestampRelative(
-                      new Date(announcement.publishDate).getTime(),
-                      'milliseconds',
-                      locale
-                    )}
-                  </span>
-                  <span className='text-muted-foreground text-xs'>
-                    {dayjs(announcement.publishDate).format(
-                      'YYYY-MM-DD HH:mm:ss'
-                    )}
-                  </span>
-                </div>
-              ),
-            },
-            {
-              id: 'type',
-              header: t('Type'),
-              cell: (announcement) => (
-                <StatusBadge
-                  label={
-                    typeOptions.find((opt) => opt.value === announcement.type)
-                      ?.label
-                  }
-                  variant={
-                    typeOptions.find((opt) => opt.value === announcement.type)
-                      ?.badgeVariant ?? 'neutral'
-                  }
-                  copyable={false}
-                />
-              ),
-            },
-            {
-              id: 'extra',
-              header: t('Extra'),
-              cellClassName: 'text-muted-foreground max-w-xs truncate',
-              cell: (announcement) => announcement.extra || '-',
-            },
-            {
-              id: 'actions',
-              header: t('Actions'),
-              cell: (announcement) => (
-                <StaticRowActions
-                  editLabel={t('Edit')}
-                  deleteLabel={t('Delete')}
-                  menuLabel={t('Open menu')}
-                  onEdit={() => handleEdit(announcement)}
-                  onDelete={() => handleDelete(announcement)}
-                />
-              ),
-            },
-          ]}
-        />
+        <TooltipProvider delay={0}>
+          <StaticDataTable
+            data={sortedAnnouncements}
+            getRowKey={(announcement) => announcement.id}
+            emptyContent={t(
+              'No announcements yet. Click "Add Announcement" to create one.'
+            )}
+            columns={[
+              {
+                id: 'select',
+                header: (
+                  <Checkbox
+                    checked={
+                      selectedIds.length === announcements.length &&
+                      announcements.length > 0
+                    }
+                    onCheckedChange={toggleSelectAll}
+                  />
+                ),
+                className: 'w-12',
+                cell: (announcement) => (
+                  <Checkbox
+                    checked={selectedIds.includes(announcement.id)}
+                    onCheckedChange={(checked) =>
+                      toggleSelectOne(announcement.id, checked as boolean)
+                    }
+                  />
+                ),
+              },
+              {
+                id: 'extra',
+                header: t('Title'),
+                tooltipVariant: 'neutral',
+                cellClassName: 'text-muted-foreground max-w-xs truncate',
+                cell: (announcement) => announcement.extra || '-',
+              },
+              {
+                id: 'publish-date',
+                header: t('Publish Date'),
+                cell: (announcement) => (
+                  <div className='flex flex-col gap-1'>
+                    <span className='text-sm font-medium'>
+                      {formatTimestampRelative(
+                        new Date(announcement.publishDate).getTime(),
+                        'milliseconds',
+                        locale
+                      )}
+                    </span>
+                    <span className='text-muted-foreground text-xs'>
+                      {dayjs(announcement.publishDate).format(
+                        'YYYY-MM-DD HH:mm:ss'
+                      )}
+                    </span>
+                  </div>
+                ),
+              },
+              {
+                id: 'type',
+                header: t('Type'),
+                cell: (announcement) =>
+                  typeOptions.find(
+                    (option) => option.value === announcement.type
+                  )?.label ?? typeOptions[0].label,
+              },
+              {
+                id: 'content',
+                header: t('Content'),
+                tooltipTriggerClassName: 'w-fit',
+                tooltipVariant: 'neutral',
+                cellClassName: 'max-w-xs truncate',
+                cell: (announcement) => announcement.content,
+              },
+              {
+                id: 'actions',
+                header: t('Actions'),
+                cell: (announcement) => (
+                  <StaticRowActions
+                    editLabel={t('Edit')}
+                    deleteLabel={t('Delete')}
+                    menuLabel={t('Open menu')}
+                    onEdit={() => handleEdit(announcement)}
+                    onDelete={() => handleDelete(announcement)}
+                  />
+                ),
+              },
+            ]}
+          />
+        </TooltipProvider>
       </div>
 
       <Dialog
@@ -517,17 +498,7 @@ export function AnnouncementsSection({
                 <FormItem>
                   <FormLabel>{t('Type')}</FormLabel>
                   <Select
-                    items={typeOptions.map((option) => ({
-                      value: option.value,
-                      label: (
-                        <div className='flex items-center gap-2'>
-                          <div
-                            className={`h-3 w-3 rounded-full ${option.color}`}
-                          />
-                          {option.label}
-                        </div>
-                      ),
-                    }))}
+                    items={typeOptions}
                     onValueChange={field.onChange}
                     value={field.value}
                   >
@@ -542,12 +513,7 @@ export function AnnouncementsSection({
                       <SelectGroup>
                         {typeOptions.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
-                            <div className='flex items-center gap-2'>
-                              <div
-                                className={`h-3 w-3 rounded-full ${option.color}`}
-                              />
-                              {option.label}
-                            </div>
+                            {option.label}
                           </SelectItem>
                         ))}
                       </SelectGroup>
@@ -562,17 +528,12 @@ export function AnnouncementsSection({
               name='extra'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t('Extra Notes (Optional)')}</FormLabel>
+                  <FormLabel>{t('Title (Optional)')}</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder={t('Additional information')}
-                      {...field}
-                    />
+                    <Input {...field} />
                   </FormControl>
                   <FormDescription>
-                    {t(
-                      'Optional supplementary information (max 100 characters)'
-                    )}
+                    {t('Maximum 100 characters.')}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

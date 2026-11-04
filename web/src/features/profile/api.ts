@@ -45,6 +45,11 @@ export async function getUserProfile(): Promise<ApiResponse<UserProfile>> {
   return res.data
 }
 
+export async function updateUserAvatar(avatar: string): Promise<ApiResponse> {
+  const res = await api.put('/api/user/self/avatar', { avatar })
+  return res.data
+}
+
 /**
  * Update user profile
  */

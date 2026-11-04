@@ -27,9 +27,7 @@ interface AnnouncementDetailModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   announcement: {
-    title?: string
     content?: string
-    tag?: string
     publishDate?: string
     extra?: string
   } | null
@@ -41,11 +39,14 @@ export function AnnouncementDetailModal({
   announcement,
 }: AnnouncementDetailModalProps) {
   const { t } = useTranslation()
+  const title =
+    typeof announcement?.extra === 'string' ? announcement.extra.trim() : ''
   return (
     <Dialog
       open={open}
       onOpenChange={onOpenChange}
-      title={t('Announcement Details')}
+      title={title || t('Announcement Details')}
+      titleClassName='wrap-anywhere'
       description={
         announcement?.publishDate
           ? `${t('Published:')} ${formatDateTimeObject(new Date(announcement.publishDate))}`
@@ -61,18 +62,6 @@ export function AnnouncementDetailModal({
             <div>
               <h4 className='mb-2 font-medium'>{t('Content')}</h4>
               <RichContent breaks content={announcement.content} />
-            </div>
-          )}
-          {announcement?.extra && (
-            <div>
-              <h4 className='mb-2 font-medium'>
-                {t('Additional Information')}
-              </h4>
-              <RichContent
-                breaks
-                content={announcement.extra}
-                className='text-muted-foreground'
-              />
             </div>
           )}
         </div>

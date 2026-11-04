@@ -124,8 +124,8 @@ export interface StatusBadgeProps extends Omit<
   children?: React.ReactNode
   icon?: LucideIcon
   pulse?: boolean
-  /** Kept for compatibility. Badges no longer render leading dots. */
   showDot?: boolean
+  dotClassName?: string
   variant?: StatusVariant | null
   size?: 'sm' | 'md' | 'lg' | null
   copyable?: boolean
@@ -143,6 +143,7 @@ export function StatusBadge({
   size = 'sm',
   pulse = false,
   showDot = false,
+  dotClassName,
   copyable = true,
   copyText,
   autoColor,
@@ -203,7 +204,8 @@ export function StatusBadge({
         <span
           className={cn(
             'inline-block size-1.5 shrink-0 rounded-full',
-            dotColorMap[computedVariant]
+            dotColorMap[computedVariant],
+            dotClassName
           )}
           aria-hidden='true'
         />

@@ -16,7 +16,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { type StatusBadgeProps } from '@/components/status-badge'
+import type { DataTableFilterOption } from '@/components/data-table'
+import type { StatusBadgeProps } from '@/components/status-badge'
 
 // ============================================================================
 // API Key Status Configuration
@@ -35,26 +36,31 @@ export const API_KEY_STATUSES: Record<
   Pick<StatusBadgeProps, 'variant'> & {
     label: string
     value: number
+    filterTone: NonNullable<DataTableFilterOption['tone']>
   }
 > = {
   [API_KEY_STATUS.ENABLED]: {
     label: 'Enabled',
     variant: 'success',
+    filterTone: 'success',
     value: API_KEY_STATUS.ENABLED,
   },
   [API_KEY_STATUS.DISABLED]: {
     label: 'Disabled',
     variant: 'neutral',
+    filterTone: 'slate',
     value: API_KEY_STATUS.DISABLED,
   },
   [API_KEY_STATUS.EXPIRED]: {
     label: 'Expired',
     variant: 'warning',
+    filterTone: 'warning',
     value: API_KEY_STATUS.EXPIRED,
   },
   [API_KEY_STATUS.EXHAUSTED]: {
     label: 'Exhausted',
     variant: 'danger',
+    filterTone: 'destructive',
     value: API_KEY_STATUS.EXHAUSTED,
   },
 } as const
@@ -63,6 +69,7 @@ export const API_KEY_STATUS_OPTIONS = Object.values(API_KEY_STATUSES).map(
   (config) => ({
     label: config.label,
     value: String(config.value),
+    tone: config.filterTone,
   })
 )
 

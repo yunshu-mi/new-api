@@ -20,6 +20,28 @@ import type { CSSProperties } from 'react'
 
 export type UserAvatarStyle = Pick<CSSProperties, 'backgroundColor' | 'color'>
 
+const DEFAULT_USER_AVATAR_ID = '01_default_user'
+
+export const USER_AVATAR_PRESETS = [
+  { id: DEFAULT_USER_AVATAR_ID, label: 'Default avatar' },
+  { id: '01_long_hair_woman', label: 'Long-haired woman' },
+  { id: '02_glasses_boy', label: 'Boy with glasses' },
+  { id: '05_mountain', label: 'Mountain' },
+  { id: '06_sunset', label: 'Sunset' },
+  { id: '07_moon', label: 'Moon' },
+] as const
+
+export function getUserAvatarId(avatar?: string): string {
+  return (
+    USER_AVATAR_PRESETS.find((preset) => preset.id === avatar)?.id ??
+    DEFAULT_USER_AVATAR_ID
+  )
+}
+
+export function getUserAvatarUrl(avatar?: string): string {
+  return `/avatars/${getUserAvatarId(avatar)}.png`
+}
+
 function hashString(value: string): number {
   let hash = 0
   for (let i = 0; i < value.length; i++) {

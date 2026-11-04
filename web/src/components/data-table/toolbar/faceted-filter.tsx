@@ -16,7 +16,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { type Column } from '@tanstack/react-table'
+import type { Column } from '@tanstack/react-table'
 import { Check as CheckIcon, PlusCircle as PlusCircledIcon } from 'lucide-react'
 import * as React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -40,21 +40,37 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 
+const filterTones = {
+  primary:
+    '[--filter-tone:var(--primary)] [--filter-tone-foreground:var(--primary-foreground)]',
+  success:
+    '[--filter-tone:var(--success)] [--filter-tone-foreground:var(--success-foreground)]',
+  destructive:
+    '[--filter-tone:var(--destructive)] [--filter-tone-foreground:var(--destructive-foreground)]',
+  warning:
+    '[--filter-tone:var(--warning)] [--filter-tone-foreground:var(--warning-foreground)]',
+  slate:
+    '[--filter-tone:var(--color-slate-500)] [--filter-tone-foreground:var(--color-white)]',
+}
+
+export type DataTableFilterOption = {
+  label: string
+  value: string
+  icon?: React.ComponentType<{ className?: string }>
+  iconNode?: React.ReactNode
+  count?: number
+  tone?: keyof typeof filterTones
+}
+
 type DataTableFacetedFilterProps<TData, TValue> = {
   column?: Column<TData, TValue>
   title?: string
-  options: {
-    label: string
-    value: string
-    icon?: React.ComponentType<{ className?: string }>
-    iconNode?: React.ReactNode
-    count?: number
-  }[]
+  options: DataTableFilterOption[]
   /** Enable single select mode (only one option can be selected at a time) */
   singleSelect?: boolean
 }
 
-function DataTableFacetedFilterInner<TData, TValue>({
+export function DataTableFacetedFilter<TData, TValue>({
   column,
   title,
   options,
@@ -64,6 +80,11 @@ function DataTableFacetedFilterInner<TData, TValue>({
   const facets = column?.getFacetedUniqueValues()
   const filterValue = column?.getFilterValue() as string[] | undefined
   const selectedValues = new Set(filterValue)
+  const selectedOptions = options.filter((option) =>
+    selectedValues.has(option.value)
+  )
+  const singleSelectedTone =
+    selectedValues.size === 1 ? selectedOptions[0]?.tone : undefined
 
   const handleOptionSelect = (optionValue: string) => {
     const nextSelectedValues = getNextSelectedValues(
@@ -81,7 +102,7 @@ function DataTableFacetedFilterInner<TData, TValue>({
     <Popover>
       <PopoverTrigger
         render={
-          <Button variant='outline' size='sm' className='h-8 border-dashed' />
+          <Button variant='outline' size='sm' className='border-input h-8' />
         }
       >
         <PlusCircledIcon className='size-4' />
@@ -91,7 +112,12 @@ function DataTableFacetedFilterInner<TData, TValue>({
             <Separator orientation='vertical' className='mx-2 h-4' />
             <Badge
               variant='secondary'
-              className='rounded-sm px-1 font-normal lg:hidden'
+              className={cn(
+                'rounded-sm px-1 font-normal lg:hidden',
+                singleSelectedTone && filterTones[singleSelectedTone],
+                singleSelectedTone &&
+                  'border-(--filter-tone)/40 bg-(--filter-tone)/20 text-foreground'
+              )}
             >
               {selectedValues.size}
             </Badge>
@@ -104,17 +130,20 @@ function DataTableFacetedFilterInner<TData, TValue>({
                   {selectedValues.size} {t('selected')}
                 </Badge>
               ) : (
-                options
-                  .filter((option) => selectedValues.has(option.value))
-                  .map((option) => (
-                    <Badge
-                      variant='secondary'
-                      key={option.value}
-                      className='rounded-sm px-1 font-normal'
-                    >
-                      {t(option.label)}
-                    </Badge>
-                  ))
+                selectedOptions.map((option) => (
+                  <Badge
+                    variant='secondary'
+                    key={option.value}
+                    className={cn(
+                      'rounded-sm px-1 font-normal',
+                      option.tone && filterTones[option.tone],
+                      option.tone &&
+                        'border-(--filter-tone)/40 bg-(--filter-tone)/20 text-foreground'
+                    )}
+                  >
+                    {t(option.label)}
+                  </Badge>
+                ))
               )}
             </div>
           </>
@@ -128,43 +157,63 @@ function DataTableFacetedFilterInner<TData, TValue>({
             <CommandGroup>
               {options.map((option) => {
                 const isSelected = selectedValues.has(option.value)
+                const count =
+                  option.count ?? (facets?.get(option.value) || undefined)
+                let icon: React.ReactNode
+                if (option.iconNode) {
+                  icon = (
+                    <span className='text-muted-foreground flex size-4 items-center justify-center'>
+                      {option.iconNode}
+                    </span>
+                  )
+                } else if (option.icon) {
+                  icon = (
+                    <option.icon className='text-muted-foreground size-4' />
+                  )
+                }
                 return (
                   <CommandItem
                     key={option.value}
                     onSelect={() => handleOptionSelect(option.value)}
+                    aria-checked={isSelected}
+                    className={cn(
+                      'data-selected:bg-primary/10',
+                      isSelected && [
+                        filterTones[option.tone ?? 'primary'],
+                        'bg-(--filter-tone)/15 font-semibold data-selected:bg-(--filter-tone)/20',
+                      ]
+                    )}
                   >
                     <div
+                      aria-hidden='true'
                       className={cn(
-                        'border-primary flex size-4 items-center justify-center rounded-sm border',
+                        'flex size-4 shrink-0 items-center justify-center rounded-sm border',
                         isSelected
-                          ? 'bg-primary text-primary-foreground'
-                          : 'opacity-50 [&_svg]:invisible'
+                          ? 'border-(--filter-tone) bg-(--filter-tone) text-(color:--filter-tone-foreground)'
+                          : 'border-muted-foreground/60'
                       )}
                     >
-                      <CheckIcon className={cn('text-background h-4 w-4')} />
+                      {isSelected && <CheckIcon className='size-3' />}
                     </div>
-                    {option.iconNode ? (
-                      <span className='text-muted-foreground flex size-4 items-center justify-center'>
-                        {option.iconNode}
-                      </span>
-                    ) : option.icon ? (
-                      <option.icon className='text-muted-foreground size-4' />
-                    ) : null}
+                    {icon}
                     <span
                       className='min-w-0 flex-1 truncate'
                       title={t(option.label)}
                     >
                       {t(option.label)}
                     </span>
-                    {typeof option.count === 'number' ? (
-                      <span className='text-muted-foreground ms-auto flex h-4 min-w-4 items-center justify-center font-mono text-xs'>
-                        {option.count}
+                    {count !== undefined && (
+                      <span
+                        className={cn(
+                          'ms-auto flex h-4 items-center justify-center font-mono text-xs',
+                          typeof option.count === 'number'
+                            ? 'text-muted-foreground min-w-4'
+                            : 'w-4'
+                        )}
+                      >
+                        {count}
                       </span>
-                    ) : facets?.get(option.value) ? (
-                      <span className='ms-auto flex h-4 w-4 items-center justify-center font-mono text-xs'>
-                        {facets.get(option.value)}
-                      </span>
-                    ) : null}
+                    )}
                   </CommandItem>
                 )
               })}
@@ -189,10 +238,6 @@ function DataTableFacetedFilterInner<TData, TValue>({
   )
 }
 
-export const DataTableFacetedFilter = React.memo(
-  DataTableFacetedFilterInner
-) as typeof DataTableFacetedFilterInner
-
 function getNextSelectedValues(
   selectedValues: Set<string>,
   optionValue: string,
@@ -209,5 +254,5 @@ function getNextSelectedValues(
     nextSelectedValues.add(optionValue)
   }
 
-  return Array.from(nextSelectedValues)
+  return [...nextSelectedValues]
 }

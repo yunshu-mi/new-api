@@ -22,6 +22,7 @@ import { useWatch, type Resolver } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import * as z from 'zod'
 
+import { FieldLegend, FieldSet } from '@/components/ui/field'
 import {
   Form,
   FormControl,
@@ -181,66 +182,73 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
               isResetDisabled={!isDirty || isReadingLogo}
             />
             <FormDirtyIndicator isDirty={isDirty} />
-            <SettingsFormGrid>
-              <FormField
-                control={form.control}
-                name='SystemName'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('System Name')}</FormLabel>
-                    <FormControl>
-                      <Input placeholder={t('New API')} {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      {t('The name displayed across the application')}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <SettingsFormGrid className='items-start'>
+              <FieldSet className='min-w-0'>
+                <FieldLegend>{t('Basic Information')}</FieldLegend>
+                <FormField
+                  control={form.control}
+                  name='SystemName'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('System Name')}</FormLabel>
+                      <FormControl>
+                        <Input placeholder={t('New API')} {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        {t('The name displayed across the application')}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name='ServerAddress'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('Server Address')}</FormLabel>
-                    <FormControl>
-                      <Input placeholder='https://yourdomain.com' {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      {t(
-                        'The public URL of your server, used for OAuth callbacks, webhooks, and other external integrations'
-                      )}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name='ServerAddress'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('Server Address')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder='https://yourdomain.com'
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        {t(
+                          'The public URL of your server, used for OAuth callbacks, webhooks, and other external integrations'
+                        )}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name='TaskPublicAddress'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('Async Task Public Address')}</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder='https://media.example.com/tasks'
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      {t(
-                        'Public base URL for async task media. Supports a dedicated media domain, port, or Nginx path prefix; falls back to Server Address when empty.'
-                      )}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name='TaskPublicAddress'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('Async Task Public Address')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder='https://media.example.com/tasks'
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        {t(
+                          'Public base URL for async task media. Supports a dedicated media domain, port, or Nginx path prefix; falls back to Server Address when empty.'
+                        )}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </FieldSet>
 
-              <div className='min-w-0 space-y-3'>
+              <FieldSet className='@container min-w-0 gap-3'>
+                <FieldLegend>{t('Logo')}</FieldLegend>
                 <FormField
                   control={form.control}
                   name='Logo'
@@ -300,170 +308,203 @@ export function SystemInfoSection({ defaultValues }: SystemInfoSectionProps) {
                     <span className='text-xs'>{t('Dark')}</span>
                   </div>
                 </div>
-              </div>
-
-              <FormField
-                control={form.control}
-                name='general_setting.docs_link'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('Documentation Link')}</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder={t('https://docs.example.com')}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      {t('Link to your documentation site')}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='Footer'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('Footer')}</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder={t(
-                          '© 2025 Your Company. All rights reserved.'
-                        )}
-                        rows={4}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      {t('Footer text displayed at the bottom of pages')}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='general_setting.icp_record'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('ICP filing number')}</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      {t(
-                        'Displayed beside the copyright in the footer. Leave empty to hide.'
-                      )}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='About'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('About')}</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder={t(
-                          'Enter HTML code (e.g., <p>About us...</p>) or a URL (e.g., https://example.com) to embed as iframe'
-                        )}
-                        rows={4}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      {t(
-                        'Supports HTML markup or iframe embedding. Enter HTML code directly, or provide a complete URL to automatically embed it as an iframe.'
-                      )}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <SettingsFormGridItem span='full'>
-                <FormField
-                  control={form.control}
-                  name='HomePageContent'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('Home Page Content')}</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder={t('Welcome to our New API...')}
-                          rows={6}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        {t(
-                          'Content displayed on the home page (supports Markdown)'
-                        )}
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </SettingsFormGridItem>
-
-              <FormField
-                control={form.control}
-                name='legal.user_agreement'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('User Agreement')}</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder={t(
-                          'Provide Markdown, HTML, or an external URL for the user agreement'
-                        )}
-                        rows={6}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      {t(
-                        'Leave empty to disable the agreement requirement. Supports Markdown, HTML, or a full URL to redirect users.'
-                      )}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='legal.privacy_policy'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('Privacy Policy')}</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder={t(
-                          'Provide Markdown, HTML, or an external URL for the privacy policy'
-                        )}
-                        rows={6}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      {t(
-                        'Leave empty to disable the privacy policy requirement. Supports Markdown, HTML, or a full URL to redirect users.'
-                      )}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              </FieldSet>
             </SettingsFormGrid>
+
+            <div className='min-w-0 border-t pt-5'>
+              <FieldSet className='min-w-0'>
+                <FieldLegend>{t('Page Content')}</FieldLegend>
+                <SettingsFormGrid className='items-start'>
+                  <SettingsFormGridItem span='full'>
+                    <FormField
+                      control={form.control}
+                      name='general_setting.docs_link'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('Documentation Link')}</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder={t('https://docs.example.com')}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            {t('Link to your documentation site')}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </SettingsFormGridItem>
+
+                  <SettingsFormGridItem>
+                    <FormField
+                      control={form.control}
+                      name='About'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('About')}</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder={t(
+                                'Enter HTML code (e.g., <p>About us...</p>) or a URL (e.g., https://example.com) to embed as iframe'
+                              )}
+                              rows={4}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            {t(
+                              'Supports HTML markup or iframe embedding. Enter HTML code directly, or provide a complete URL to automatically embed it as an iframe.'
+                            )}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </SettingsFormGridItem>
+
+                  <SettingsFormGridItem>
+                    <FormField
+                      control={form.control}
+                      name='HomePageContent'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('Home Page Content')}</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder={t('Welcome to our New API...')}
+                              rows={6}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            {t(
+                              'Content displayed on the home page (supports Markdown)'
+                            )}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </SettingsFormGridItem>
+                </SettingsFormGrid>
+              </FieldSet>
+            </div>
+
+            <div className='min-w-0 border-t pt-5'>
+              <FieldSet className='min-w-0'>
+                <FieldLegend>{t('Footer Settings')}</FieldLegend>
+                <SettingsFormGrid className='items-start'>
+                  <SettingsFormGridItem>
+                    <FormField
+                      control={form.control}
+                      name='Footer'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('Footer')}</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder={t(
+                                '© 2025 Your Company. All rights reserved.'
+                              )}
+                              rows={4}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            {t('Footer text displayed at the bottom of pages')}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </SettingsFormGridItem>
+
+                  <SettingsFormGridItem>
+                    <FormField
+                      control={form.control}
+                      name='general_setting.icp_record'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('ICP filing number')}</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            {t(
+                              'Displayed beside the copyright in the footer. Leave empty to hide.'
+                            )}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </SettingsFormGridItem>
+                </SettingsFormGrid>
+              </FieldSet>
+            </div>
+
+            <div className='min-w-0 border-t pt-5'>
+              <FieldSet className='min-w-0'>
+                <FieldLegend>{t('Legal Agreements')}</FieldLegend>
+                <SettingsFormGrid className='items-start'>
+                  <SettingsFormGridItem>
+                    <FormField
+                      control={form.control}
+                      name='legal.user_agreement'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('User Agreement')}</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder={t(
+                                'Provide Markdown, HTML, or an external URL for the user agreement'
+                              )}
+                              rows={6}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            {t(
+                              'Leave empty to disable the agreement requirement. Supports Markdown, HTML, or a full URL to redirect users.'
+                            )}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </SettingsFormGridItem>
+
+                  <SettingsFormGridItem>
+                    <FormField
+                      control={form.control}
+                      name='legal.privacy_policy'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('Privacy Policy')}</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder={t(
+                                'Provide Markdown, HTML, or an external URL for the privacy policy'
+                              )}
+                              rows={6}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            {t(
+                              'Leave empty to disable the privacy policy requirement. Supports Markdown, HTML, or a full URL to redirect users.'
+                            )}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </SettingsFormGridItem>
+                </SettingsFormGrid>
+              </FieldSet>
+            </div>
           </SettingsForm>
         </Form>
       </SettingsSection>

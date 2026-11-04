@@ -27,20 +27,17 @@ import { Input } from '@/components/ui/input'
 import { useDebounce, useMediaQuery } from '@/hooks'
 import { cn } from '@/lib/utils'
 
-import { DataTableFacetedFilter } from './faceted-filter'
+import {
+  DataTableFacetedFilter,
+  type DataTableFilterOption,
+} from './faceted-filter'
 import { DataTableMobileFilterPanel } from './mobile-filter-panel'
 import { DataTableViewOptions } from './view-options'
 
 type FilterDef = {
   columnId: string
   title: string
-  options: {
-    label: string
-    value: string
-    icon?: React.ComponentType<{ className?: string }>
-    iconNode?: React.ReactNode
-    count?: number
-  }[]
+  options: DataTableFilterOption[]
   singleSelect?: boolean
 }
 
@@ -260,24 +257,19 @@ export function DataTableToolbar<TData>(props: DataTableToolbarProps<TData>) {
     />
   )
 
-  const filterChips = React.useMemo(
-    () =>
-      filters.map((filter) => {
-        const column = props.table.getColumn(filter.columnId)
-        if (!column) return null
-        return (
-          <DataTableFacetedFilter
-            key={filter.columnId}
-            column={column}
-            title={filter.title}
-            options={filter.options}
-            singleSelect={filter.singleSelect}
-          />
-        )
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [props.filters, props.table]
-  )
+  const filterChips = filters.map((filter) => {
+    const column = props.table.getColumn(filter.columnId)
+    if (!column) return null
+    return (
+      <DataTableFacetedFilter
+        key={filter.columnId}
+        column={column}
+        title={filter.title}
+        options={filter.options}
+        singleSelect={filter.singleSelect}
+      />
+    )
+  })
 
   const handleReset = () => {
     setIsSearchComposing(false)
@@ -288,7 +280,7 @@ export function DataTableToolbar<TData>(props: DataTableToolbarProps<TData>) {
   }
 
   // Reset: outline text-only for form mode (always visible, disabled when
-  // nothing to reset); ghost text + X for filter-as-you-type mode (only
+  // nothing to reset); outline text + X for filter-as-you-type mode (only
   // visible when active filters exist).
   let resetButton: ReactNode = null
   if (hasSearch) {
@@ -300,9 +292,9 @@ export function DataTableToolbar<TData>(props: DataTableToolbarProps<TData>) {
   } else if (isFiltered) {
     resetButton = (
       <Button
-        variant='ghost'
+        variant='outline'
         onClick={handleReset}
-        className='text-muted-foreground hover:text-foreground gap-1 px-2'
+        className='border-input gap-1 px-2'
       >
         {t('Reset')}
         <Cross2Icon />
