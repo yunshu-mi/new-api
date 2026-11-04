@@ -291,7 +291,7 @@ function renderEmptyState<TData>(
 ) {
   if (props.emptyContent) {
     return (
-      <TableRow>
+      <TableRow className='hover:[background-color:transparent]'>
         <TableCell colSpan={colSpan} className={props.emptyCellClassName}>
           {props.emptyContent}
         </TableCell>

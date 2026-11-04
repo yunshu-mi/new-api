@@ -85,7 +85,8 @@
   padding: 24px;
   border: 1px solid var(--sign-in-border);
   border-radius: 16px;
-  background: var(--sign-in-surface);
+  background: rgb(255 255 255 / 35%);
+  backdrop-filter: blur(8px);
   color: var(--sign-in-ink);
   --tw-ring-shadow: 0 0 #0000;
 }
@@ -172,7 +173,7 @@
   border: 0;
   border-radius: 10px;
   color: white;
-  background: #1c66d5;
+  background: #526fdb;
   font-size: 14px;
   font-weight: 600;
 }
@@ -203,6 +204,7 @@
 }
 .dark .sign-in-card {
   border-color: var(--sign-in-border);
+  background: rgb(11 15 23 / 40%);
 }
 .dark .sign-in-brand img {
   background: var(--sign-in-ink);

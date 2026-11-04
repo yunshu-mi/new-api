@@ -521,26 +521,33 @@ html:has(.home-slides) {
 }
 
 .landing-hero-gradient {
-  background-image: linear-gradient(
-    90deg,
-    var(--color-blue-300),
-    var(--color-pink-300) 25%,
-    var(--color-violet-300) 50%,
-    var(--color-pink-300) 75%,
-    var(--color-blue-300)
+  --hero-gradient-blue: color-mix(in oklch, var(--color-blue-400), white 8%);
+  --hero-gradient-pink: color-mix(in oklch, var(--color-pink-300), white 8%);
+  --hero-gradient-violet: color-mix(
+    in oklch,
+    var(--color-violet-400),
+    white 8%
   );
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--hero-gradient-blue) 8.3333%,
+    var(--hero-gradient-pink) 25%,
+    var(--hero-gradient-violet) 41.6667%,
+    var(--hero-gradient-blue) 58.3333%
+  );
+  /* 文字宽度内正好显示一轮蓝、粉、紫。 */
   background-size: 200% 100%;
 }
 
 @keyframes landing-hero-gradient-flow {
   to {
-    background-position: 200% 0;
+    background-position: 100% 0;
   }
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .landing-hero-gradient {
-    animation: landing-hero-gradient-flow 8s linear infinite;
+    animation: landing-hero-gradient-flow 6s linear infinite;
   }
 }
 

@@ -60,7 +60,7 @@ export function Hero(props: HeroProps) {
       <div className='grid items-center gap-10 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-12'>
         {/* 左栏：文案与操作 */}
         <div className='flex flex-col items-start gap-6'>
-          <span className='inline-flex items-center gap-2 rounded-full border border-[#E6E9F0] bg-white px-3.5 py-1.5 text-[13px] font-medium text-[#3A434F]'>
+          <span className='dark:text-foreground inline-flex items-center gap-2 rounded-full border border-[#E6E9F0] bg-white/35 px-3.5 py-1.5 text-[13px] font-medium text-[#3A434F] backdrop-blur-sm dark:bg-[#0b0f17]/40'>
             <span
               aria-hidden='true'
               className='size-2 rounded-full bg-[#3D5BFF]'
@@ -84,7 +84,7 @@ export function Hero(props: HeroProps) {
 
           <div className='flex flex-wrap items-center gap-3'>
             <Button
-              className='h-8 gap-2 rounded-xl bg-[#3D5BFF] px-5 text-sm font-medium text-white hover:bg-[#2f4fd0]'
+              className='h-8 gap-2 rounded-xl bg-[#526FDB] px-5 text-sm font-medium text-white hover:bg-[#4667CC] [a]:hover:bg-[#4667CC]'
               render={
                 <Link to={props.isAuthenticated ? '/keys' : '/sign-up'} />
               }
@@ -94,10 +94,13 @@ export function Hero(props: HeroProps) {
             </Button>
             <Button
               variant='outline'
-              className='h-8 gap-2 rounded-xl border-[#E6E9F0] bg-white px-5 text-sm font-medium text-[#0F131A] hover:bg-[#F0F2F5]'
+              className='dark:text-foreground h-8 gap-2 rounded-xl border-[#E6E9F0] bg-white/35 px-5 text-sm font-medium text-[#0F131A] backdrop-blur-sm hover:bg-white/50 dark:bg-[#0b0f17]/40 dark:hover:bg-[#0b0f17]/55'
               render={<Link to='/about' />}
             >
-              <BookOpen aria-hidden='true' className='size-4 text-[#5A6370]' />
+              <BookOpen
+                aria-hidden='true'
+                className='dark:text-muted-foreground size-4 text-[#5A6370]'
+              />
               {t('View Docs')}
             </Button>
           </div>
@@ -106,16 +109,16 @@ export function Hero(props: HeroProps) {
             role='group'
             aria-label={t('API Base URL')}
             aria-describedby={baseUrlHintId}
-            className='flex w-full max-w-md items-center gap-2 rounded-xl border border-[#E6E9F0] bg-white px-4 py-[0.2rem]'
+            className='dark:text-foreground flex w-full max-w-md items-center gap-2 rounded-xl border border-[#E6E9F0] bg-white/35 px-4 py-[0.2rem] backdrop-blur-sm dark:bg-[#0b0f17]/40'
           >
             <span className='flex min-w-0 flex-1 flex-col gap-0.5'>
               <span
                 id={baseUrlHintId}
-                className='font-mono text-[11px] font-medium tracking-wide text-[#8892A0]'
+                className='dark:text-muted-foreground font-mono text-[11px] font-medium tracking-wide text-[#8892A0]'
               >
                 {t('API endpoint · OpenAI-compatible')}
               </span>
-              <code className='truncate font-mono text-sm font-medium text-[#2F4FD0]'>
+              <code className='truncate font-mono text-sm font-medium text-[#2F4FD0] dark:text-blue-300'>
                 {apiBaseUrl}
               </code>
             </span>

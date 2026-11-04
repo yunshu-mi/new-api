@@ -112,7 +112,7 @@ export function PublicHeader(props: PublicHeaderProps) {
   let authContent = (
     <Button
       size='sm'
-      className='h-6.5 rounded-lg bg-[#3D5BFF] px-2 text-xs font-medium text-white [a]:hover:bg-[#2F4FD0]'
+      className='h-6.5 rounded-lg bg-[#526FDB] px-2 text-xs font-medium text-white [a]:hover:bg-[#4667CC]'
       render={<Link to='/sign-in' />}
     >
       {t('Sign in')}
@@ -193,7 +193,7 @@ export function PublicHeader(props: PublicHeaderProps) {
     <>
       <header className='pointer-events-none fixed inset-x-0 top-0 z-50'>
         <div className='pointer-events-auto mx-auto max-w-6xl px-6 pt-3'>
-          <nav className='bg-background/60 ring-border/50 flex h-9 items-center justify-between gap-2 rounded-2xl pr-1.5 pl-3 shadow-[0_2px_16px_-6px_rgba(0,0,0,0.08),0_0_0_0.5px_rgba(0,0,0,0.02)] ring-[0.5px] backdrop-blur-2xl dark:shadow-[0_2px_16px_-6px_rgba(0,0,0,0.4)]'>
+          <nav className='ring-border/50 flex h-9 items-center justify-between gap-2 rounded-2xl bg-white/35 pr-1.5 pl-3 shadow-[0_2px_16px_-6px_rgba(0,0,0,0.08),0_0_0_0.5px_rgba(0,0,0,0.02)] ring-[0.5px] backdrop-blur-sm dark:bg-[#0b0f17]/40 dark:shadow-[0_2px_16px_-6px_rgba(0,0,0,0.4)]'>
             {/* Logo */}
             <div className='@container/system-brand flex min-w-0 flex-1 items-center gap-1 lg:min-w-16'>
               <Link

@@ -10,8 +10,9 @@ import {
   Outlet,
   RouterProvider,
 } from '@tanstack/react-router'
-import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { Toaster } from 'sonner'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
 import type { SystemStatus } from '@/features/auth/types'
@@ -48,6 +49,11 @@ function renderSignIn(status: SystemStatus = {}) {
         getParentRoute: () => root,
         path: '/otp',
         component: () => <p>Verification required</p>,
+      }),
+      createRoute({
+        getParentRoute: () => root,
+        path: '/pricing',
+        component: () => <h1>Pricing</h1>,
       }),
       createRoute({
         getParentRoute: () => root,
@@ -262,6 +268,50 @@ it('restores the submit button after a failed login without applying authenticat
   await waitFor(() => expect(submit).toBeEnabled())
   expect(useAuthStore.getState().auth.user).toBeNull()
   expect(screen.getByLabelText('Password')).toHaveValue('example-password')
+})
+
+it('dismisses the welcome notification shortly after successful sign-in', async () => {
+  vi.spyOn(api, 'post').mockResolvedValue({
+    data: {
+      success: true,
+      data: {
+        access_token: 'test-access-token',
+        token_type: 'Bearer',
+        access_expires_at: 1_900_000_000,
+        user: { id: 1, username: 'example-user', role: 1 },
+        session: {
+          sid: 'test-session',
+          current: true,
+          login_method: 'password',
+          ip: '127.0.0.1',
+          user_agent: 'test',
+          created_at: 1,
+          last_active_at: 1,
+          expires_at: 1_900_000_000,
+        },
+      },
+    },
+  })
+  renderSignIn()
+  const user = userEvent.setup()
+  await user.type(
+    await screen.findByLabelText('Username or Email'),
+    'example-user'
+  )
+  await user.type(screen.getByLabelText('Password'), 'example-password')
+  vi.useFakeTimers()
+  try {
+    render(<Toaster duration={5000} />)
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Sign in' }))
+    })
+    await act(() => vi.advanceTimersByTimeAsync(1))
+    expect(screen.getByText('Welcome back!')).toBeVisible()
+    await act(() => vi.advanceTimersByTimeAsync(1250))
+    expect(screen.queryByText('Welcome back!')).not.toBeInTheDocument()
+  } finally {
+    vi.useRealTimers()
+  }
 })
 
 it('keeps the shared auth card compact and switches to one column below the desktop breakpoint', () => {

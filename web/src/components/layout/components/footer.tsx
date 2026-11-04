@@ -100,7 +100,7 @@ function LegalLinks() {
     return null
   }
   return (
-    <div className='text-muted-foreground flex max-w-full min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium'>
+    <div className='text-muted-foreground flex max-w-full min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-medium'>
       {items.map((item, index) => (
         <Fragment key={item.key}>
           {index > 0 && (
@@ -167,7 +167,7 @@ export function Footer(props: FooterProps) {
       href='https://beian.miit.gov.cn/'
       target='_blank'
       rel='noopener noreferrer'
-      className='text-muted-foreground hover:text-foreground min-w-0 text-xs break-words transition-colors duration-200'
+      className='text-muted-foreground hover:text-foreground min-w-0 text-[10px] break-words transition-colors duration-200'
     >
       {icpRecord.trim()}
     </a>
@@ -332,7 +332,7 @@ export function Footer(props: FooterProps) {
         >
           <div
             className={cn(
-              'text-muted-foreground/40 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:justify-start',
+              'text-muted-foreground/40 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-[10px] sm:justify-start',
               props.compact ? 'justify-start' : 'justify-center'
             )}
           >

@@ -70,7 +70,7 @@ export function TableEmpty({
   const resolvedDescription =
     description ?? t('No records found. Try adjusting your filters.')
   return (
-    <TableRow>
+    <TableRow className='hover:[background-color:transparent]'>
       <TableCell colSpan={colSpan} className='h-[400px] p-0'>
         <Empty>
           <EmptyHeader>

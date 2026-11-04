@@ -116,12 +116,12 @@ export function Faq() {
             <AccordionItem
               key={key}
               value={`item-${key}`}
-              className='overflow-hidden rounded-2xl border border-[#E6E9F0] bg-white'
+              className='overflow-hidden rounded-2xl border border-[#E6E9F0] bg-white/35 backdrop-blur-sm dark:bg-[#0b0f17]/40'
             >
-              <AccordionTrigger className='px-5 py-4 text-sm font-bold text-[#0F131A] hover:no-underline'>
+              <AccordionTrigger className='dark:text-foreground px-5 py-4 text-sm font-bold text-[#0F131A] hover:no-underline'>
                 {item.question}
               </AccordionTrigger>
-              <AccordionContent className='px-5 pb-4 text-sm leading-6 text-[#4A5260]'>
+              <AccordionContent className='dark:text-muted-foreground px-5 pb-4 text-sm leading-6 text-[#4A5260]'>
                 <Markdown>{item.answer}</Markdown>
               </AccordionContent>
             </AccordionItem>

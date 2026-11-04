@@ -185,7 +185,7 @@ export function UserAuthForm({
       if (res.success) {
         form.setValue('password', '')
         if (await handleLoginResult(res.data, redirectTo)) {
-          toast.success(t('Welcome back!'))
+          toast.success(t('Welcome back!'), { duration: 1000 })
         }
       } else {
         handleServerError(createServerError(res, loginFailedMessage))

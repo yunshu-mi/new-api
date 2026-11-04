@@ -43,11 +43,17 @@ function FeatureCardView(props: { card: FeatureCard }) {
   const { card } = props
   const Icon = card.icon
   return (
-    <div className='flex h-full flex-col gap-3 rounded-2xl border border-[#E6E9F0] bg-white p-6 text-left'>
+    <div className='flex h-full flex-col gap-3 rounded-2xl border border-[#E6E9F0] bg-white/35 p-6 text-left backdrop-blur-sm dark:bg-[#0b0f17]/40'>
       <Icon aria-hidden='true' className='size-6 text-[#3D5BFF]' />
-      <h3 className='text-lg font-bold text-[#0F131A]'>{card.title}</h3>
-      <p className='text-sm leading-6 text-[#5A6370]'>{card.description}</p>
-      <span className='text-xs font-bold text-[#2F4FD0]'>{card.tag}</span>
+      <h3 className='dark:text-foreground text-lg font-bold text-[#0F131A]'>
+        {card.title}
+      </h3>
+      <p className='dark:text-muted-foreground text-sm leading-6 text-[#5A6370]'>
+        {card.description}
+      </p>
+      <span className='text-xs font-bold text-[#2F4FD0] dark:text-blue-300'>
+        {card.tag}
+      </span>
     </div>
   )
 }

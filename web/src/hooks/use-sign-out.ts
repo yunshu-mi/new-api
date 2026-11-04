@@ -46,7 +46,7 @@ export function useSignOut(onSignedOut?: () => void) {
 
       clearAuthenticatedClientState(queryClient)
       onSignedOut?.()
-      toast.success(t('Signed out'))
+      toast.success(t('Signed out'), { duration: 1000 })
       void navigate({ to: '/', replace: true })
     } catch (error: unknown) {
       handleServerError(error, t('Failed to sign out session'))

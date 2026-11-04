@@ -25,10 +25,10 @@ import {
   Outlet,
   RouterProvider,
 } from '@tanstack/react-router'
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
-import { toast } from 'sonner'
+import { toast, Toaster } from 'sonner'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 
 import { MobileDrawer } from '@/components/layout/components/mobile-drawer'
@@ -127,6 +127,25 @@ beforeEach(() => {
 afterEach(() => {
   useAuthStore.setState(useAuthStore.getInitialState(), true)
   window.localStorage.clear()
+})
+
+test('dismisses the confirmation shortly after successful sign-out', async () => {
+  vi.spyOn(api, 'post').mockResolvedValue({ data: { success: true } })
+  await renderSignOut('/dashboard', false)
+  const signOut = await screen.findByRole('menuitem', { name: 'Sign out' })
+  vi.useFakeTimers()
+  try {
+    render(<Toaster duration={5000} />)
+    await act(async () => {
+      fireEvent.click(signOut)
+    })
+    await act(() => vi.advanceTimersByTimeAsync(1))
+    expect(screen.getByText('Signed out')).toBeVisible()
+    await act(() => vi.advanceTimersByTimeAsync(1250))
+    expect(screen.queryByText('Signed out')).not.toBeInTheDocument()
+  } finally {
+    vi.useRealTimers()
+  }
 })
 
 test.each([

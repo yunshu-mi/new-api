@@ -61,7 +61,7 @@ export function Providers() {
       <ul className='grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4'>
         {providers.map((provider) => (
           <li key={provider.name}>
-            <div className='flex h-full flex-col items-center gap-2 rounded-2xl border border-[#E6E9F0] bg-white px-4 py-5'>
+            <div className='dark:text-foreground flex h-full flex-col items-center gap-2 rounded-2xl border border-[#E6E9F0] bg-white/35 px-4 py-5 backdrop-blur-sm dark:bg-[#0b0f17]/40'>
               <span className='flex size-8 items-center justify-center'>
                 {provider.logo ? (
                   <img
@@ -76,7 +76,7 @@ export function Providers() {
                   getLobeIcon(provider.icon, 32)
                 )}
               </span>
-              <span className='text-sm font-semibold text-[#3A434F]'>
+              <span className='dark:text-foreground text-sm font-semibold text-[#3A434F]'>
                 {provider.name}
               </span>
             </div>

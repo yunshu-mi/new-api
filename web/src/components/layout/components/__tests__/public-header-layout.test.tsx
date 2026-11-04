@@ -83,7 +83,7 @@ it('keeps the floating header aligned with the home content when scrolling down 
     })
     expect(header).toHaveClass('fixed', 'inset-x-0', 'top-0')
     expect(container).toHaveClass('mx-auto', 'max-w-6xl', 'px-6', 'pt-3')
-    expect(nav).toHaveClass('h-9', 'rounded-2xl', 'backdrop-blur-2xl')
+    expect(nav).toHaveClass('h-9', 'rounded-2xl', 'backdrop-blur-sm')
     expect(within(nav).getByRole('button', { name: 'Sign in' })).toHaveClass(
       'h-6.5',
       'px-2'
