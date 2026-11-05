@@ -1,0 +1,93 @@
+name: Automatic pull request
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+permissions: {}
+
+concurrency:
+  group: automatic-pr-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  pull-request:
+    name: Create PR and enable auto-merge
+    if: github.repository == 'yunshu-mi/new-api' && !github.event.deleted
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const head = context.ref.slice('refs/heads/'.length);
+            const base = context.payload.repository.default_branch;
+            if (head === base) return;
+
+            const { data: comparison } = await github.rest.repos.compareCommitsWithBasehead({
+              owner, repo, basehead: `${base}...${head}`,
+            });
+            if (comparison.ahead_by === 0) return;
+
+            const { data: existing } = await github.rest.pulls.list({
+              owner, repo, state: 'open', base, head: `${owner}:${head}`,
+            });
+            let [pullRequest] = existing;
+            if (!pullRequest) {
+              const { data } = await github.rest.pulls.create({
+                owner, repo, base, head,
+                title: (context.payload.head_commit?.message.split('\n')[0] || head).slice(0, 256),
+                body: '由开发分支推送自动创建。启用自动合并时，须通过后端和前端 CI，并使用合并提交保留历史。',
+              });
+              pullRequest = data;
+            }
+            core.notice(`Pull request: ${pullRequest.html_url}`);
+            if (pullRequest.draft) return;
+
+            const { data: settings } = await github.rest.repos.get({ owner, repo });
+            if (!settings.allow_auto_merge || !settings.allow_merge_commit) {
+              core.notice('Enable Allow auto-merge and Allow merge commits to activate automatic merging.');
+              return;
+            }
+
+            const [{ data: branch }, rules] = await Promise.all([
+              github.rest.repos.getBranch({ owner, repo, branch: base }),
+              github.paginate('GET /repos/{owner}/{repo}/rules/branches/{branch}', {
+                owner, repo, branch: base,
+              }),
+            ]);
+            const requiredChecks = new Set(branch.protection?.required_status_checks?.contexts ?? []);
+            for (const rule of rules) {
+              if (rule.type !== 'required_status_checks') continue;
+              for (const check of rule.parameters.required_status_checks) {
+                requiredChecks.add(check.context);
+              }
+            }
+            if (!['Backend vet, build, and test', 'Frontend typecheck and test'].every(
+              (check) => requiredChecks.has(check),
+            )) {
+              core.notice(`Set both CI jobs as required checks on ${base} to activate automatic merging.`);
+              return;
+            }
+
+            const { node } = await github.graphql(`
+              query($id: ID!) {
+                node(id: $id) {
+                  ... on PullRequest { autoMergeRequest { enabledAt } mergeStateStatus }
+                }
+              }
+            `, { id: pullRequest.node_id });
+            if (node.autoMergeRequest || node.mergeStateStatus === 'CLEAN') return;
+
+            await github.graphql(`
+              mutation($id: ID!) {
+                enablePullRequestAutoMerge(input: {pullRequestId: $id, mergeMethod: MERGE}) {
+                  pullRequest { number }
+                }
+              }
+            `, { id: pullRequest.node_id });
