@@ -307,14 +307,14 @@ export function PublicHeader(props: PublicHeaderProps) {
 
               {(showLanguageSwitcher ||
                 showThemeSwitch ||
-                showNotifications) && (
+                (showNotifications && isAuthenticated)) && (
                 <div className='bg-border/40 mx-1 h-4 w-px' />
               )}
 
               <CustomerSupport />
               {showLanguageSwitcher && <LanguageSwitcher />}
               {showThemeSwitch && <ThemeSwitch />}
-              {showNotifications && (
+              {showNotifications && isAuthenticated && (
                 <NotificationPopover
                   open={notifications.popoverOpen}
                   onOpenChange={notifications.setPopoverOpen}

@@ -32,6 +32,8 @@ const iconBadgeVariants = cva(
         warning: 'bg-warning/10 text-warning',
         info: 'bg-info/10 text-info',
         destructive: 'bg-destructive/10 text-destructive',
+        violet: 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
+        indigo: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
         'chart-1': 'bg-chart-1/10 text-chart-1',
         'chart-2': 'bg-chart-2/10 text-chart-2',
         'chart-3': 'bg-chart-3/10 text-chart-3',

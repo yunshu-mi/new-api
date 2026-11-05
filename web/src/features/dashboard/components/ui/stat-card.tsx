@@ -52,6 +52,7 @@ interface StatCardProps {
   action?: ReactNode
   iconTone?: IconBadgeTone
   compactMobile?: boolean
+  layout?: 'default' | 'inline'
 }
 
 const TONE_CLASSES: Record<StatCardTone, string> = {
@@ -236,6 +237,38 @@ export function StatCard(props: StatCardProps) {
   const tone = props.tone ?? 'accent-3'
   const iconTone = props.iconTone ?? ICON_TONE_BY_STAT_TONE[tone]
   const sparklineVariant = props.sparklineVariant ?? 'bars'
+  if (props.layout === 'inline') {
+    return (
+      <div
+        className='flex min-h-[118px] min-w-0 items-center gap-3 p-4'
+        aria-busy={props.loading}
+      >
+        <IconBadge tone={iconTone} size='lg'>
+          <Icon />
+        </IconBadge>
+        <div className='min-w-0 flex-1'>
+          <div className='text-muted-foreground text-xs font-medium break-words'>
+            {props.title}
+          </div>
+          {props.loading ? (
+            <div className='mt-2 space-y-2'>
+              <Skeleton className='h-6 w-24 max-w-full' />
+              <Skeleton className='h-3 w-32 max-w-full' />
+            </div>
+          ) : (
+            <>
+              <div className='my-1 font-mono text-base leading-tight font-bold tracking-tight break-all tabular-nums sm:text-2xl'>
+                {props.error ? '—' : props.value}
+              </div>
+              <p className='text-muted-foreground text-xs leading-relaxed break-words'>
+                {props.description}
+              </p>
+            </>
+          )}
+        </div>
+      </div>
+    )
+  }
   let valueContent: ReactNode
   if (props.loading) {
     valueContent = (
