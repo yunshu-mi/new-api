@@ -19,9 +19,16 @@ For commercial licensing, please contact support@quantumnous.com
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
 
-type HeaderProps = React.HTMLAttributes<HTMLElement>
+type HeaderProps = React.HTMLAttributes<HTMLElement> & {
+  showSidebarTrigger?: boolean
+}
 
-export function Header({ className, children, ...props }: HeaderProps) {
+export function Header({
+  className,
+  children,
+  showSidebarTrigger = true,
+  ...props
+}: HeaderProps) {
   return (
     <header
       className={cn(
@@ -32,7 +39,9 @@ export function Header({ className, children, ...props }: HeaderProps) {
     >
       {/* Center across the header plus the inset content's 0.5rem top gap. */}
       <div className='flex h-full items-center gap-1.5 px-2 sm:gap-2 sm:px-3 md:group-has-data-[variant=inset]/sidebar-wrapper:translate-y-1'>
-        <SidebarTrigger variant='ghost' className='size-8' />
+        {showSidebarTrigger && (
+          <SidebarTrigger variant='ghost' className='size-8' />
+        )}
         {children}
       </div>
     </header>

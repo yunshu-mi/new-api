@@ -16,6 +16,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+import { useState } from 'react'
+
 import { CommandMenu } from '@/components/command-menu'
 import { AnimatedOutlet } from '@/components/page-transition'
 import { SkipToMain } from '@/components/skip-to-main'
@@ -28,12 +30,15 @@ import { useAuthStore } from '@/stores/auth-store'
 
 import { AppHeader } from './app-header'
 import { AppSidebar } from './app-sidebar'
+import { PageHeaderContext } from './page-header'
 
 type AuthenticatedLayoutProps = {
   children?: React.ReactNode
 }
 
 export function AuthenticatedLayout(props: AuthenticatedLayoutProps) {
+  const [pageHeaderContainer, setPageHeaderContainer] =
+    useState<HTMLDivElement | null>(null)
   const defaultOpen = getCookie('sidebar_state') !== 'false'
   const signedIn = useAuthStore((s) => !!s.auth.user)
   // Unmount pages on sign-out, otherwise their queries refetch and toast "Session expired!" / "invalid access token"
@@ -44,23 +49,27 @@ export function AuthenticatedLayout(props: AuthenticatedLayoutProps) {
       <SearchProvider>
         <SidebarProvider
           defaultOpen={defaultOpen}
-          className='console-layout flex-col'
+          className='console-layout'
+          style={{ '--sidebar-width': '240px' } as React.CSSProperties}
         >
           <SkipToMain />
-          <AppHeader showSearch={false} />
-          <div className='flex min-h-0 w-full flex-1'>
-            <AppSidebar />
-            <SidebarInset
-              className={cn(
-                '@container/content',
-                'h-[calc(100svh-var(--app-header-height,0px))]',
-                'min-h-0 overflow-hidden',
-                'peer-data-[variant=inset]:h-[calc(100svh-var(--app-header-height,0px)-(var(--spacing)*4))]'
-              )}
-            >
+          <AppHeader
+            showSearch={false}
+            pageHeaderRef={setPageHeaderContainer}
+          />
+          <AppSidebar />
+          <SidebarInset
+            className={cn(
+              '@container/content',
+              'h-[calc(100svh-var(--console-header-height))]',
+              'min-h-0 overflow-hidden',
+              'md:peer-data-[variant=inset]:m-0 md:peer-data-[variant=inset]:rounded-none md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-0'
+            )}
+          >
+            <PageHeaderContext.Provider value={pageHeaderContainer}>
               {props.children ?? <AnimatedOutlet />}
-            </SidebarInset>
-          </div>
+            </PageHeaderContext.Provider>
+          </SidebarInset>
         </SidebarProvider>
         <CommandMenu />
       </SearchProvider>

@@ -37,6 +37,7 @@ type SystemBrandProps = {
    * - 'inline': compact horizontal pill (used inside the top app bar).
    */
   variant?: 'sidebar' | 'inline'
+  size?: 'default' | 'large'
 }
 
 /**
@@ -61,11 +62,17 @@ export function SystemBrand(props: SystemBrandProps) {
         to='/'
         aria-label={t('Go to home')}
         className={cn(
-          'text-foreground inline-flex h-7 min-w-0 items-center gap-1.5 rounded-md px-1.5 text-sm font-medium transition-colors outline-none select-none',
-          'hover:bg-accent focus-visible:ring-ring/40 focus-visible:ring-2'
+          'text-foreground inline-flex min-w-0 items-center gap-1.5 rounded-md px-1.5 text-sm font-medium transition-colors outline-none select-none',
+          'hover:bg-accent focus-visible:ring-ring/40 focus-visible:ring-2',
+          props.size === 'large' ? 'h-9 text-base' : 'h-7'
         )}
       >
-        <div className='flex size-5 shrink-0 items-center justify-center overflow-hidden rounded-md'>
+        <div
+          className={cn(
+            'flex shrink-0 items-center justify-center overflow-hidden rounded-md',
+            props.size === 'large' ? 'size-8' : 'size-5'
+          )}
+        >
           <img
             src={logo}
             alt={t('Logo')}

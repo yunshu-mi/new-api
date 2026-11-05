@@ -108,29 +108,47 @@ it('keeps the floating header aligned with the home content when scrolling down 
 })
 
 it.each([
-  { reducedMotion: false, behavior: 'smooth' },
-  { reducedMotion: true, behavior: 'instant' },
+  { entry: 'logo', reducedMotion: false, behavior: 'smooth' },
+  { entry: 'logo', reducedMotion: true, behavior: 'instant' },
+  { entry: 'desktop Home link', reducedMotion: false, behavior: 'smooth' },
+  { entry: 'mobile Home link', reducedMotion: false, behavior: 'smooth' },
 ])(
-  'returns to the top with $behavior scrolling when the logo is clicked on the home page',
-  async ({ reducedMotion, behavior }) => {
+  'returns to the top with $behavior scrolling when the $entry is clicked on the home page',
+  async ({ entry, reducedMotion, behavior }) => {
     vi.spyOn(window, 'matchMedia').mockReturnValue({
       ...window.matchMedia('(prefers-reduced-motion: reduce)'),
       matches: reducedMotion,
     })
     const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
     await renderPublicHeader()
-    const logoLink = within(await screen.findByRole('banner')).getByRole(
-      'link',
-      {
-        name: `logo ${initialConfig.config.systemName}`,
-      }
-    )
+    const header = within(await screen.findByRole('banner'))
+    if (entry !== 'logo') {
+      act(() => {
+        useAuthStore.getState().auth.setUser({
+          id: 1,
+          username: 'user',
+          role: ROLE.USER,
+        })
+      })
+    }
+    if (entry === 'mobile Home link') {
+      fireEvent.click(
+        header.getByRole('button', { name: 'Toggle navigation menu' })
+      )
+    }
+    const [, mobileNav] = screen.getAllByRole('navigation')
+    const homeLink = (
+      entry === 'mobile Home link' ? within(mobileNav) : header
+    ).getByRole('link', {
+      name:
+        entry === 'logo' ? `logo ${initialConfig.config.systemName}` : 'Home',
+    })
 
     vi.spyOn(window, 'scrollY', 'get').mockReturnValue(300)
     scrollTo.mockClear()
-    fireEvent.click(logoLink)
+    fireEvent.click(homeLink)
 
-    expect(logoLink).toHaveAttribute('href', '/')
+    expect(homeLink).toHaveAttribute('href', '/')
     expect(scrollTo).toHaveBeenLastCalledWith({ top: 0, left: 0, behavior })
   }
 )

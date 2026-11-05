@@ -122,6 +122,153 @@ body:has(.console-layout) {
   --console-line-opacity: 80%;
 }
 
+.console-layout {
+  --line: #e6ecf4;
+  --console-frame-bg: #f8fafd;
+  --console-header-height: 64px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: var(--console-header-height) minmax(0, 1fr);
+}
+
+.dark .console-layout {
+  --line: #2a3444;
+  --console-frame-bg: var(--sidebar);
+}
+
+.console-layout > .console-header {
+  grid-area: 1 / 1 / 2 / -1;
+  box-sizing: border-box;
+  height: var(--console-header-height);
+  border-bottom: 1px solid var(--line);
+}
+
+.console-layout
+  .console-header:has([data-slot='page-header']:not(:empty))
+  .console-header-brand {
+  display: none;
+}
+
+.console-layout > [data-slot='sidebar'] {
+  grid-area: 2 / 1;
+}
+
+.console-layout > [data-slot='sidebar-inset'] {
+  grid-area: 2 / 2;
+  width: auto;
+}
+
+body:has([data-slot='sidebar'][data-mobile='true']) .tsqd-open-btn-container {
+  margin-bottom: 72px;
+}
+
+@media (min-width: 48rem) {
+  .console-layout > .console-header {
+    grid-column-start: 2;
+    background: var(--console-frame-bg);
+  }
+
+  .console-layout > .console-header > div {
+    translate: none;
+  }
+
+  .console-layout:has(
+      > [data-slot='sidebar']:not([data-collapsible='offcanvas'])
+    )
+    .console-header-brand {
+    display: none;
+  }
+
+  .console-layout > [data-slot='sidebar'] {
+    --console-sidebar-padding: 12px;
+    grid-row: 1 / -1;
+  }
+
+  .console-layout > [data-slot='sidebar']:not([data-state]),
+  .console-layout > [data-slot='sidebar'] > [data-slot='sidebar-container'] {
+    box-sizing: border-box;
+    top: 0;
+    height: 100svh;
+    padding: 0 var(--console-sidebar-padding);
+    border-right: 1px solid var(--line);
+    background: var(--console-frame-bg);
+  }
+
+  .console-layout [data-slot='sidebar-inner'] {
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .console-layout .console-sidebar-brand {
+    box-sizing: border-box;
+    display: flex;
+    flex: none;
+    flex-direction: row;
+    align-items: center;
+    height: var(--console-header-height);
+    margin: 0 calc(-1 * var(--console-sidebar-padding));
+    padding: 0 21px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .console-layout > [data-collapsible='icon'] {
+    --console-sidebar-padding: 0px;
+  }
+
+  .console-layout
+    > [data-collapsible='icon']:is(
+      [data-variant='floating'],
+      [data-variant='inset']
+    ) {
+    --console-sidebar-padding: calc(var(--spacing) * 2);
+  }
+
+  .console-layout
+    > [data-collapsible='icon']:is(
+      [data-variant='floating'],
+      [data-variant='inset']
+    )
+    > [data-slot='sidebar-container'] {
+    width: calc(var(--sidebar-width-icon) + var(--spacing) * 4);
+  }
+
+  .console-layout [data-collapsible='icon'] .console-sidebar-brand {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  .console-layout [data-collapsible='icon'] .console-sidebar-brand span {
+    display: none;
+  }
+
+  .console-layout [data-collapsible='offcanvas'] .console-sidebar-brand {
+    visibility: hidden;
+  }
+
+  .console-layout [data-collapsible='offcanvas'] .console-sidebar-toggle {
+    background: var(--console-frame-bg);
+  }
+
+  /* 开发工具的按钮让出控制台左下角。 */
+  body:has(.console-sidebar-toggle) .tsqd-open-btn-container {
+    margin-left: 44px;
+  }
+
+  body:has(.console-sidebar-toggle[aria-expanded='true'])
+    .tsqd-open-btn-container {
+    margin-bottom: 128px;
+  }
+
+  .console-layout [data-slot='sidebar-rail']:hover {
+    background: transparent;
+  }
+
+  .console-layout [data-slot='sidebar-rail']::after {
+    content: none;
+  }
+}
+
 :root {
   --radius: 1rem;
   --app-header-height: 3rem;

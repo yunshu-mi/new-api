@@ -28,7 +28,10 @@ export function ApiKeys() {
   const { t } = useTranslation()
   return (
     <ApiKeysProvider>
-      <SectionPageLayout fixedContent>
+      <SectionPageLayout
+        fixedContent
+        headerDescription={t('Manage your API keys and access tokens')}
+      >
         <SectionPageLayout.Title>{t('API Keys')}</SectionPageLayout.Title>
         <SectionPageLayout.Content>
           <ApiKeysTable />

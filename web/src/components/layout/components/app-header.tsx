@@ -16,12 +16,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { ConfigDrawer } from '@/components/config-drawer'
 import { CustomerSupport } from '@/components/customer-support'
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { NotificationPopover } from '@/components/notification-popover'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
+import { useSidebar } from '@/components/ui/sidebar'
 import { useNotifications } from '@/hooks/use-notifications'
 import { useTopNavLinks } from '@/hooks/use-top-nav-links'
 
@@ -55,6 +55,7 @@ import { TopNav } from './top-nav'
  * />
  */
 type AppHeaderProps = {
+  pageHeaderRef?: React.Ref<HTMLDivElement>
   /**
    * Custom navigation links, uses default global navigation or dynamically generated from backend if not provided
    */
@@ -83,11 +84,6 @@ type AppHeaderProps = {
    */
   showNotifications?: boolean
   /**
-   * Whether to show config drawer
-   * @default true
-   */
-  showConfigDrawer?: boolean
-  /**
    * Whether to show profile dropdown
    * @default true
    */
@@ -95,13 +91,13 @@ type AppHeaderProps = {
 }
 
 export function AppHeader({
+  pageHeaderRef,
   navLinks = defaultTopNavLinks,
   showTopNav = true,
   leftContent,
   showSearch = true,
   rightContent,
   showNotifications = true,
-  showConfigDrawer = true,
   showProfileDropdown = true,
 }: AppHeaderProps) {
   // Prioritize dynamically generated links from backend
@@ -110,11 +106,19 @@ export function AppHeader({
 
   // Notifications hook
   const notifications = useNotifications(showNotifications && !rightContent)
+  const { isMobile } = useSidebar()
 
   return (
-    <Header>
+    <Header className='console-header' showSidebarTrigger={isMobile}>
       <div className='@container/system-brand flex min-w-0 flex-1 items-center gap-1'>
-        <SystemBrand variant='inline' />
+        <div className='console-header-brand flex min-w-0'>
+          <SystemBrand variant='inline' />
+        </div>
+        <div
+          ref={pageHeaderRef}
+          data-slot='page-header'
+          className='min-w-0 flex-1 ps-1 empty:hidden'
+        />
       </div>
 
       {leftContent ? (
@@ -146,7 +150,6 @@ export function AppHeader({
             />
           )}
           <LanguageSwitcher />
-          {showConfigDrawer && <ConfigDrawer />}
           {showProfileDropdown && <ProfileDropdown />}
         </div>
       )}

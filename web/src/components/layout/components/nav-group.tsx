@@ -102,7 +102,7 @@ export function NavGroup({
   }
 
   return (
-    <SidebarGroup className='px-2 py-1'>
+    <SidebarGroup className='px-2 py-1 group-data-[collapsible=icon]:px-0'>
       <SidebarGroupLabel className='text-muted-foreground/70 px-2 text-[11px] font-medium tracking-wider uppercase'>
         {title}
       </SidebarGroupLabel>

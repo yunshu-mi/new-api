@@ -44,12 +44,17 @@ export function OverviewDashboard() {
   } = useDashboardContentVisibility()
 
   const isAdmin = Boolean(user?.role && user.role >= ROLE.ADMIN)
-  const showLeftContentPanels = isAdmin || showAnnouncementsPanel || showFAQPanel
+  const showLeftContentPanels =
+    isAdmin || showAnnouncementsPanel || showFAQPanel
   const showContentPanels = showLeftContentPanels || showUptimePanel
 
   return (
-    <SectionPageLayout>
-      <SectionPageLayout.Title>{t('Overview')}</SectionPageLayout.Title>
+    <SectionPageLayout
+      headerDescription={t('Monitor balance, usage, and request volume')}
+    >
+      <SectionPageLayout.Title>
+        {t('Platform Overview')}
+      </SectionPageLayout.Title>
       <SectionPageLayout.Content>
         <div className='flex flex-col gap-4'>
           <SummaryCards />

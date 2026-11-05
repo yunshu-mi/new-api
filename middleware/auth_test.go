@@ -473,6 +473,42 @@ func TestUserAuthAppliesAccessTokenRouteRules(t *testing.T) {
 	assert.Equal(t, http.StatusOK, middlewareBearerRequest(router, "/api/user/self", profile).Code, "the deadline only retires legacy tokens")
 }
 
+func TestAvatarUpdateRequiresProfileWriteScope(t *testing.T) {
+	setupDashboardAuthMiddlewareTest(t)
+	user := createMiddlewarePATUser(t, "avatar-scope-user", "avatar-scope-legacy")
+	write, _ := createMiddlewareScopedToken(t, user.Id, 0, "profile:write")
+	read, _ := createMiddlewareScopedToken(t, user.Id, 0, "profile:read")
+	expired, _ := createMiddlewareScopedToken(t, user.Id, time.Now().Unix()-1, "profile:write")
+	router := gin.New()
+	router.PUT("/api/user/self/avatar", UserAuth(), func(c *gin.Context) {
+		assert.Equal(t, user.Id, c.GetInt("id"))
+		c.Status(http.StatusNoContent)
+	})
+
+	for _, test := range []struct {
+		name, token, code string
+		status            int
+	}{
+		{name: "profile write permitted", token: write, status: http.StatusNoContent},
+		{name: "read only denied", token: read, status: http.StatusForbidden, code: "ACCESS_TOKEN_SCOPE_DENIED"},
+		{name: "expired write denied", token: expired, status: http.StatusUnauthorized, code: "ACCESS_TOKEN_EXPIRED"},
+		{name: "anonymous denied", status: http.StatusUnauthorized},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			request := httptest.NewRequest(http.MethodPut, "/api/user/self/avatar", nil)
+			if test.token != "" {
+				request.Header.Set("Authorization", "Bearer "+test.token)
+			}
+			response := httptest.NewRecorder()
+			router.ServeHTTP(response, request)
+			assert.Equal(t, test.status, response.Code, response.Body.String())
+			if test.code != "" {
+				assert.Contains(t, response.Body.String(), `"code":"`+test.code+`"`)
+			}
+		})
+	}
+}
+
 func TestAccessTokenIdentityAndSingleLookup(t *testing.T) {
 	setupDashboardAuthMiddlewareTest(t)
 	gin.SetMode(gin.TestMode)

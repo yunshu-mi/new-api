@@ -184,13 +184,54 @@ describe('overview dashboard layout', () => {
     const panels = await Promise.all([
       screen.findByRole('button', { name: /Service update/ }),
       screen.findByRole('button', { name: 'How do I get started?' }),
-      screen.findByText('No uptime monitoring configured'),
+      screen.findByText('No monitoring data'),
     ])
 
     for (const content of panels) {
       expect(content.closest('.bg-card')).toHaveClass('h-full')
     }
+    expect(screen.getByText('Service availability')).toBeVisible()
+    expect(
+      screen.getByText(
+        'Please contact an administrator to configure Uptime in system settings'
+      )
+    ).toBeVisible()
+    expect(
+      screen.getByText('Grouped monitor status from Uptime Kuma')
+    ).toBeVisible()
   })
+
+  it.each([false, true])(
+    'shows all five announcement types in the header when announcements are present=%s',
+    async (hasAnnouncements) => {
+      statusPayload = {
+        ...statusPayload,
+        announcements_enabled: true,
+        announcements: hasAnnouncements
+          ? [{ id: 1, content: 'Service update', type: 'success' }]
+          : [],
+      }
+      await renderOverview()
+
+      const legend = await screen.findByRole('list', { name: 'Type' })
+      expect(within(legend).getAllByRole('listitem')).toHaveLength(5)
+      for (const [label, color] of [
+        ['Default', 'bg-[#8b9aa7]'],
+        ['In Progress', 'bg-[#3b82f6]'],
+        ['Success', 'bg-[#10b981]'],
+        ['Warning', 'bg-[#f59e0b]'],
+        ['Incident', 'bg-[#ef4444]'],
+      ]) {
+        const badge = within(legend).getByTitle(label)
+        expect(badge).toHaveTextContent(label)
+        expect(badge.querySelector('[aria-hidden=true]')).toHaveClass(color)
+      }
+      expect(legend.closest('.border-b')).toHaveTextContent(
+        'System Announcements'
+      )
+      expect(legend.closest('.border-b')).toHaveClass('items-center')
+    }
+  )
 
   it('shows the announcement title and falls back to the content preview', async () => {
     statusPayload = {

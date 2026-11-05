@@ -115,7 +115,7 @@ async function renderSignOut(path: string, mobile: boolean) {
     </QueryClientProvider>
   )
   if (!mobile) {
-    await userEvent.click(await screen.findByRole('button', { name: 'A' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Profile' }))
   }
   return { router, queryClient }
 }
@@ -221,7 +221,7 @@ test.each([
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     post.mockResolvedValue({ data: { success: true, message: '' } })
     if (!mobile) {
-      await userEvent.click(screen.getByRole('button', { name: 'A' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Profile' }))
     }
     await userEvent.click(
       await screen.findByRole(mobile ? 'button' : 'menuitem', {
@@ -256,7 +256,7 @@ test.each([false, true])(
     expect(router.state.location.pathname).toBe('/dashboard')
 
     if (!mobile) {
-      await userEvent.click(screen.getByRole('button', { name: 'A' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Profile' }))
     }
     const signOut = await screen.findByRole(mobile ? 'button' : 'menuitem', {
       name: 'Sign out',
