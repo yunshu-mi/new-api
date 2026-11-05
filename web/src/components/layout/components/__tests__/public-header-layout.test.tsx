@@ -48,7 +48,8 @@ async function renderPublicHeader(
   registrationStatus: {
     register_enabled?: boolean
     self_use_mode_enabled?: boolean
-  } = {}
+  } = {},
+  showNotifications = false
 ) {
   useAuthStore.getState().auth.setUser(null)
   useSystemConfigStore.getState().setLoading(false)
@@ -69,7 +70,7 @@ async function renderPublicHeader(
       <PublicHeader
         showThemeSwitch={false}
         showLanguageSwitcher={false}
-        showNotifications={false}
+        showNotifications={showNotifications}
       />
     ),
   })
@@ -184,6 +185,49 @@ it('shows Home and Console in both public menus only after sign-in', async () =>
   for (const link of consoleLinks) {
     expect(link).toHaveAttribute('href', '/dashboard')
   }
+})
+
+it('shows notifications only while signed in and closes them on sign-out', async () => {
+  await renderPublicHeader({}, true)
+  await screen.findByRole('banner')
+  expect(
+    screen.queryByRole('button', { name: 'Notifications' })
+  ).not.toBeInTheDocument()
+
+  act(() => {
+    useAuthStore.getState().auth.setUser({
+      id: 1,
+      username: 'user',
+      role: ROLE.USER,
+    })
+  })
+  fireEvent.click(screen.getByRole('button', { name: 'Notifications' }))
+  expect(await screen.findByRole('dialog')).toBeInTheDocument()
+
+  act(() => {
+    useAuthStore.getState().auth.setUser(null)
+  })
+  expect(
+    screen.queryByRole('button', { name: 'Notifications' })
+  ).not.toBeInTheDocument()
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+})
+
+it('keeps notifications hidden after sign-in when disabled by the header prop', async () => {
+  await renderPublicHeader()
+  await screen.findByRole('banner')
+
+  act(() => {
+    useAuthStore.getState().auth.setUser({
+      id: 1,
+      username: 'user',
+      role: ROLE.USER,
+    })
+  })
+
+  expect(
+    screen.queryByRole('button', { name: 'Notifications' })
+  ).not.toBeInTheDocument()
 })
 
 it('matches the desktop sign-in colors when the mobile menu opens', async () => {
