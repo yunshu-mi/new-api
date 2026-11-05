@@ -101,13 +101,24 @@ export function UptimePanel() {
           <IconBadge tone='success' size='sm'>
             <Activity />
           </IconBadge>
-          {t('Uptime')}
+          {t('Service availability')}
         </span>
       }
       description={t('Grouped monitor status from Uptime Kuma')}
       loading={loading}
       empty={!groups.length}
-      emptyMessage={t('No uptime monitoring configured')}
+      emptyMessage={
+        <div className='space-y-2 text-center'>
+          <p className='text-foreground font-medium'>
+            {t('No monitoring data')}
+          </p>
+          <p>
+            {t(
+              'Please contact an administrator to configure Uptime in system settings'
+            )}
+          </p>
+        </div>
+      }
       height='h-80'
       className='flex h-full flex-col'
       contentClassName='grow p-0'

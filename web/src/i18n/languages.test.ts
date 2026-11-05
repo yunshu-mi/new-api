@@ -18,7 +18,46 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { describe, expect, test } from 'vitest'
 
-import { convertDetectedLanguage } from './languages'
+import {
+  convertDetectedLanguage,
+  normalizeInterfaceLanguage,
+} from './languages'
+
+describe('interface languages', () => {
+  test.each(['fr', 'ru', 'ja', 'vi', 'zhTW', 'zh-TW'])(
+    'falls back to English for a removed saved language: %s',
+    (language) => {
+      expect(normalizeInterfaceLanguage(language)).toBe('en')
+    }
+  )
+
+  test.each(['en', 'zhCN'])(
+    'preserves a supported saved language: %s',
+    (language) => {
+      expect(normalizeInterfaceLanguage(language)).toBe(language)
+    }
+  )
+
+  test('loads only supported translations and falls back for removed languages', async () => {
+    const { default: i18n, resources } = await import('./config')
+    expect(Object.keys(resources).sort()).toEqual(['en', 'zhCN'])
+
+    for (const language of ['fr', 'ru', 'ja', 'vi', 'zhTW']) {
+      await i18n.changeLanguage(language)
+      expect(i18n.resolvedLanguage).toBe('en')
+
+      localStorage.setItem('i18nextLng', language)
+      await i18n.changeLanguage()
+      expect(i18n.resolvedLanguage).toBe('en')
+      expect(localStorage.getItem('i18nextLng')).toBe('en')
+    }
+
+    await i18n.changeLanguage('zhCN')
+    expect(i18n.resolvedLanguage).toBe('zhCN')
+    await i18n.changeLanguage('en')
+    expect(i18n.resolvedLanguage).toBe('en')
+  })
+})
 
 describe('convertDetectedLanguage', () => {
   test('maps browser BCP-47 Chinese tags onto interface codes', () => {

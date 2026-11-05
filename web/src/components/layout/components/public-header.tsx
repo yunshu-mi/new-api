@@ -94,7 +94,7 @@ export function PublicHeader(props: PublicHeaderProps) {
   const dynamicLinks = useTopNavLinks()
   const notifications = useNotifications()
   const routerState = useRouterState()
-  const pathname = routerState.location.pathname
+  const { pathname, href: currentHref } = routerState.location
 
   const user = auth.user
   const isAuthenticated = !!user
@@ -171,6 +171,33 @@ export function PublicHeader(props: PublicHeaderProps) {
     navigate({ to: '/sign-in', search: { redirect } })
   }, [authPromptTarget?.href, navigate])
 
+  const handleHomeLinkClick = useCallback(
+    (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+      if (
+        currentHref !== href ||
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return
+      }
+
+      event.preventDefault()
+      const reducedMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+      ).matches
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: reducedMotion ? 'instant' : 'smooth',
+      })
+    },
+    [currentHref]
+  )
+
   const handleNavLinkClick = useCallback(
     (
       event: React.MouseEvent<HTMLAnchorElement>,
@@ -198,8 +225,12 @@ export function PublicHeader(props: PublicHeaderProps) {
       if (closeMobile) {
         setMobileOpen(false)
       }
+
+      if (!link.external && link.href === '/') {
+        handleHomeLinkClick(event, link.href)
+      }
     },
-    [t]
+    [t, handleHomeLinkClick]
   )
 
   return (
@@ -211,29 +242,7 @@ export function PublicHeader(props: PublicHeaderProps) {
             <div className='@container/system-brand flex min-w-0 flex-1 items-center gap-1 lg:min-w-16'>
               <Link
                 to={homeUrl}
-                onClick={(event) => {
-                  if (
-                    routerState.location.href !== homeUrl ||
-                    event.defaultPrevented ||
-                    event.button !== 0 ||
-                    event.metaKey ||
-                    event.ctrlKey ||
-                    event.shiftKey ||
-                    event.altKey
-                  ) {
-                    return
-                  }
-
-                  event.preventDefault()
-                  const reducedMotion = window.matchMedia(
-                    '(prefers-reduced-motion: reduce)'
-                  ).matches
-                  window.scrollTo({
-                    top: 0,
-                    left: 0,
-                    behavior: reducedMotion ? 'instant' : 'smooth',
-                  })
-                }}
+                onClick={(event) => handleHomeLinkClick(event, homeUrl)}
                 className='group flex min-w-0 items-center gap-2.5'
               >
                 <div className='flex size-7 shrink-0 items-center justify-center transition-all duration-300 group-hover:scale-105'>

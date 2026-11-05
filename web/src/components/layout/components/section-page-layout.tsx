@@ -19,13 +19,18 @@ For commercial licensing, please contact support@quantumnous.com
 import {
   Children,
   isValidElement,
+  useContext,
   useState,
   type ReactElement,
   type ReactNode,
 } from 'react'
+import { createPortal } from 'react-dom'
+
+import { cn } from '@/lib/utils'
 
 import { Main } from './main'
 import { PageFooterProvider } from './page-footer'
+import { PageHeaderContext } from './page-header'
 
 type SlotProps = { children?: ReactNode }
 
@@ -51,11 +56,15 @@ SectionPageLayoutBreadcrumb.displayName = 'SectionPageLayout.Breadcrumb'
 
 export type SectionPageLayoutProps = {
   children: ReactNode
+  headerDescription?: ReactNode
   fixedContent?: boolean
   stackActionsOnMobile?: boolean
 }
 
 export function SectionPageLayout(props: SectionPageLayoutProps) {
+  const headerContainer = useContext(PageHeaderContext)
+  const titleInHeader =
+    headerContainer !== null && props.headerDescription != null
   const [footerContainer, setFooterContainer] = useState<HTMLDivElement | null>(
     null
   )
@@ -77,40 +86,64 @@ export function SectionPageLayout(props: SectionPageLayoutProps) {
       breadcrumb = child.props.children
     }
   })
+  const hasActions = Children.toArray(actions).length > 0
 
   return (
     <PageFooterProvider container={footerContainer}>
+      {titleInHeader &&
+        createPortal(
+          <div className='min-w-0'>
+            <h1 className='truncate text-sm leading-5 font-semibold tracking-tight'>
+              {title}
+            </h1>
+            <p className='text-muted-foreground truncate text-xs leading-4'>
+              {props.headerDescription}
+            </p>
+          </div>,
+          headerContainer
+        )}
       <Main>
-        <div className='shrink-0 px-3 pt-3 pb-2.5 sm:px-4 sm:pt-5 sm:pb-3'>
-          {breadcrumb != null && (
-            <div className='mb-2 sm:mb-3'>{breadcrumb}</div>
-          )}
-          <div className='flex flex-wrap items-center justify-between gap-x-3 gap-y-2 sm:gap-x-4'>
-            <div
-              className={
-                props.stackActionsOnMobile
-                  ? 'min-w-0 flex-1 max-sm:basis-full'
-                  : 'min-w-0 flex-1'
-              }
-            >
-              <h2 className='truncate text-base font-bold tracking-tight sm:text-lg'>
-                {title}
-              </h2>
-            </div>
-            {actions != null && (
-              <div className='flex max-w-full shrink-0 flex-wrap items-center justify-end gap-2 sm:gap-x-4'>
-                {actions}
-              </div>
+        {(!titleInHeader || breadcrumb != null || hasActions) && (
+          <div className='shrink-0 px-3 pt-3 pb-2.5 sm:px-4 sm:pt-5 sm:pb-3'>
+            {breadcrumb != null && (
+              <div className='mb-2 sm:mb-3'>{breadcrumb}</div>
             )}
+            <div className='flex flex-wrap items-center justify-between gap-x-3 gap-y-2 sm:gap-x-4'>
+              {!titleInHeader && (
+                <div
+                  className={
+                    props.stackActionsOnMobile
+                      ? 'min-w-0 flex-1 max-sm:basis-full'
+                      : 'min-w-0 flex-1'
+                  }
+                >
+                  <h2 className='truncate text-base font-bold tracking-tight sm:text-lg'>
+                    {title}
+                  </h2>
+                </div>
+              )}
+              {hasActions && (
+                <div
+                  className={cn(
+                    'flex max-w-full shrink-0 flex-wrap items-center justify-end gap-2 sm:gap-x-4',
+                    titleInHeader && 'ms-auto'
+                  )}
+                >
+                  {actions}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         <div
-          className={
-            props.fixedContent
-              ? 'min-h-0 flex-1 overflow-hidden px-3 pt-1 pb-3 sm:px-4 sm:pt-1.5 sm:pb-4'
-              : 'min-h-0 flex-1 overflow-auto px-3 pt-1 pb-3 sm:px-4 sm:pt-1.5 sm:pb-4'
-          }
+          className={cn(
+            'min-h-0 flex-1 px-3 pb-3 sm:px-4 sm:pb-4',
+            props.fixedContent ? 'overflow-hidden' : 'overflow-auto',
+            titleInHeader && breadcrumb == null && !hasActions
+              ? 'pt-3 sm:pt-4'
+              : 'pt-1 sm:pt-1.5'
+          )}
         >
           {content}
         </div>

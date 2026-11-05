@@ -284,7 +284,9 @@ export function Wallet(props: WalletProps) {
 
   return (
     <>
-      <SectionPageLayout>
+      <SectionPageLayout
+        headerDescription={t('Manage your balance, top-ups, and subscriptions')}
+      >
         <SectionPageLayout.Title>{t('Wallet')}</SectionPageLayout.Title>
         <SectionPageLayout.Content>
           <div className='mx-auto flex w-full max-w-7xl flex-col gap-4 sm:gap-5'>

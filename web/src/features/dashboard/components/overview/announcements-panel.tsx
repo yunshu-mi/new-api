@@ -20,13 +20,14 @@ import { Megaphone } from 'lucide-react'
 import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { StatusBadge } from '@/components/status-badge'
 import { IconBadge } from '@/components/ui/icon-badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { useAnnouncements } from '@/features/dashboard/hooks/use-status-data'
 import { getPreviewText } from '@/features/dashboard/lib'
 import type { AnnouncementItem } from '@/features/dashboard/types'
-import { getAnnouncementColorClass } from '@/lib/colors'
+import { getAnnouncementColorClass, type AnnouncementType } from '@/lib/colors'
 import { formatDateTimeObject } from '@/lib/time'
 import { cn } from '@/lib/utils'
 
@@ -49,6 +50,13 @@ const AnnouncementStatusDot = memo(function AnnouncementStatusDot(props: {
 
 export function AnnouncementsPanel() {
   const { t } = useTranslation()
+  const typeLabels: Record<AnnouncementType, string> = {
+    default: t('Default'),
+    ongoing: t('In Progress'),
+    success: t('Success'),
+    warning: t('Warning'),
+    error: t('Incident'),
+  }
   const { items: list, loading } = useAnnouncements()
   const [selectedAnnouncement, setSelectedAnnouncement] =
     useState<AnnouncementItem | null>(null)
@@ -70,6 +78,25 @@ export function AnnouncementsPanel() {
         </span>
       }
       description={t('Latest platform updates and notices')}
+      headerActions={
+        <ul
+          aria-label={t('Type')}
+          className='flex max-w-full flex-wrap items-center gap-x-2 gap-y-1'
+        >
+          {Object.entries(typeLabels).map(([type, label]) => (
+            <li key={type} className='flex'>
+              <StatusBadge
+                label={label}
+                type='text'
+                showDot
+                dotClassName={getAnnouncementColorClass(type)}
+                copyable={false}
+                className='text-xs font-semibold'
+              />
+            </li>
+          ))}
+        </ul>
+      }
       loading={loading}
       empty={!list.length}
       emptyMessage={t('No announcements at this time')}

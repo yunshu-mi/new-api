@@ -124,7 +124,14 @@ function UsageLogsContent() {
 
   return (
     <>
-      <SectionPageLayout fixedContent>
+      <SectionPageLayout
+        fixedContent
+        headerDescription={
+          activeCategory === 'common'
+            ? t('Review API requests and usage details')
+            : t('Track task progress and results')
+        }
+      >
         <SectionPageLayout.Title>
           {t(pageMeta.titleKey)}
         </SectionPageLayout.Title>

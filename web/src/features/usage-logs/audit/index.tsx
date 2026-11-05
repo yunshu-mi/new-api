@@ -88,7 +88,10 @@ export function AuditLogs() {
     }
   }, [queryClient, userId])
   return (
-    <SectionPageLayout fixedContent>
+    <SectionPageLayout
+      fixedContent
+      headerDescription={t('Review account activity and operation records')}
+    >
       <SectionPageLayout.Title>{t('Audit Logs')}</SectionPageLayout.Title>
       <SectionPageLayout.Actions>
         {canReadAll && !accessRevoked && (
