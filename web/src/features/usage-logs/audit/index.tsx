@@ -90,6 +90,7 @@ export function AuditLogs() {
   return (
     <SectionPageLayout
       fixedContent
+      actionsAlignment='start'
       headerDescription={t('Review account activity and operation records')}
     >
       <SectionPageLayout.Title>{t('Audit Logs')}</SectionPageLayout.Title>
