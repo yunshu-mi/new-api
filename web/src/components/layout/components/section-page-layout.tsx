@@ -59,6 +59,7 @@ export type SectionPageLayoutProps = {
   headerDescription?: ReactNode
   fixedContent?: boolean
   stackActionsOnMobile?: boolean
+  actionsAlignment?: 'start' | 'end'
 }
 
 export function SectionPageLayout(props: SectionPageLayoutProps) {
@@ -125,8 +126,13 @@ export function SectionPageLayout(props: SectionPageLayoutProps) {
               {hasActions && (
                 <div
                   className={cn(
-                    'flex max-w-full shrink-0 flex-wrap items-center justify-end gap-2 sm:gap-x-4',
-                    titleInHeader && 'ms-auto'
+                    'flex max-w-full shrink-0 flex-wrap items-center gap-2 sm:gap-x-4',
+                    props.actionsAlignment === 'start'
+                      ? 'justify-start'
+                      : 'justify-end',
+                    titleInHeader &&
+                      props.actionsAlignment !== 'start' &&
+                      'ms-auto'
                   )}
                 >
                   {actions}

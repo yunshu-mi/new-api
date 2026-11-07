@@ -126,6 +126,7 @@ function UsageLogsContent() {
     <>
       <SectionPageLayout
         fixedContent
+        actionsAlignment='start'
         headerDescription={
           activeCategory === 'common'
             ? t('Review API requests and usage details')
