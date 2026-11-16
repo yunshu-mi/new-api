@@ -83,16 +83,15 @@ it('keeps labeled fields, independent password visibility and the sign-in link i
     expect(input.labels?.[0]).not.toHaveClass('sr-only')
   }
   expect(password).toHaveAttribute('autoComplete', 'new-password')
-  expect(password).toHaveAccessibleDescription(
-    'Enter password (8–128 characters)'
-  )
+  expect(password).toHaveAccessibleDescription(/8–128 characters/)
+  expect(screen.getByRole('meter', { name: 'Password strength' })).toBeVisible()
   expect(confirmation).toHaveAttribute('autoComplete', 'new-password')
   expect(password).toHaveAttribute('type', 'password')
   expect(confirmation).toHaveAttribute('type', 'password')
   await user.click(password)
   await user.paste('example-password')
   await user.click(
-    screen.getAllByRole('button', { name: 'Toggle password visibility' })[0]
+    screen.getAllByRole('button', { name: 'Show password' })[0]
   )
   expect(password).toHaveAttribute('type', 'text')
   expect(password).toHaveValue('example-password')
@@ -116,6 +115,9 @@ it('keeps password mismatch errors associated with confirmation and prevents sub
   await user.type(
     screen.getByLabelText('Confirm password'),
     'different-password'
+  )
+  expect(screen.getByLabelText('Confirm password')).toHaveAccessibleDescription(
+    'Passwords do not match'
   )
   await user.click(screen.getByRole('button', { name: 'Create account' }))
   expect(await screen.findByText("Passwords don't match.")).toBeVisible()
