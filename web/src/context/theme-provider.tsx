@@ -150,10 +150,12 @@ export const useTheme = () => {
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export function useLightPageTheme() {
+export function useLightPageTheme(enabled: boolean) {
   const { resolvedTheme } = useTheme()
 
   useLayoutEffect(() => {
+    if (!enabled) return
+
     const root = document.documentElement
     root.setAttribute('data-force-light', '')
     applyDocumentTheme(resolvedTheme)
@@ -162,5 +164,5 @@ export function useLightPageTheme() {
       root.removeAttribute('data-force-light')
       applyDocumentTheme(resolvedTheme)
     }
-  }, [resolvedTheme])
+  }, [enabled, resolvedTheme])
 }

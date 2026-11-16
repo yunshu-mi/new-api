@@ -243,7 +243,7 @@ export function StatCard(props: StatCardProps) {
         className='flex min-h-[118px] min-w-0 items-center gap-3 p-4'
         aria-busy={props.loading}
       >
-        <IconBadge tone={iconTone} size='lg'>
+        <IconBadge tone={iconTone} size='lg' className='rounded-lg'>
           <Icon />
         </IconBadge>
         <div className='min-w-0 flex-1'>

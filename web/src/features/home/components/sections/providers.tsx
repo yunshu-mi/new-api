@@ -42,16 +42,16 @@ export function Providers() {
   return (
     <section aria-labelledby={headingId} className={HOME_SECTION_CLASS_NAME}>
       <div className='mb-6 max-w-2xl'>
-        <span className='font-sans text-[13px] font-medium text-[#3D5BFF]'>
+        <span className='text-primary font-sans text-[13px] font-medium'>
           {t('02 · Model marketplace')}
         </span>
         <h2
           id={headingId}
-          className='mt-2 text-[36px] leading-tight font-bold tracking-tight text-[#0F131A]'
+          className='text-foreground mt-2 text-[36px] leading-tight font-bold tracking-tight'
         >
           {t('One account, the whole model ecosystem')}
         </h2>
-        <p className='mt-3 text-[16px] leading-6 font-normal text-[#5A6370]'>
+        <p className='text-muted-foreground mt-3 text-[16px] leading-6 font-normal'>
           {t(
             "Covering the world's leading model providers, continuously updated - connect once, use any."
           )}
@@ -61,7 +61,7 @@ export function Providers() {
       <ul className='grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4'>
         {providers.map((provider) => (
           <li key={provider.name}>
-            <div className='dark:text-foreground flex h-full flex-col items-center gap-2 rounded-2xl border border-[#E6E9F0] bg-white/35 px-4 py-5 backdrop-blur-sm dark:bg-[#0b0f17]/40'>
+            <div className='border-border bg-card flex h-full flex-col items-center gap-2 rounded-xl border px-4 py-5 backdrop-blur-sm'>
               <span className='flex size-8 items-center justify-center'>
                 {provider.logo ? (
                   <img
@@ -76,7 +76,7 @@ export function Providers() {
                   getLobeIcon(provider.icon, 32)
                 )}
               </span>
-              <span className='dark:text-foreground text-sm font-semibold text-[#3A434F]'>
+              <span className='text-foreground text-sm font-semibold'>
                 {provider.name}
               </span>
             </div>

@@ -357,11 +357,15 @@ it('shows the left-aligned create button above API addresses and filters', async
   const table = screen.getByRole('table')
 
   expect(addresses).toBeVisible()
-  expect(filter).toHaveClass('h-8', 'border-input')
+  expect(filter).toHaveClass('h-8', 'border-control-outline', 'bg-card')
+  expect(
+    screen.getByRole('textbox', { name: 'Filter by API key...' })
+  ).toHaveClass('border-control-outline', 'bg-card')
   expect(within(addresses).getByRole('listitem')).toHaveClass(
     'min-h-8',
     'py-px',
-    'border-input'
+    'border-card-outline',
+    'bg-card'
   )
   expect(createButton).toHaveClass('h-8', 'self-start')
   expect(
@@ -374,6 +378,26 @@ it('shows the left-aligned create button above API addresses and filters', async
   expect(
     filter.compareDocumentPosition(table) & Node.DOCUMENT_POSITION_FOLLOWING
   ).toBeTruthy()
+})
+
+it('highlights a checked row and clears the highlight when unchecked', async () => {
+  await renderKeysPage()
+  const user = userEvent.setup()
+  const checkbox = screen.getByRole('checkbox', { name: 'Select row' })
+  const row = checkbox.closest('tr')
+  const actions = row?.querySelector('[data-column-id=actions]')
+
+  expect(row).not.toHaveAttribute('data-state', 'selected')
+  expect(row).toHaveClass('bg-(--table-row)')
+  expect(actions).toHaveClass('sticky', 'bg-inherit')
+  await user.click(checkbox)
+  expect(checkbox).toBeChecked()
+  expect(row).toHaveAttribute('data-state', 'selected')
+  expect(row).toHaveClass('data-[state=selected]:bg-selection')
+
+  await user.click(checkbox)
+  expect(checkbox).not.toBeChecked()
+  expect(row).not.toHaveAttribute('data-state', 'selected')
 })
 
 it('distinguishes the selected status and shows an outlined reset control', async () => {
@@ -403,7 +427,7 @@ it('distinguishes the selected status and shows an outlined reset control', asyn
 
   await user.keyboard('{Escape}')
   const reset = screen.getByRole('button', { name: 'Reset' })
-  expect(reset).toHaveClass('border-input', 'bg-background')
+  expect(reset).toHaveClass('border-input', 'bg-card')
   await user.click(reset)
   expect(screen.getByRole('button', { name: 'Status' })).toBeVisible()
   expect(reset).not.toBeInTheDocument()

@@ -113,10 +113,10 @@ afterEach(() => {
 })
 
 describe('theme preference persistence', () => {
-  it('uses the simple large-font preset on the first visit', () => {
+  it('uses the default site preset on the first visit', () => {
     render(<ThemeFixture />)
 
-    expect(document.body).toHaveAttribute('data-theme-preset', 'simple-large')
+    expect(document.body).toHaveAttribute('data-theme-preset', 'default')
   })
 
   it('starts with defaults when only shared legacy theme cookies exist', () => {
@@ -131,7 +131,7 @@ describe('theme preference persistence', () => {
 
     expect(screen.getByLabelText('Theme mode')).toHaveTextContent('system')
     expect(document.documentElement).toHaveClass('light')
-    expect(document.body).toHaveAttribute('data-theme-preset', 'simple-large')
+    expect(document.body).toHaveAttribute('data-theme-preset', 'default')
     expect(document.body).toHaveAttribute('data-theme-font', 'system')
     expect(document.body).not.toHaveAttribute('data-theme-radius')
     expect(document.body).not.toHaveAttribute('data-theme-scale')
@@ -177,7 +177,7 @@ describe('theme preference persistence', () => {
 
     expect(screen.getByLabelText('Theme mode')).toHaveTextContent('system')
     expect(document.documentElement).toHaveClass('light')
-    expect(document.body).toHaveAttribute('data-theme-preset', 'simple-large')
+    expect(document.body).toHaveAttribute('data-theme-preset', 'default')
     expect(document.body).toHaveAttribute('data-theme-font', 'system')
     expect(document.body).not.toHaveAttribute('data-theme-radius')
     expect(document.body).not.toHaveAttribute('data-theme-scale')
@@ -199,7 +199,7 @@ describe('theme preference persistence', () => {
       render(<ThemeFixture />)
 
       expect(screen.getByLabelText('Theme mode')).toHaveTextContent('system')
-      expect(document.body).toHaveAttribute('data-theme-preset', 'simple-large')
+      expect(document.body).toHaveAttribute('data-theme-preset', 'default')
       expect(document.body).toHaveAttribute('data-theme-font', 'system')
       expect(document.body).not.toHaveAttribute('data-theme-radius')
       expect(document.body).not.toHaveAttribute('data-theme-scale')
@@ -215,7 +215,7 @@ describe('theme preference persistence', () => {
     render(<ThemeFixture />)
 
     expect(screen.getByLabelText('Theme mode')).toHaveTextContent('system')
-    expect(document.body).toHaveAttribute('data-theme-preset', 'simple-large')
+    expect(document.body).toHaveAttribute('data-theme-preset', 'default')
   })
 
   it('still applies and resets preferences when storage writes fail', async () => {
@@ -236,7 +236,7 @@ describe('theme preference persistence', () => {
     await user.click(screen.getByRole('button', { name: 'Reset' }))
 
     expect(screen.getByLabelText('Theme mode')).toHaveTextContent('system')
-    expect(document.body).toHaveAttribute('data-theme-preset', 'simple-large')
+    expect(document.body).toHaveAttribute('data-theme-preset', 'default')
   })
 
   it('preserves saved theme preferences during frontend cache initialization', () => {

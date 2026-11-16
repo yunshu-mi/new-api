@@ -86,6 +86,16 @@ async function renderSidebar() {
   )
 }
 
+it('matches the public header typography in the expanded sidebar brand', async () => {
+  await renderSidebar()
+
+  expect(screen.getByRole('link', { name: 'Go to home' })).toHaveClass(
+    'text-[15px]/[1.5]',
+    'font-semibold',
+    'tracking-normal'
+  )
+})
+
 it('keeps the large logo at its expanded size after collapsing and reopening', async () => {
   await renderSidebar()
   const logoFrame = screen.getByRole('img', { name: 'Logo' }).parentElement

@@ -64,6 +64,7 @@ export function useSidebarData(badges: SidebarBadges = {}): SidebarData {
           {
             title: t('Dashboard'),
             url: '/dashboard/models',
+            activeUrls: ['/dashboard/flow', '/dashboard/users'],
             icon: LayoutDashboard,
           },
           {
@@ -123,6 +124,7 @@ export function useSidebarData(badges: SidebarBadges = {}): SidebarData {
           {
             title: t('Models'),
             url: '/models/metadata',
+            activeUrls: ['/models/vendors', '/models/deployments'],
             icon: Box,
           },
           {

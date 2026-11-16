@@ -85,7 +85,10 @@ export function LogsFilterInput(props: ComponentProps<typeof Input>) {
     <Input
       {...props}
       autoComplete='off'
-      className={cn('h-8 min-w-0 text-sm leading-5', props.className)}
+      className={cn(
+        'border-control-outline bg-card dark:bg-card h-8 min-w-0 text-sm leading-5',
+        props.className
+      )}
     />
   )
 }
@@ -245,7 +248,7 @@ export function LogsFilterToolbar<TData>(props: LogsFilterToolbarProps<TData>) {
   return (
     <div
       className={cn(
-        'bg-card/50 rounded-lg border p-2.5 sm:p-3',
+        'border-card-outline bg-card/50 rounded-lg border p-2.5 sm:p-3',
         props.className
       )}
     >

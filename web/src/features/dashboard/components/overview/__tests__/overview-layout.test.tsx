@@ -156,6 +156,31 @@ async function renderOverview() {
   )
 }
 
+it('links the overview shortcuts to the existing wallet and usage pages', async () => {
+  await renderOverview()
+
+  expect(await screen.findByRole('link', { name: 'Wallet' })).toHaveAttribute(
+    'href',
+    '/wallet'
+  )
+  expect(screen.getByRole('link', { name: 'Usage Logs' })).toHaveAttribute(
+    'href',
+    '/usage-logs/common'
+  )
+})
+
+it('hides a shortcut when its corresponding sidebar module is disabled', async () => {
+  statusPayload.SidebarModulesAdmin = JSON.stringify({
+    personal: { enabled: true, topup: false },
+  })
+  client.setQueryData(['status'], statusPayload)
+
+  await renderOverview()
+
+  expect(await screen.findByRole('link', { name: 'API Keys' })).toBeVisible()
+  expect(screen.queryByRole('link', { name: 'Wallet' })).not.toBeInTheDocument()
+})
+
 describe('overview dashboard layout', () => {
   it('shows the statistics without a duplicate heading, description or wallet shortcut', async () => {
     await renderOverview()
@@ -273,7 +298,7 @@ describe('overview dashboard layout', () => {
       ).toBeVisible()
     }
     for (const card of cards) {
-      expect(card).toHaveClass('min-w-0', 'rounded-2xl', 'border', 'shadow-xs')
+      expect(card).toHaveClass('min-w-0', 'rounded-xl', 'ring-card-outline')
       expect(card.querySelector('[aria-busy]')).toHaveClass('min-h-[118px]')
       expect(card.querySelector('.tabular-nums')).toHaveClass(
         'font-mono',

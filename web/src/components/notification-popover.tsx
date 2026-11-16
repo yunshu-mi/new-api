@@ -66,8 +66,7 @@ interface NotificationPopoverProps {
   className?: string
 }
 
-const notificationTabClassName =
-  'min-h-9 flex-none rounded-lg px-3 text-xs text-[#6c6c6c] data-active:bg-[#eaf5ff] data-active:text-[#0064fa] dark:data-active:border-transparent dark:data-active:bg-blue-400/15 dark:data-active:text-blue-300'
+const notificationTabClassName = 'min-h-9 flex-none rounded-lg px-3 text-xs'
 
 const notificationActionClassName =
   'bg-[#e8e8e8] text-[#0059e5] hover:bg-[#e2e2e2] dark:bg-secondary dark:text-blue-300 dark:hover:bg-secondary/80'

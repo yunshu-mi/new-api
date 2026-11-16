@@ -253,7 +253,7 @@ export function DataTableToolbar<TData>(props: DataTableToolbarProps<TData>) {
       onChange={handleSearchChange}
       onCompositionStart={handleSearchCompositionStart}
       onCompositionEnd={handleSearchCompositionEnd}
-      className='w-full sm:w-[200px] lg:w-[240px]'
+      className='border-control-outline bg-card dark:bg-card w-full sm:w-[200px] lg:w-[240px]'
     />
   )
 

@@ -111,7 +111,7 @@ export function ChannelSortControl(props: {
       >
         <SelectTrigger
           aria-label={t('Sort channels by')}
-          className='bg-background min-w-24'
+          className='border-control-outline bg-card dark:bg-card min-w-24'
         >
           <SelectValue />
         </SelectTrigger>
@@ -127,6 +127,7 @@ export function ChannelSortControl(props: {
         type='button'
         size='icon'
         variant='outline'
+        className='border-control-outline'
         disabled={props.disabled}
         aria-label={props.desc ? t('Descending') : t('Ascending')}
         title={props.desc ? t('Descending') : t('Ascending')}

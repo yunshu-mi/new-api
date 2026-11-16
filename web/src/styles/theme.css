@@ -53,6 +53,12 @@ For commercial licensing, please contact support@quantumnous.com
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-selection: var(--selection);
+  --color-selection-indicator: color-mix(
+    in oklab,
+    var(--primary) 70%,
+    var(--foreground)
+  );
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
@@ -65,21 +71,14 @@ For commercial licensing, please contact support@quantumnous.com
   --color-info-foreground: var(--info-foreground);
   --color-neutral: var(--neutral);
   --color-neutral-foreground: var(--neutral-foreground);
-  --color-border: color-mix(
-    in oklch,
-    var(--border) var(--console-line-opacity, 100%),
-    transparent
-  );
-  --color-input: color-mix(
-    in oklch,
-    var(--input) var(--console-input-opacity, 100%),
-    transparent
-  );
-  --color-card-outline: color-mix(
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-control-outline: color-mix(
     in oklab,
-    var(--foreground) var(--console-card-outline-opacity, 10%),
-    transparent
+    var(--muted-foreground) 74%,
+    var(--input)
   );
+  --color-card-outline: var(--card-outline);
   --color-ring: var(--ring);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
@@ -95,45 +94,44 @@ For commercial licensing, please contact support@quantumnous.com
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: color-mix(
-    in oklch,
-    var(--sidebar-border) var(--console-line-opacity, 100%),
-    transparent
-  );
+  --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
+  --radius-control: calc(var(--radius) * 0.9);
   --radius-xl: calc(var(--radius) * 1.4);
+  --radius-overlay: calc(var(--radius) * 1.6);
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Scope the quieter lines to the console, including overlays portaled to body. */
-body:has(.console-layout) {
-  --console-line-opacity: 60%;
-  --console-input-opacity: 85%;
-  --console-card-outline-opacity: 7%;
+body {
+  --table-row: var(--card);
 }
 
-.dark body:has(.console-layout) {
-  --console-line-opacity: 80%;
+.public-layout,
+.sign-in-page,
+.console-layout > [data-slot='sidebar-inset'] {
+  background-image: radial-gradient(
+    ellipse at top left,
+    color-mix(in oklab, var(--primary) 9%, transparent),
+    transparent 70%
+  );
+  background-repeat: no-repeat;
+  background-size: 100% 34rem;
 }
 
 .console-layout {
-  --line: #e6ecf4;
-  --console-frame-bg: #f8fafd;
+  --card-outline: color-mix(in oklab, var(--foreground) 16%, var(--border));
+  --line: var(--border);
+  --console-frame-bg: var(--sidebar);
   --console-header-height: 64px;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   grid-template-rows: var(--console-header-height) minmax(0, 1fr);
-}
-
-.dark .console-layout {
-  --line: #2a3444;
-  --console-frame-bg: var(--sidebar);
 }
 
 .console-layout > .console-header {
@@ -141,6 +139,7 @@ body:has(.console-layout) {
   box-sizing: border-box;
   height: var(--console-header-height);
   border-bottom: 1px solid var(--line);
+  background: var(--card);
 }
 
 .console-layout
@@ -158,6 +157,46 @@ body:has(.console-layout) {
   width: auto;
 }
 
+:is(.console-layout, [data-slot='sidebar'][data-mobile='true'])
+  :is(
+    [data-slot='sidebar-menu-button'],
+    [data-slot='sidebar-menu-sub-button']
+  ) {
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius) * 1.6);
+}
+
+:is(.console-layout, [data-slot='sidebar'][data-mobile='true'])
+  :not([data-collapsible='icon'])
+  > [data-slot='sidebar-menu-button'][data-size='default'] {
+  height: 2.5rem;
+}
+
+:is(.console-layout, [data-slot='sidebar'][data-mobile='true'])
+  :is(
+    [data-slot='sidebar-menu-button'],
+    [data-slot='sidebar-menu-sub-button']
+  ):hover:not([data-active]) {
+  background-color: color-mix(
+    in oklab,
+    var(--sidebar-accent-foreground) 8%,
+    var(--sidebar)
+  );
+  color: var(--sidebar-accent-foreground);
+}
+
+:is(.console-layout, [data-slot='sidebar'][data-mobile='true'])
+  :is(
+    [data-slot='sidebar-menu-button'],
+    [data-slot='sidebar-menu-sub-button']
+  )[data-active] {
+  border-color: color-mix(
+    in oklab,
+    var(--sidebar-primary) 75%,
+    var(--sidebar-foreground)
+  );
+}
+
 body:has([data-slot='sidebar'][data-mobile='true']) .tsqd-open-btn-container {
   margin-bottom: 72px;
 }
@@ -165,7 +204,6 @@ body:has([data-slot='sidebar'][data-mobile='true']) .tsqd-open-btn-container {
 @media (min-width: 48rem) {
   .console-layout > .console-header {
     grid-column-start: 2;
-    background: var(--console-frame-bg);
   }
 
   .console-layout > .console-header > div {
@@ -190,7 +228,7 @@ body:has([data-slot='sidebar'][data-mobile='true']) .tsqd-open-btn-container {
     top: 0;
     height: 100svh;
     padding: 0 var(--console-sidebar-padding);
-    border-right: 1px solid var(--line);
+    border-inline-end: 1px solid var(--sidebar-border);
     background: var(--console-frame-bg);
   }
 
@@ -209,7 +247,7 @@ body:has([data-slot='sidebar'][data-mobile='true']) .tsqd-open-btn-container {
     height: var(--console-header-height);
     margin: 0 calc(-1 * var(--console-sidebar-padding));
     padding: 0 21px;
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid var(--sidebar-border);
   }
 
   .console-layout > [data-collapsible='icon'] {
@@ -270,28 +308,32 @@ body:has([data-slot='sidebar'][data-mobile='true']) .tsqd-open-btn-container {
 }
 
 :root {
-  --radius: 1rem;
+  --radius: 10px;
   --app-header-height: 3rem;
   /* Static build-channel fallback consumed when JS hasn't booted yet. */
   --app-rev: '2k6e8r7p';
   /* Auto starts with the browser font, including before JS applies the
    * saved preference. Explicit Sans selects Public Sans in theme-presets.css. */
-  --font-ui-sans: sans-serif;
+  --font-ui-sans:
+    system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei',
+    sans-serif;
   --font-body: var(--font-ui-sans);
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.692 0.141 243.716);
+  --background: #f3f6fa;
+  --foreground: #192436;
+  --card: #fcfdff;
+  --card-foreground: var(--foreground);
+  --card-outline: var(--border);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --primary: #2563c7;
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.95 0 0);
-  --secondary-foreground: oklch(0.42 0.16 250);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.49 0 0);
+  --secondary: #e9eff9;
+  --secondary-foreground: #234d93;
+  --muted: #f0f3f7;
+  --muted-foreground: #56667b;
+  --selection: color-mix(in oklab, var(--primary) 14%, var(--card));
   --accent: color-mix(in oklch, var(--primary) 12%, var(--background));
-  --accent-foreground: oklch(0.145 0 0);
+  --accent-foreground: var(--foreground);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
   --success: oklch(0.596 0.145 163.225);
@@ -302,28 +344,27 @@ body:has([data-slot='sidebar'][data-mobile='true']) .tsqd-open-btn-container {
   --info-foreground: oklch(0.985 0 0);
   --neutral: oklch(0.708 0 0);
   --neutral-foreground: oklch(0.145 0 0);
-  --border: oklch(0.93 0 0);
-  --input: oklch(0.93 0 0);
-  --ring: oklch(0.708 0.16 249.003);
-  --chart-1: oklch(0.72 0.18 250);
+  --border: #e2e7ee;
+  --input: #d4dce6;
+  --ring: #4b83df;
+  --chart-1: #4d82cf;
   --chart-2: oklch(0.65 0.15 200);
   --chart-3: oklch(0.7 0.12 280);
   --chart-4: oklch(0.68 0.19 325);
   --chart-5: oklch(0.68 0.16 155);
-  --overview-accent-1: oklch(0.72 0.18 250);
+  --overview-accent-1: var(--chart-1);
   --overview-accent-2: oklch(0.65 0.15 200);
   --overview-accent-3: oklch(0.7 0.12 280);
-  --sidebar: color-mix(in oklch, var(--foreground) 0.5%, var(--background));
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.64 0.197 253.892);
+  --sidebar: #eeecf9;
+  --sidebar-foreground: #49426b;
+  --sidebar-primary: #54399e;
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: color-mix(in oklab, var(--primary) 26%, var(--background));
-  --sidebar-accent-foreground: oklch(0.48 0.17 255.909);
-  --sidebar-border: oklch(0.93 0 0);
-  --sidebar-ring: oklch(0.58 0.2 250);
+  --sidebar-accent: #e2daf6;
+  --sidebar-accent-foreground: #54399e;
+  --sidebar-border: #dcd7ed;
+  --sidebar-ring: var(--ring);
   --skeleton-base: oklch(0.97 0 0);
   --skeleton-highlight: oklch(0.985 0 0);
-  --table-row: var(--background);
   --table-header: color-mix(
     in oklch,
     var(--foreground) 1.5%,
@@ -357,19 +398,18 @@ body:has([data-slot='sidebar'][data-mobile='true']) .tsqd-open-btn-container {
   /* Native controls follow the theme; Dark Reader also reads this to detect
      the built-in dark theme. */
   color-scheme: dark;
-  /* OpenAI-like dark mode with a crisp charcoal canvas. */
-  --background: oklch(0.235 0 0);
-  --foreground: oklch(0.965 0 0);
-  --card: oklch(0.285 0 0);
-  --card-foreground: oklch(0.965 0 0);
-  --popover: oklch(0.305 0 0);
-  --popover-foreground: oklch(0.965 0 0);
-  --primary: oklch(0.54 0.142 248.516);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.335 0 0);
-  --secondary-foreground: oklch(0.9 0.05 250);
-  --muted: oklch(0.305 0 0);
-  --muted-foreground: oklch(0.78 0 0);
+  --background: #111827;
+  --foreground: #e9effa;
+  --card: #182232;
+  --card-foreground: var(--foreground);
+  --popover: #1d293c;
+  --popover-foreground: var(--foreground);
+  --primary: #8cb8ff;
+  --primary-foreground: #13223b;
+  --secondary: #253651;
+  --secondary-foreground: #d5e5ff;
+  --muted: #223047;
+  --muted-foreground: #a5b4cb;
   --accent: color-mix(in oklch, var(--primary) 20%, var(--background));
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
@@ -382,25 +422,24 @@ body:has([data-slot='sidebar'][data-mobile='true']) .tsqd-open-btn-container {
   --info-foreground: oklch(0.145 0 0);
   --neutral: oklch(0.76 0 0);
   --neutral-foreground: oklch(0.155 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 17%);
-  --ring: oklch(0.554 0.148 250.726);
-  --chart-1: oklch(0.76 0.14 250);
+  --border: #303d50;
+  --input: #465770;
+  --ring: #8cb8ff;
+  --chart-1: #78aaff;
   --chart-2: oklch(0.76 0.13 200);
   --chart-3: oklch(0.76 0.13 285);
   --chart-4: oklch(0.75 0.16 325);
   --chart-5: oklch(0.76 0.14 155);
-  --sidebar: oklch(0.225 0 0);
-  --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-primary: oklch(0.588 0.123 246.488);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: color-mix(in oklab, var(--primary) 38%, var(--background));
-  --sidebar-accent-foreground: oklch(0.9 0.05 250);
-  --sidebar-border: oklch(1 0 0 / 11%);
-  --sidebar-ring: oklch(0.7 0.17 250);
+  --sidebar: #1b1d33;
+  --sidebar-foreground: #c4bedb;
+  --sidebar-primary: #d2bcff;
+  --sidebar-primary-foreground: #25203b;
+  --sidebar-accent: #392e53;
+  --sidebar-accent-foreground: #d2bcff;
+  --sidebar-border: #36334d;
+  --sidebar-ring: var(--ring);
   --skeleton-base: oklch(0.335 0 0);
   --skeleton-highlight: oklch(0.44 0 0);
-  --table-row: var(--background);
   --table-header: color-mix(in oklch, var(--foreground) 6%, var(--background));
   --table-header-hover: color-mix(
     in oklch,

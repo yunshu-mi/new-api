@@ -32,7 +32,7 @@ export const THEME_PRESETS = [
   {
     value: 'default',
     name: 'Default',
-    swatches: ['oklch(0.72 0.18 250)', 'oklch(0.7 0.12 280)'],
+    swatches: ['#2563c7', '#eeecf9'],
   },
   {
     // Inspired by Anthropic's official brand language: warm cream canvas
@@ -117,7 +117,7 @@ export type ThemeCustomization = {
 }
 
 export const DEFAULT_THEME_CUSTOMIZATION: ThemeCustomization = {
-  preset: 'simple-large',
+  preset: 'default',
   font: 'default',
   radius: 'default',
   scale: 'default',

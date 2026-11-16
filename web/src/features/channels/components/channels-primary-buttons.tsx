@@ -113,7 +113,7 @@ export function ChannelsPrimaryButtons() {
         <NodeSyncIndicator topics={['channels']} />
         <div ref={setPriorityActionContainer} className='empty:hidden' />
         {/* Desktop: Toggle switches visible */}
-        <div className='bg-muted/40 hidden h-8 shrink-0 items-center gap-2.5 rounded-lg border px-2.5 sm:flex'>
+        <div className='border-card-outline bg-card hidden h-8 shrink-0 items-center gap-2.5 rounded-lg border px-2.5 sm:flex'>
           <div className='text-muted-foreground has-data-checked:text-foreground flex items-center gap-2'>
             <Label
               htmlFor='channel-batch-mode'

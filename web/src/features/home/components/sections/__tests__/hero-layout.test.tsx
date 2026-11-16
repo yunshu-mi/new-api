@@ -244,12 +244,12 @@ test('分屏首页依次展示四页内容，页脚包含在最后一页', async
       'px-6'
     )
     const heading = within(slide).getByRole('heading', { level: 2 })
-    expect(heading).toHaveClass('text-[36px]', 'font-bold', 'text-[#0F131A]')
+    expect(heading).toHaveClass('text-[36px]', 'font-bold', 'text-foreground')
     expect(heading.parentElement?.querySelector('span')).toHaveClass(
       'font-sans',
       'text-[13px]',
       'font-medium',
-      'text-[#3D5BFF]'
+      'text-primary'
     )
     expect(heading.parentElement?.querySelector('span')).not.toHaveClass(
       'font-mono'
@@ -257,7 +257,7 @@ test('分屏首页依次展示四页内容，页脚包含在最后一页', async
     expect(heading.parentElement?.querySelector('p')).toHaveClass(
       'text-[16px]',
       'font-normal',
-      'text-[#5A6370]'
+      'text-muted-foreground'
     )
   }
   expect(within(slides[3]).getByRole('contentinfo')).toHaveClass(
@@ -291,9 +291,7 @@ test('分屏首页共用固定的网格柔光背景，切页时背景不随内�
     resolve(import.meta.dirname, '../../../../../styles/index.css'),
     'utf8'
   )
-  const surface = css.match(
-    /\.home-slides(?=\s*[,{])[^{}]*\{([^}]+)\}/
-  )?.[1]
+  const surface = css.match(/\.home-slides(?=\s*[,{])[^{}]*\{([^}]+)\}/)?.[1]
   expect(surface).toContain('isolation: isolate')
   const background = css.match(
     /\.home-slides::before,\s*\.home-slides::after[^{}]*\{([^}]+)\}/
@@ -342,7 +340,7 @@ test('分屏首页核心能力以较窄内容区和紧凑卡片保留四项能�
     expect(heading.parentElement).toHaveClass('p-6', 'gap-3')
     expect(heading.parentElement?.querySelector('svg')).toHaveClass('size-6')
     const tag = heading.parentElement?.querySelector('span')
-    expect(tag).toHaveClass('text-xs', 'font-bold', 'text-[#2F4FD0]')
+    expect(tag).toHaveClass('text-xs', 'font-bold', 'text-primary')
     expect(tag).not.toHaveClass('font-mono')
   }
 })
@@ -442,7 +440,7 @@ test('分屏首页样式不应用于自定义 Markdown 首页', async () => {
   expect(document.querySelector('.home-slides')).not.toBeInTheDocument()
 })
 
-test('首页以浅色显示时，导航使用浅色 Logo，即使用户偏好深色', async () => {
+test('首页跟随深色偏好并在导航中使用深色 Logo', async () => {
   vi.spyOn(api, 'get').mockResolvedValue({
     data: { success: true, data: '' },
   })
@@ -455,11 +453,16 @@ test('首页以浅色显示时，导航使用浅色 Logo，即使用户偏好深
 
   await renderHero({}, false, true, true)
 
+  expect(
+    within(screen.getByRole('banner')).queryByRole('button', {
+      name: 'Toggle theme',
+    })
+  ).not.toBeInTheDocument()
   await waitFor(() => {
-    expect(document.documentElement).toHaveClass('light')
+    expect(document.documentElement).toHaveClass('dark')
     expect(
       within(screen.getByRole('banner')).getByRole('img', { name: 'logo' })
-    ).toHaveAttribute('src', '/light-logo.png')
+    ).toHaveAttribute('src', '/dark-logo.png')
   })
 })
 
@@ -534,7 +537,9 @@ test('首页首屏在宽屏并排展示介绍和可切换的 API 演示', async 
   expect(within(hero).getByText('/v1/chat/completions')).toBeVisible()
   await userEvent.click(within(hero).getByRole('button', { name: 'Responses' }))
   expect(await within(hero).findByText('/v1/responses')).toBeVisible()
-  expect(within(hero).queryByText('/v1/chat/completions')).not.toBeInTheDocument()
+  expect(
+    within(hero).queryByText('/v1/chat/completions')
+  ).not.toBeInTheDocument()
 })
 
 test('未登录时获取密钥入口指向登录页', async () => {
@@ -694,7 +699,9 @@ test('超长 API 基址单行截断，且可复制完整地址', async () => {
   expect(addressText).toHaveClass('truncate')
   expect(addressText.parentElement).toHaveClass('min-w-0')
 
-  const copyButton = within(group).getByRole('button', { name: 'Copy base URL' })
+  const copyButton = within(group).getByRole('button', {
+    name: 'Copy base URL',
+  })
   expect(copyButton).toHaveClass('shrink-0')
   await user.click(copyButton)
   expect(writeText).toHaveBeenCalledWith(address)
@@ -708,7 +715,7 @@ test('获取密钥和查看文档按钮等高，按内容宽度并排', async ()
   expect(getKey.parentElement).toContainElement(viewDocs)
   expect(getKey.parentElement).toHaveClass('flex-wrap')
   for (const button of [getKey, viewDocs]) {
-    expect(button).toHaveClass('h-8')
+    expect(button).toHaveClass('h-9')
     expect(button).not.toHaveClass('w-full')
   }
 })

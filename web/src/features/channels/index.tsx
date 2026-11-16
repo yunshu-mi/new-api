@@ -60,7 +60,7 @@ export function Channels() {
           render={
             <Badge
               variant='outline'
-              className='shrink-0 cursor-pointer'
+              className='border-card-outline bg-card shrink-0 cursor-pointer'
               aria-label={t('Retry Settings')}
               render={
                 <Link
@@ -79,7 +79,7 @@ export function Channels() {
         </TooltipContent>
       </Tooltip>
     ) : (
-      <Badge variant='outline' className='shrink-0'>
+      <Badge variant='outline' className='border-card-outline bg-card shrink-0'>
         {retryLabel}
       </Badge>
     )
