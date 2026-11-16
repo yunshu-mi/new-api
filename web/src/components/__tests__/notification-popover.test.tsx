@@ -110,6 +110,10 @@ describe('notification dialog', () => {
       name: 'System Announcements',
     })
     expect(announcements).toHaveAttribute('aria-selected', 'true')
+    expect(notice).toHaveAttribute('aria-selected', 'false')
+    expect(announcements).toHaveClass(
+      'group-data-[variant=default]/tabs-list:data-active:border-selection-indicator'
+    )
     expect(dialog).toHaveClass('top-(--notification-top)', 'translate-y-0')
     expect(
       within(screen.getByRole('tabpanel')).getByText('Service update')

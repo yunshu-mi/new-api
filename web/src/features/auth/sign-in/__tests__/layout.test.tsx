@@ -105,7 +105,7 @@ afterEach(() => {
   localStorage.clear()
 })
 
-it('uses the light theme and logos on sign-in, then restores the saved dark theme on departure', async () => {
+it('uses the saved dark theme and its logo on sign-in and after navigation', async () => {
   localStorage.setItem(THEME_STORAGE_KEYS.mode, 'dark')
   useSystemConfigStore.getState().setConfig({
     logo: '/light-logo.png',
@@ -116,10 +116,9 @@ it('uses the light theme and logos on sign-in, then restores the saved dark them
   const logos = await screen.findAllByRole('img', { name: 'Logo' })
   expect(logos).toHaveLength(2)
   await waitFor(() => {
-    expect(document.documentElement).toHaveClass('light')
-    expect(document.documentElement).not.toHaveClass('dark')
+    expect(document.documentElement).toHaveClass('dark')
     for (const logo of logos) {
-      expect(logo).toHaveAttribute('src', '/light-logo.png')
+      expect(logo).toHaveAttribute('src', '/dark-logo.png')
     }
   })
   expect(localStorage.getItem(THEME_STORAGE_KEYS.mode)).toBe('dark')

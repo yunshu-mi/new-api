@@ -125,7 +125,10 @@ export function PublicHeader(props: PublicHeaderProps) {
   let authContent = (
     <Button
       size='sm'
-      className={cn('h-6.5 rounded-lg px-2 text-xs font-medium', signInColors)}
+      className={cn(
+        'h-[1.95rem] rounded-[0.75rem]! px-[0.6rem] text-[0.9rem]/[1.333333] font-medium',
+        signInColors
+      )}
       render={<Link to='/sign-in' />}
     >
       {signInLabel}
@@ -237,7 +240,7 @@ export function PublicHeader(props: PublicHeaderProps) {
     <>
       <header className='pointer-events-none fixed inset-x-0 top-0 z-50'>
         <div className='pointer-events-auto mx-auto max-w-6xl px-6 pt-3'>
-          <nav className='ring-border/50 flex h-9 items-center justify-between gap-2 rounded-2xl bg-white/35 pr-1.5 pl-3 shadow-[0_2px_16px_-6px_rgba(0,0,0,0.08),0_0_0_0.5px_rgba(0,0,0,0.02)] ring-[0.5px] backdrop-blur-sm dark:bg-[#0b0f17]/40 dark:shadow-[0_2px_16px_-6px_rgba(0,0,0,0.4)]'>
+          <nav className='ring-border/50 flex h-9 items-center justify-between gap-2 rounded-xl bg-white/35 pr-1.5 pl-3 shadow-[0_2px_16px_-6px_rgba(0,0,0,0.08),0_0_0_0.5px_rgba(0,0,0,0.02)] ring-[0.5px] backdrop-blur-sm dark:bg-[#0b0f17]/40 dark:shadow-[0_2px_16px_-6px_rgba(0,0,0,0.4)]'>
             {/* Logo */}
             <div className='@container/system-brand flex min-w-0 flex-1 items-center gap-1 lg:min-w-16'>
               <Link
@@ -249,7 +252,7 @@ export function PublicHeader(props: PublicHeaderProps) {
                   {logoContent}
                 </div>
                 <span
-                  className='max-w-48 truncate text-sm font-semibold tracking-tight'
+                  className='max-w-48 truncate text-[15px]/[1.5] font-semibold tracking-normal'
                   title={displaySiteName}
                 >
                   {loading ? (

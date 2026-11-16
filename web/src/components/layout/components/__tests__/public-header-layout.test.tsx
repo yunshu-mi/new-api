@@ -93,6 +93,9 @@ it('keeps the floating header aligned with the home content when scrolling down 
   const header = await screen.findByRole('banner')
   const nav = within(header).getByRole('navigation')
   const container = nav.parentElement
+  const siteName = within(nav).getByText(initialConfig.config.systemName)
+
+  expect(siteName).toHaveClass('text-[15px]/[1.5]', 'tracking-normal')
 
   for (const scrollY of [0, 300, 0]) {
     vi.spyOn(window, 'scrollY', 'get').mockReturnValue(scrollY)
@@ -101,10 +104,15 @@ it('keeps the floating header aligned with the home content when scrolling down 
     })
     expect(header).toHaveClass('fixed', 'inset-x-0', 'top-0')
     expect(container).toHaveClass('mx-auto', 'max-w-6xl', 'px-6', 'pt-3')
-    expect(nav).toHaveClass('h-9', 'rounded-2xl', 'backdrop-blur-sm')
+    expect(nav).toHaveClass(
+      'h-9',
+      'rounded-xl',
+      'bg-white/35',
+      'backdrop-blur-sm'
+    )
     expect(
       within(nav).getByRole('button', { name: 'Sign in / Sign up' })
-    ).toHaveClass('h-6.5', 'px-2')
+    ).toHaveClass('h-[1.95rem]', 'px-[0.6rem]', 'rounded-[0.75rem]!')
   }
 })
 

@@ -90,7 +90,7 @@ export function ApiInfoItemComponent(props: ApiInfoItemProps) {
         role='listitem'
         variant='outline'
         size='xs'
-        className='border-input min-h-8 w-fit max-w-full flex-nowrap py-px'
+        className='border-card-outline bg-card min-h-8 w-fit max-w-full flex-nowrap py-px'
       >
         <ItemContent className='min-w-0'>
           <div className='flex flex-wrap items-baseline gap-x-2 gap-y-1'>

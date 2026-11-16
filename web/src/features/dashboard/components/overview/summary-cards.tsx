@@ -144,7 +144,8 @@ export function SummaryCards() {
             key={item.key}
             role='listitem'
             aria-label={item.title}
-            className='min-w-0 gap-0 rounded-2xl border py-0 shadow-xs ring-0'
+            data-card-hover='false'
+            className='min-w-0 gap-0 py-0'
           >
             <StatCard
               title={item.title}

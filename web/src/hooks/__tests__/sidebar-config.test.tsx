@@ -164,7 +164,9 @@ describe('audit log sidebar entry', () => {
     )
     const items =
       result.current.find((group) => group.id === 'general')?.items ?? []
-    const auditIndex = items.findIndex((item) => item.url === '/usage-logs/audit')
+    const auditIndex = items.findIndex(
+      (item) => item.url === '/usage-logs/audit'
+    )
     expect(items[auditIndex - 1]?.url).toBe('/usage-logs/task')
     expect(items[auditIndex]).toMatchObject({
       title: 'Audit Logs',
@@ -200,6 +202,23 @@ describe('audit log sidebar entry', () => {
       .map((item) => item.title)
     expect(titles).not.toContain('Usage Logs')
     expect(titles).toContain('Audit Logs')
+  })
+})
+
+describe('sidebar selection on tab routes', () => {
+  it.each([
+    ['/dashboard/flow', '/dashboard/models'],
+    ['/dashboard/users?view=summary', '/dashboard/models'],
+    ['/models/vendors', '/models/metadata'],
+    ['/models/deployments?page=2', '/models/metadata'],
+  ])('highlights only the parent sidebar link for %s', (path, expectedUrl) => {
+    const { result } = renderHook(() => useSidebarData())
+    const selected = result.current.navGroups
+      .flatMap((group) => group.items)
+      .filter((item) => checkIsActive(path, item))
+      .map((item) => item.url)
+
+    expect(selected).toEqual([expectedUrl])
   })
 })
 

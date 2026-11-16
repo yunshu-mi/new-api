@@ -43,17 +43,13 @@ function FeatureCardView(props: { card: FeatureCard }) {
   const { card } = props
   const Icon = card.icon
   return (
-    <div className='flex h-full flex-col gap-3 rounded-2xl border border-[#E6E9F0] bg-white/35 p-6 text-left backdrop-blur-sm dark:bg-[#0b0f17]/40'>
-      <Icon aria-hidden='true' className='size-6 text-[#3D5BFF]' />
-      <h3 className='dark:text-foreground text-lg font-bold text-[#0F131A]'>
-        {card.title}
-      </h3>
-      <p className='dark:text-muted-foreground text-sm leading-6 text-[#5A6370]'>
+    <div className='border-border bg-card flex h-full flex-col gap-3 rounded-xl border p-6 text-left backdrop-blur-sm'>
+      <Icon aria-hidden='true' className='text-primary size-6' />
+      <h3 className='text-foreground text-lg font-bold'>{card.title}</h3>
+      <p className='text-muted-foreground text-sm leading-6'>
         {card.description}
       </p>
-      <span className='text-xs font-bold text-[#2F4FD0] dark:text-blue-300'>
-        {card.tag}
-      </span>
+      <span className='text-primary text-xs font-bold'>{card.tag}</span>
     </div>
   )
 }
@@ -108,16 +104,16 @@ export function Features() {
   return (
     <section aria-labelledby={headingId} className={HOME_SECTION_CLASS_NAME}>
       <div className='mb-6 max-w-2xl'>
-        <span className='font-sans text-[13px] font-medium text-[#3D5BFF]'>
+        <span className='text-primary font-sans text-[13px] font-medium'>
           {t('01 · Core capabilities')}
         </span>
         <h2
           id={headingId}
-          className='mt-2 text-[36px] leading-tight font-bold tracking-tight text-[#0F131A]'
+          className='text-foreground mt-2 text-[36px] leading-tight font-bold tracking-tight'
         >
           {t('Core capabilities built for developers')}
         </h2>
-        <p className='mt-3 text-[16px] leading-6 font-normal text-[#5A6370]'>
+        <p className='text-muted-foreground mt-3 text-[16px] leading-6 font-normal'>
           {t(
             'Not slide-deck talking points, but the stability, transparency and security running every day.'
           )}

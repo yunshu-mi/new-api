@@ -65,7 +65,7 @@ function DataTableRowInner<TData>({
     <TableRow
       data-sortable-id={row.id}
       data-state={isSelected ? 'selected' : undefined}
-      className={className}
+      className={cn('bg-(--table-row)', className)}
       {...rowProps}
     >
       {row.getVisibleCells().map((cell) => {

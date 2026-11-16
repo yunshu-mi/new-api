@@ -95,16 +95,16 @@ export function Faq() {
   return (
     <section aria-labelledby={headingId} className={HOME_SECTION_CLASS_NAME}>
       <div className='mb-6 max-w-2xl'>
-        <span className='font-sans text-[13px] font-medium text-[#3D5BFF]'>
+        <span className='text-primary font-sans text-[13px] font-medium'>
           {t('03 · FAQ')}
         </span>
         <h2
           id={headingId}
-          className='mt-2 text-[36px] leading-tight font-bold tracking-tight text-[#0F131A]'
+          className='text-foreground mt-2 text-[36px] leading-tight font-bold tracking-tight'
         >
           {t('Everything you want to know')}
         </h2>
-        <p className='mt-3 text-[16px] leading-6 font-normal text-[#5A6370]'>
+        <p className='text-muted-foreground mt-3 text-[16px] leading-6 font-normal'>
           {t('Still have questions? Join the community or contact us anytime.')}
         </p>
       </div>
@@ -116,12 +116,12 @@ export function Faq() {
             <AccordionItem
               key={key}
               value={`item-${key}`}
-              className='overflow-hidden rounded-2xl border border-[#E6E9F0] bg-white/35 backdrop-blur-sm dark:bg-[#0b0f17]/40'
+              className='border-border bg-card overflow-hidden rounded-xl border backdrop-blur-sm'
             >
-              <AccordionTrigger className='dark:text-foreground px-5 py-4 text-sm font-bold text-[#0F131A] hover:no-underline'>
+              <AccordionTrigger className='text-foreground px-5 py-4 text-sm font-bold hover:no-underline'>
                 {item.question}
               </AccordionTrigger>
-              <AccordionContent className='dark:text-muted-foreground px-5 pb-4 text-sm leading-6 text-[#4A5260]'>
+              <AccordionContent className='text-muted-foreground px-5 pb-4 text-sm leading-6'>
                 <Markdown>{item.answer}</Markdown>
               </AccordionContent>
             </AccordionItem>

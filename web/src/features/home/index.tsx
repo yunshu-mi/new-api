@@ -34,10 +34,10 @@ export function Home() {
   const { i18n, t } = useTranslation()
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const { resolvedTheme } = useTheme()
-  useLightPageTheme()
   const { auth } = useAuthStore()
   const isAuthenticated = !!auth.user
   const { content, isLoaded, isUrl } = useHomePageContent()
+  useLightPageTheme(Boolean(content))
   const slidesRef = useHomeSlideScroll(isLoaded && !content)
 
   const syncIframePreferences = useCallback(() => {
@@ -127,7 +127,7 @@ export function Home() {
     <PublicLayout showMainContainer={false} showThemeSwitch={false}>
       <main
         ref={slidesRef}
-        className='home-slides home-grid bg-background text-[#0F131A]'
+        className='home-slides home-grid bg-background text-foreground'
       >
         <div className='home-slide'>
           <Hero isAuthenticated={isAuthenticated} />

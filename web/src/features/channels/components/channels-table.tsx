@@ -561,7 +561,7 @@ export function ChannelsTable() {
                 onChange={onModelFilterInputChange}
                 onCompositionStart={onModelFilterCompositionStart}
                 onCompositionEnd={onModelFilterCompositionEnd}
-                className='w-full sm:w-[150px] lg:w-[180px]'
+                className='border-control-outline bg-card dark:bg-card w-full sm:w-[150px] lg:w-[180px]'
               />
             ),
             filters: [

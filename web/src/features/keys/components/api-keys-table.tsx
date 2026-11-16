@@ -367,7 +367,7 @@ export function ApiKeysTable() {
                 aria-label={t('Filter by API key...')}
                 value={tokenFilterInput}
                 onChange={(e) => setTokenFilterInput(e.target.value)}
-                className='w-full sm:w-50 lg:w-60'
+                className='border-control-outline bg-card dark:bg-card w-full sm:w-50 lg:w-60'
               />
             }
             filters={[
