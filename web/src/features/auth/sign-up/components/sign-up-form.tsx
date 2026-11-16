@@ -25,19 +25,22 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import type { z } from 'zod'
 
 import { Dialog } from '@/components/dialog'
 import { PasswordInput } from '@/components/password-input'
+import {
+  PasswordConfirmationStatus,
+  PasswordStrength,
+} from '@/components/password-strength'
 import { Turnstile } from '@/components/turnstile'
 import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -103,6 +106,11 @@ export function SignUpForm({
       password: '',
       confirmPassword: '',
     },
+  })
+  const passwordValue = useWatch({ control: form.control, name: 'password' })
+  const confirmationValue = useWatch({
+    control: form.control,
+    name: 'confirmPassword',
   })
 
   const emailValue = form.watch('email')
@@ -288,21 +296,19 @@ export function SignUpForm({
             <FormItem>
               <FormLabel>{t('Password')}</FormLabel>
               <div className='sign-in-input-wrap'>
-                <LockKeyhole
-                  className='sign-in-input-icon'
-                  aria-hidden='true'
-                />
-                <FormControl>
+                <LockKeyhole className='sign-in-input-icon' aria-hidden='true' />
+                <FormControl describedBy='sign-up-password-strength'>
                   <PasswordInput
-                    placeholder={t('Enter password')}
+                    placeholder={t('Enter password (8–128 characters)')}
                     autoComplete='new-password'
                     {...field}
                   />
                 </FormControl>
               </div>
-              <FormDescription>
-                {t('Enter password (8–128 characters)')}
-              </FormDescription>
+              <PasswordStrength
+                id='sign-up-password-strength'
+                value={passwordValue}
+              />
               <FormMessage />
             </FormItem>
           )}
@@ -312,15 +318,12 @@ export function SignUpForm({
         <FormField
           control={form.control}
           name='confirmPassword'
-          render={({ field }) => (
+          render={({ field, fieldState }) => (
             <FormItem>
               <FormLabel>{t('Confirm password')}</FormLabel>
               <div className='sign-in-input-wrap'>
-                <LockKeyhole
-                  className='sign-in-input-icon'
-                  aria-hidden='true'
-                />
-                <FormControl>
+                <LockKeyhole className='sign-in-input-icon' aria-hidden='true' />
+                <FormControl describedBy='sign-up-password-confirmation-status'>
                   <PasswordInput
                     placeholder={t('Confirm password')}
                     autoComplete='new-password'
@@ -328,6 +331,12 @@ export function SignUpForm({
                   />
                 </FormControl>
               </div>
+              <PasswordConfirmationStatus
+                id='sign-up-password-confirmation-status'
+                password={passwordValue}
+                confirmation={confirmationValue}
+                hasFieldError={!!fieldState.error}
+              />
               <FormMessage />
             </FormItem>
           )}

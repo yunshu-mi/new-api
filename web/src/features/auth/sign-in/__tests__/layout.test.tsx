@@ -153,12 +153,12 @@ it('keeps accessible input labels and password visibility controls in the redesi
   await user.click(password)
   await user.paste('example-password')
   await user.click(
-    screen.getByRole('button', { name: 'Toggle password visibility' })
+    screen.getByRole('button', { name: 'Show password' })
   )
   expect(password).toHaveAttribute('type', 'text')
   expect(password).toHaveValue('example-password')
   await user.click(
-    screen.getByRole('button', { name: 'Toggle password visibility' })
+    screen.getByRole('button', { name: 'Hide password' })
   )
   expect(password).toHaveAttribute('type', 'password')
 })
