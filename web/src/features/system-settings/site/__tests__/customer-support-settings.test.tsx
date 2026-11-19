@@ -17,7 +17,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -99,18 +99,41 @@ describe('customer support settings', () => {
       'Service hours: 9–18'
     )
     await user.type(
-      screen.getByRole('textbox', { name: 'Support name' }),
+      within(
+        screen.getByRole('group', { name: 'First support contact' })
+      ).getByRole('textbox', { name: 'Support name' }),
       'Support team'
     )
     await user.type(
-      screen.getByRole('textbox', { name: 'Phone number' }),
+      within(
+        screen.getByRole('group', { name: 'First support contact' })
+      ).getByRole('textbox', { name: 'Phone number' }),
       '123456'
     )
     await user.type(
-      screen.getByRole('textbox', { name: 'WeChat ID' }),
+      within(
+        screen.getByRole('group', { name: 'First support contact' })
+      ).getByRole('textbox', { name: 'WeChat ID' }),
       'support-team'
     )
+    const second = within(
+      screen.getByRole('group', { name: 'Second support contact' })
+    )
+    await user.type(
+      second.getByRole('textbox', { name: 'Support name' }),
+      'Sales'
+    )
+    await user.type(
+      second.getByRole('textbox', { name: 'Phone number' }),
+      '654321'
+    )
+    await user.type(
+      second.getByRole('textbox', { name: 'WeChat ID' }),
+      'sales-team'
+    )
     expect(screen.getByRole('heading', { name: 'Help desk' })).toBeVisible()
+    expect(screen.getByText('Phone number: 654321')).toBeVisible()
+    expect(screen.getByText('WeChat ID: sales-team')).toBeVisible()
     expect(screen.getByText('Phone number: 123456')).toBeVisible()
     expect(screen.getByText('WeChat ID: support-team')).toBeVisible()
     expect(put).not.toHaveBeenCalled()
@@ -126,12 +149,30 @@ describe('customer support settings', () => {
           phone: '123456',
           wechat: 'support-team',
           qr_code: '',
+          second_contact: {
+            name: 'Sales',
+            phone: '654321',
+            wechat: 'sales-team',
+            qr_code: '',
+          },
         }),
       })
     )
-    expect(
+    await user.click(
       await screen.findByRole('button', { name: 'Contact support' })
-    ).toBeVisible()
+    )
+    const dialog = within(
+      await screen.findByRole('dialog', { name: 'Help desk' })
+    )
+    const firstContact = dialog.getByRole('group', {
+      name: 'First support contact',
+    })
+    const secondContact = dialog.getByRole('group', {
+      name: 'Second support contact',
+    })
+    expect(firstContact).toHaveTextContent('Support team')
+    expect(secondContact).toHaveTextContent('Sales')
+    expect(firstContact.parentElement).toHaveClass('sm:grid-cols-2')
     client.clear()
   })
 
@@ -172,21 +213,29 @@ describe('customer support settings', () => {
       phone: '123456',
       qr_code: 'data:image/png;base64,test',
     })
-    expect(screen.getByRole('textbox', { name: 'Phone number' })).toHaveValue(
-      '123456'
-    )
+    expect(
+      within(
+        screen.getByRole('group', { name: 'First support contact' })
+      ).getByRole('textbox', { name: 'Phone number' })
+    ).toHaveValue('123456')
     client.clear()
   })
 
-  it('uploads and saves a QR image, then previews removal before saving again', async () => {
+  it('uploads, saves, and removes the second QR image independently of the first', async () => {
     const put = vi
       .spyOn(api, 'put')
       .mockResolvedValue({ data: { success: true } })
     vi.spyOn(api, 'get').mockResolvedValue({
       data: { success: true, data: { customer_support: {} } },
     })
-    const client = renderSettings()
+    const firstImage = 'data:image/png;base64,existing'
+    const client = renderSettings(
+      parseCustomerSupportConfig({ qr_code: firstImage })
+    )
     const user = userEvent.setup()
+    const second = within(
+      screen.getByRole('group', { name: 'Second support contact' })
+    )
     const file = new File(
       [
         Uint8Array.from(
@@ -199,23 +248,39 @@ describe('customer support settings', () => {
       'qr.png',
       { type: 'image/png' }
     )
-    await user.upload(screen.getByLabelText('Support QR code'), file)
-    const image = await screen.findByRole('img', { name: 'Support QR code' })
-    expect(image.getAttribute('src')).toMatch(/^data:image\/png;base64,/)
-    const imageData = image.getAttribute('src')
+    await user.upload(second.getByLabelText('Support QR code'), file)
+    await waitFor(() =>
+      expect(
+        screen.getAllByRole('img', { name: 'Support QR code' })
+      ).toHaveLength(2)
+    )
+    const [, secondImage] = screen.getAllByRole('img', {
+      name: 'Support QR code',
+    })
+    const imageData = secondImage.getAttribute('src')
+    expect(imageData).toMatch(/^data:image\/png;base64,/)
     await user.click(screen.getByRole('button', { name: 'Save Changes' }))
     await waitFor(() => expect(put).toHaveBeenCalledTimes(1))
     const saved = put.mock.calls[0][1] as UpdateOptionRequest
     expect(saved.key).toBe('console_setting.customer_support')
     expect(JSON.parse(saved.value as string)).toMatchObject({
-      qr_code: imageData,
+      qr_code: firstImage,
+      second_contact: { qr_code: imageData },
     })
-    await user.click(screen.getByRole('button', { name: 'Remove QR code' }))
-    expect(screen.queryByRole('img')).not.toBeInTheDocument()
+    await user.click(second.getByRole('button', { name: 'Remove QR code' }))
     expect(
-      screen.getByRole('button', { name: 'Remove QR code' })
+      screen.getByRole('img', { name: 'Support QR code' })
+    ).toHaveAttribute('src', firstImage)
+    expect(
+      second.getByRole('button', { name: 'Remove QR code' })
     ).toBeDisabled()
-    expect(put).toHaveBeenCalledTimes(1)
+    await user.click(screen.getByRole('button', { name: 'Save Changes' }))
+    await waitFor(() => expect(put).toHaveBeenCalledTimes(2))
+    const updated = put.mock.calls[1][1] as UpdateOptionRequest
+    expect(JSON.parse(updated.value as string)).toMatchObject({
+      qr_code: firstImage,
+      second_contact: { qr_code: '' },
+    })
     client.clear()
   })
 
@@ -227,7 +292,10 @@ describe('customer support settings', () => {
   ])('rejects unsupported or oversized QR files ($name)', async (file) => {
     const client = renderSettings()
     const user = userEvent.setup({ applyAccept: false })
-    await user.upload(screen.getByLabelText('Support QR code'), file)
+    const second = within(
+      screen.getByRole('group', { name: 'Second support contact' })
+    )
+    await user.upload(second.getByLabelText('Support QR code'), file)
     expect(
       await screen.findByText(
         'Support QR code must be a PNG, JPEG or WebP image up to 5 MB'
@@ -261,7 +329,9 @@ describe('customer support settings', () => {
       })
     )
     const user = userEvent.setup()
-    const input = screen.getByRole('textbox', { name: 'Support name' })
+    const input = within(
+      screen.getByRole('group', { name: 'First support contact' })
+    ).getByRole('textbox', { name: 'Support name' })
     await user.clear(input)
     await user.type(input, 'Updated contact')
     await user.click(screen.getByRole('button', { name: 'Save Changes' }))

@@ -26,11 +26,12 @@ import {
   useState,
   type ChangeEvent,
 } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useFormContext } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
 import { CustomerSupportContent } from '@/components/customer-support'
 import { Button } from '@/components/ui/button'
+import { FieldLegend, FieldSet } from '@/components/ui/field'
 import {
   Form,
   FormControl,
@@ -59,7 +60,6 @@ import { useUpdateOption } from '../hooks/use-update-option'
 export function CustomerSupportSection(props: { defaultValue: string }) {
   const { t } = useTranslation()
   const updateOption = useUpdateOption()
-  const fileInput = useRef<HTMLInputElement>(null)
   const switchId = useId()
   const [readingImage, setReadingImage] = useState(false)
   const defaults = useMemo(() => {
@@ -74,17 +74,27 @@ export function CustomerSupportSection(props: { defaultValue: string }) {
         message: t('Popup title is required'),
       })
     }
-    for (const key of [
-      'title',
-      'description',
-      'name',
-      'phone',
-      'wechat',
-    ] as const) {
+    for (const key of ['title', 'description'] as const) {
       if ([...values[key]].length > (key === 'description' ? 1000 : 100)) {
         context.addIssue({
           code: 'custom',
           path: [key],
+          message: t('Customer support text exceeds the length limit'),
+        })
+      }
+    }
+    for (const key of ['name', 'phone', 'wechat'] as const) {
+      if ([...values[key]].length > 100) {
+        context.addIssue({
+          code: 'custom',
+          path: [key],
+          message: t('Customer support text exceeds the length limit'),
+        })
+      }
+      if ([...values.second_contact[key]].length > 100) {
+        context.addIssue({
+          code: 'custom',
+          path: ['second_contact', key],
           message: t('Customer support text exceeds the length limit'),
         })
       }
@@ -112,38 +122,6 @@ export function CustomerSupportSection(props: { defaultValue: string }) {
       key: 'console_setting.customer_support',
       value: JSON.stringify(config),
     })
-  }
-
-  const onImageChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    event.target.value = ''
-    if (!file) return
-    if (
-      !['image/png', 'image/jpeg', 'image/webp'].includes(file.type) ||
-      file.size === 0 ||
-      file.size > 5 * 1024 * 1024
-    ) {
-      form.setError('qr_code', {
-        message: t(
-          'Support QR code must be a PNG, JPEG or WebP image up to 5 MB'
-        ),
-      })
-      return
-    }
-    setReadingImage(true)
-    const reader = new FileReader()
-    reader.addEventListener('load', () => {
-      if (typeof reader.result === 'string') {
-        form.setValue('qr_code', reader.result, { shouldDirty: true })
-        form.clearErrors('qr_code')
-      }
-      setReadingImage(false)
-    })
-    reader.addEventListener('error', () => {
-      form.setError('qr_code', { message: t('Failed to read QR code image') })
-      setReadingImage(false)
-    })
-    reader.readAsDataURL(file)
   }
 
   return (
@@ -202,105 +180,16 @@ export function CustomerSupportSection(props: { defaultValue: string }) {
               </FormItem>
             )}
           />
-          <div className='grid gap-5 sm:grid-cols-2'>
-            <FormField
-              control={form.control}
-              name='name'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('Support name')}</FormLabel>
-                  <FormControl>
-                    <Input maxLength={100} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='phone'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('Phone number')}</FormLabel>
-                  <FormControl>
-                    <Input type='tel' maxLength={100} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='wechat'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('WeChat ID')}</FormLabel>
-                  <FormControl>
-                    <Input maxLength={100} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <FormField
-            control={form.control}
-            name='qr_code'
-            render={({ field }) => (
-              <FormItem data-settings-form-span='full'>
-                <div className='bg-muted/30 flex flex-wrap items-center gap-3 rounded-lg border p-4'>
-                  <ImageIcon
-                    className='text-muted-foreground size-5'
-                    aria-hidden='true'
-                  />
-                  <div className='min-w-0 flex-1 space-y-1'>
-                    <FormLabel>{t('Support QR code')}</FormLabel>
-                    <FormDescription>
-                      {t(
-                        'PNG, JPEG or WebP, up to 5 MB. A clear square image is recommended.'
-                      )}
-                    </FormDescription>
-                    <p className='text-muted-foreground text-xs'>
-                      {field.value
-                        ? t('Custom QR code configured')
-                        : t('No QR code configured')}
-                    </p>
-                  </div>
-                  <FormControl>
-                    <input
-                      ref={fileInput}
-                      type='file'
-                      accept='image/png,image/jpeg,image/webp'
-                      className='sr-only'
-                      onChange={onImageChange}
-                      disabled={readingImage}
-                    />
-                  </FormControl>
-                  <Button
-                    type='button'
-                    variant='outline'
-                    disabled={readingImage}
-                    onClick={() => fileInput.current?.click()}
-                  >
-                    <Upload aria-hidden='true' />
-                    {t('Choose file')}
-                  </Button>
-                  <Button
-                    type='button'
-                    variant='ghost'
-                    className='text-destructive'
-                    disabled={!field.value || readingImage}
-                    onClick={() => {
-                      field.onChange('')
-                      form.clearErrors('qr_code')
-                    }}
-                  >
-                    {t('Remove QR code')}
-                  </Button>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
+          <SupportContactFields
+            title={t('First support contact')}
+            readingImage={readingImage}
+            onReadingImageChange={setReadingImage}
+          />
+          <SupportContactFields
+            title={t('Second support contact')}
+            second
+            readingImage={readingImage}
+            onReadingImageChange={setReadingImage}
           />
           <div className='bg-muted/20 space-y-6 rounded-lg border p-4 sm:p-6'>
             <h3 className='text-sm font-semibold'>
@@ -311,5 +200,140 @@ export function CustomerSupportSection(props: { defaultValue: string }) {
         </SettingsForm>
       </Form>
     </SettingsSection>
+  )
+}
+
+function SupportContactFields(props: {
+  title: string
+  second?: boolean
+  readingImage: boolean
+  onReadingImageChange: (reading: boolean) => void
+}) {
+  const { t } = useTranslation()
+  const form = useFormContext<CustomerSupportConfig>()
+  const fileInput = useRef<HTMLInputElement>(null)
+  const qrCodeField = props.second ? 'second_contact.qr_code' : 'qr_code'
+  const fields = [
+    ['name', t('Support name')],
+    ['phone', t('Phone number')],
+    ['wechat', t('WeChat ID')],
+  ] as const
+
+  const onImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file || props.readingImage) return
+    if (
+      !['image/png', 'image/jpeg', 'image/webp'].includes(file.type) ||
+      file.size === 0 ||
+      file.size > 5 * 1024 * 1024
+    ) {
+      form.setError(qrCodeField, {
+        message: t(
+          'Support QR code must be a PNG, JPEG or WebP image up to 5 MB'
+        ),
+      })
+      return
+    }
+    props.onReadingImageChange(true)
+    const reader = new FileReader()
+    reader.addEventListener('load', () => {
+      if (typeof reader.result === 'string') {
+        form.setValue(qrCodeField, reader.result, { shouldDirty: true })
+        form.clearErrors(qrCodeField)
+      }
+    })
+    reader.addEventListener('error', () => {
+      form.setError(qrCodeField, { message: t('Failed to read QR code image') })
+    })
+    reader.addEventListener('loadend', () => props.onReadingImageChange(false))
+    reader.readAsDataURL(file)
+  }
+
+  return (
+    <FieldSet className='min-w-0 gap-5'>
+      <FieldLegend variant='label'>{props.title}</FieldLegend>
+      <div className='grid min-w-0 gap-5 sm:grid-cols-2'>
+        {fields.map(([key, label]) => (
+          <FormField
+            key={key}
+            control={form.control}
+            name={props.second ? `second_contact.${key}` : key}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{label}</FormLabel>
+                <FormControl>
+                  <Input
+                    type={key === 'phone' ? 'tel' : 'text'}
+                    maxLength={100}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ))}
+      </div>
+      <FormField
+        control={form.control}
+        name={qrCodeField}
+        render={({ field }) => (
+          <FormItem>
+            <div className='bg-muted/30 flex flex-wrap items-center gap-3 rounded-lg border p-4'>
+              <ImageIcon
+                className='text-muted-foreground size-5'
+                aria-hidden='true'
+              />
+              <div className='min-w-0 flex-1 space-y-1'>
+                <FormLabel>{t('Support QR code')}</FormLabel>
+                <FormDescription>
+                  {t(
+                    'PNG, JPEG or WebP, up to 5 MB. A clear square image is recommended.'
+                  )}
+                </FormDescription>
+                <p className='text-muted-foreground text-xs'>
+                  {field.value
+                    ? t('Custom QR code configured')
+                    : t('No QR code configured')}
+                </p>
+              </div>
+              <FormControl>
+                <input
+                  ref={fileInput}
+                  type='file'
+                  accept='image/png,image/jpeg,image/webp'
+                  className='sr-only'
+                  onChange={onImageChange}
+                  disabled={props.readingImage}
+                />
+              </FormControl>
+              <Button
+                type='button'
+                variant='outline'
+                disabled={props.readingImage}
+                onClick={() => fileInput.current?.click()}
+              >
+                <Upload aria-hidden='true' />
+                {t('Choose file')}
+              </Button>
+              <Button
+                type='button'
+                variant='ghost'
+                className='text-destructive'
+                disabled={!field.value || props.readingImage}
+                onClick={() => {
+                  field.onChange('')
+                  form.clearErrors(qrCodeField)
+                }}
+              >
+                {t('Remove QR code')}
+              </Button>
+            </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </FieldSet>
   )
 }

@@ -18,17 +18,39 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { z } from 'zod'
 
-export const customerSupportSchema = z.object({
-  enabled: z.boolean(),
-  title: z.string(),
-  description: z.string(),
+const supportContactSchema = z.object({
   name: z.string(),
   phone: z.string(),
   wechat: z.string(),
   qr_code: z.string(),
 })
 
+export const customerSupportSchema = z.object({
+  enabled: z.boolean(),
+  title: z.string(),
+  description: z.string(),
+  ...supportContactSchema.shape,
+  second_contact: supportContactSchema,
+})
+
+export type SupportContact = z.infer<typeof supportContactSchema>
 export type CustomerSupportConfig = z.infer<typeof customerSupportSchema>
+
+const emptyContact: SupportContact = {
+  name: '',
+  phone: '',
+  wechat: '',
+  qr_code: '',
+}
+
+export function hasSupportContact(contact: SupportContact): boolean {
+  return Boolean(
+    contact.name.trim() ||
+    contact.phone.trim() ||
+    contact.wechat.trim() ||
+    contact.qr_code.trim()
+  )
+}
 
 export function parseCustomerSupportConfig(
   value: unknown
@@ -41,18 +63,22 @@ export function parseCustomerSupportConfig(
       parsed = {}
     }
   }
-  const defaults: CustomerSupportConfig = {
+  const defaults = {
     enabled: false,
     title: '',
     description: '',
-    name: '',
-    phone: '',
-    wechat: '',
-    qr_code: '',
+    ...emptyContact,
+    second_contact: emptyContact,
   }
+  const config = typeof parsed === 'object' && parsed !== null ? parsed : {}
+  const second = 'second_contact' in config ? config.second_contact : undefined
   const result = customerSupportSchema.safeParse({
     ...defaults,
-    ...(typeof parsed === 'object' && parsed !== null ? parsed : {}),
+    ...config,
+    second_contact: {
+      ...emptyContact,
+      ...(typeof second === 'object' && second !== null ? second : {}),
+    },
   })
   return result.success ? result.data : defaults
 }

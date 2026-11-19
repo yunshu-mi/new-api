@@ -21,10 +21,26 @@ type CustomerSupportConfig struct {
 	Enabled     bool   `json:"enabled"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
-	Name        string `json:"name"`
-	Phone       string `json:"phone"`
-	WeChat      string `json:"wechat"`
-	QRCode      string `json:"qr_code"`
+	CustomerSupportContact
+	SecondContact CustomerSupportContact `json:"second_contact"`
+}
+
+type CustomerSupportContact struct {
+	Name   string `json:"name"`
+	Phone  string `json:"phone"`
+	WeChat string `json:"wechat"`
+	QRCode string `json:"qr_code"`
+}
+
+// UnmarshalJSON 替换整份配置，避免读取旧格式时保留上一次加载的第二组客服。
+func (c *CustomerSupportConfig) UnmarshalJSON(data []byte) error {
+	type wireConfig CustomerSupportConfig
+	var next wireConfig
+	if err := common.Unmarshal(data, &next); err != nil {
+		return err
+	}
+	*c = CustomerSupportConfig(next)
+	return nil
 }
 
 // PublicConfig 避免在公共状态响应中重复传输二维码文件；关闭时不公开联系方式。
@@ -35,11 +51,14 @@ func (c CustomerSupportConfig) PublicConfig() CustomerSupportConfig {
 	if c.QRCode != "" {
 		c.QRCode = fmt.Sprintf("/api/customer-support/qr-code?v=%x", sha256.Sum256([]byte(c.QRCode)))
 	}
+	if c.SecondContact.QRCode != "" {
+		c.SecondContact.QRCode = fmt.Sprintf("/api/customer-support/qr-code?contact=2&v=%x", sha256.Sum256([]byte(c.SecondContact.QRCode)))
+	}
 	return c
 }
 
 func ValidateCustomerSupport(value string) error {
-	if len(value) > base64.StdEncoding.EncodedLen(MaxCustomerSupportImageBytes)+16384 {
+	if len(value) > 2*base64.StdEncoding.EncodedLen(MaxCustomerSupportImageBytes)+16384 {
 		return common.NewMessage("Support QR code must be a PNG, JPEG or WebP image up to 5 MB")
 	}
 	var settings *CustomerSupportConfig
@@ -50,15 +69,20 @@ func ValidateCustomerSupport(value string) error {
 		return common.NewMessage("Popup title is required")
 	}
 	if utf8.RuneCountInString(settings.Title) > 100 ||
-		utf8.RuneCountInString(settings.Description) > 1000 ||
-		utf8.RuneCountInString(settings.Name) > 100 ||
-		utf8.RuneCountInString(settings.Phone) > 100 ||
-		utf8.RuneCountInString(settings.WeChat) > 100 {
+		utf8.RuneCountInString(settings.Description) > 1000 {
 		return common.NewMessage("Customer support text exceeds the length limit")
 	}
-	if settings.QRCode != "" {
-		_, _, err := DecodeCustomerSupportQRCode(settings.QRCode)
-		return err
+	for _, contact := range [2]CustomerSupportContact{settings.CustomerSupportContact, settings.SecondContact} {
+		if utf8.RuneCountInString(contact.Name) > 100 ||
+			utf8.RuneCountInString(contact.Phone) > 100 ||
+			utf8.RuneCountInString(contact.WeChat) > 100 {
+			return common.NewMessage("Customer support text exceeds the length limit")
+		}
+		if contact.QRCode != "" {
+			if _, _, err := DecodeCustomerSupportQRCode(contact.QRCode); err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }

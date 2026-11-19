@@ -14,11 +14,25 @@ func GetCustomerSupportQRCode(c *gin.Context) {
 	common.OptionMapRWMutex.RLock()
 	settings := console_setting.GetConsoleSetting().CustomerSupport
 	common.OptionMapRWMutex.RUnlock()
-	if !settings.Enabled || settings.QRCode == "" {
+	if !settings.Enabled {
 		c.Status(http.StatusNotFound)
 		return
 	}
-	data, mimeType, err := console_setting.DecodeCustomerSupportQRCode(settings.QRCode)
+	var qrCode string
+	switch c.Query("contact") {
+	case "":
+		qrCode = settings.QRCode
+	case "2":
+		qrCode = settings.SecondContact.QRCode
+	default:
+		c.Status(http.StatusNotFound)
+		return
+	}
+	if qrCode == "" {
+		c.Status(http.StatusNotFound)
+		return
+	}
+	data, mimeType, err := console_setting.DecodeCustomerSupportQRCode(qrCode)
 	if err != nil {
 		c.Status(http.StatusNotFound)
 		return
