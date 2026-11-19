@@ -24,37 +24,77 @@ import { Dialog } from '@/components/dialog'
 import { Button } from '@/components/ui/button'
 import { SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 import { useCustomerSupport } from '@/hooks/use-customer-support'
-import type { CustomerSupportConfig } from '@/lib/customer-support'
+import {
+  hasSupportContact,
+  type CustomerSupportConfig,
+  type SupportContact,
+} from '@/lib/customer-support'
+import { cn } from '@/lib/utils'
 
-export function CustomerSupportContent(props: {
-  config: CustomerSupportConfig
+function SupportContactDetails(props: {
+  contact: SupportContact
+  label?: string
 }) {
   const { t } = useTranslation()
   return (
-    <div className='space-y-5 text-center text-sm break-words'>
-      {props.config.description && (
-        <p className='whitespace-pre-wrap'>{props.config.description}</p>
-      )}
-      {props.config.qr_code && (
+    <div
+      className='min-w-0 space-y-5'
+      role={props.label ? 'group' : undefined}
+      aria-label={props.label}
+    >
+      {props.contact.qr_code && (
         <img
-          src={props.config.qr_code}
+          src={props.contact.qr_code}
           alt={t('Support QR code')}
           className='mx-auto h-auto max-h-80 w-52 max-w-full object-contain'
         />
       )}
       <div className='space-y-2'>
-        {props.config.name && <p>{props.config.name}</p>}
-        {props.config.phone && (
+        {props.contact.name && <p>{props.contact.name}</p>}
+        {props.contact.phone && (
           <p>
-            {t('Phone number')}: {props.config.phone}
+            {t('Phone number')}: {props.contact.phone}
           </p>
         )}
-        {props.config.wechat && (
+        {props.contact.wechat && (
           <p>
-            {t('WeChat ID')}: {props.config.wechat}
+            {t('WeChat ID')}: {props.contact.wechat}
           </p>
         )}
       </div>
+    </div>
+  )
+}
+
+export function CustomerSupportContent(props: {
+  config: CustomerSupportConfig
+}) {
+  const { t } = useTranslation()
+  const hasFirst = hasSupportContact(props.config)
+  const hasSecond = hasSupportContact(props.config.second_contact)
+  const showBoth = hasFirst && hasSecond
+
+  return (
+    <div className='space-y-5 text-center text-sm break-words'>
+      {props.config.description && (
+        <p className='whitespace-pre-wrap'>{props.config.description}</p>
+      )}
+      {(hasFirst || hasSecond) && (
+        <div className={cn('grid gap-6', showBoth && 'sm:grid-cols-2')}>
+          {hasFirst && (
+            <SupportContactDetails
+              contact={props.config}
+              label={showBoth ? t('First support contact') : undefined}
+            />
+          )}
+          {hasSecond && (
+            <SupportContactDetails
+              contact={props.config.second_contact}
+              label={showBoth ? t('Second support contact') : undefined}
+            />
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -70,7 +110,13 @@ export function CustomerSupportDialog(props: {
     <Dialog
       title={props.config.title || t('Contact support')}
       trigger={props.trigger}
-      contentClassName={props.contentClassName ?? 'sm:max-w-md'}
+      contentClassName={cn(
+        hasSupportContact(props.config) &&
+          hasSupportContact(props.config.second_contact)
+          ? 'sm:max-w-xl'
+          : 'sm:max-w-md',
+        props.contentClassName
+      )}
       titleClassName='pr-6 break-words'
       bodyClassName='text-center'
     >
@@ -113,7 +159,7 @@ export function CustomerSupportSidebarItem(props: {
     <SidebarMenuItem>
       <CustomerSupportDialog
         config={props.config}
-        contentClassName='z-70 sm:max-w-md'
+        contentClassName='z-70'
         trigger={
           <SidebarMenuButton type='button' aria-label={label} tooltip={label}>
             <Headset aria-hidden='true' />
