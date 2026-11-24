@@ -41,6 +41,7 @@ import type {
   UserChartsFilters,
 } from '@/features/dashboard/types'
 import { requireServerSuccess } from '@/lib/server-error-message'
+import { useThemeColor } from '@/lib/theme-color'
 import { getRollingDateRange, type TimeGranularity } from '@/lib/time'
 import { VCHART_OPTION } from '@/lib/vchart'
 
@@ -75,6 +76,7 @@ interface UserChartsProps {
 export function UserCharts(props: UserChartsProps) {
   const { t } = useTranslation()
   const { resolvedTheme } = useTheme()
+  const chartTextColor = useThemeColor('--muted-foreground')
   const [themeReady, setThemeReady] = useState(false)
   const themeManagerRef = useRef<
     (typeof import('@visactor/vchart'))['ThemeManager'] | null
@@ -230,7 +232,7 @@ export function UserCharts(props: UserChartsProps) {
           return (
             <div
               key={chart.value}
-              className='border-card-outline overflow-hidden rounded-lg border'
+              className='border-card-outline bg-card overflow-hidden rounded-lg border'
             >
               <div className='flex w-full items-center gap-2 border-b px-3 py-2 sm:px-5 sm:py-3'>
                 <IconBadge tone='info' size='sm'>
@@ -244,12 +246,24 @@ export function UserCharts(props: UserChartsProps) {
                   <Skeleton className='h-full w-full' />
                 ) : (
                   themeReady &&
+                  chartTextColor &&
                   spec && (
                     <VChart
                       key={`user-${chart.value}-${topUserLimit}-${resolvedTheme}`}
                       spec={{
                         ...spec,
-                        theme: resolvedTheme === 'dark' ? 'dark' : 'light',
+                        theme: {
+                          type: resolvedTheme,
+                          colorScheme: {
+                            default: {
+                              palette: {
+                                secondaryFontColor: chartTextColor,
+                                tertiaryFontColor: chartTextColor,
+                                axisLabelFontColor: chartTextColor,
+                              },
+                            },
+                          },
+                        },
                         background: 'transparent',
                       }}
                       option={VCHART_OPTION}

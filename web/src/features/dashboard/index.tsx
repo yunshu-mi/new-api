@@ -336,7 +336,12 @@ export function Dashboard() {
           <div className='flex flex-wrap items-center justify-between gap-1.5 sm:gap-2'>
             {showSectionTabs ? (
               <Tabs value={activeSection} onValueChange={handleSectionChange}>
-                <TabsList className='max-w-full flex-wrap justify-start group-data-horizontal/tabs:h-auto'>
+                <TabsList
+                  className={cn(
+                    'max-w-full flex-wrap justify-start group-data-horizontal/tabs:h-auto',
+                    activeSection !== 'models' && 'bg-card'
+                  )}
+                >
                   {visibleSections.map((section) => (
                     <TabsTrigger key={section} value={section}>
                       {t(SECTION_META[section].titleKey)}
@@ -399,7 +404,7 @@ export function Dashboard() {
             </>
           )}
           {activeSection === 'users' && (
-            <FadeIn>
+            <FadeIn className='dashboard-filter-controls'>
               <Suspense fallback={<ModelChartsFallback />}>
                 <LazyUserCharts
                   filters={userChartsFilters}
@@ -409,7 +414,7 @@ export function Dashboard() {
             </FadeIn>
           )}
           {activeSection === 'flow' && (
-            <FadeIn>
+            <FadeIn className='dashboard-filter-controls'>
               <Suspense fallback={<ModelChartsFallback />}>
                 <LazyFlowCharts
                   filters={modelFilters}

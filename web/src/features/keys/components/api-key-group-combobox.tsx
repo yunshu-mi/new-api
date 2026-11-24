@@ -105,7 +105,7 @@ export function ApiKeyGroupCombobox({
             data-auto-group-effect={isAutoSelected ? 'trigger' : undefined}
             disabled={disabled}
             className={cn(
-              'border-input bg-muted/40 hover:bg-muted/55 hover:text-foreground active:bg-background data-popup-open:border-ring data-popup-open:bg-background data-popup-open:ring-ring/20 relative h-auto min-h-14 w-full justify-between gap-2 rounded-lg px-3 py-2 text-start shadow-none transition-[background-color,border-color,box-shadow] duration-150 data-popup-open:ring-[3px] sm:min-h-20 sm:gap-3 sm:px-4 sm:py-3',
+              'active:bg-background data-popup-open:border-ring data-popup-open:bg-background data-popup-open:ring-ring/20 relative h-auto min-h-14 w-full justify-between gap-2 rounded-lg px-3 py-2 text-start shadow-none transition-[background-color,border-color,box-shadow] duration-150 data-popup-open:ring-[3px] sm:min-h-20 sm:gap-3 sm:px-4 sm:py-3',
               isAutoSelected &&
                 cn(
                   AUTO_GROUP_FRAME_CLASS_NAME,
@@ -139,7 +139,7 @@ export function ApiKeyGroupCombobox({
         </span>
         <ChevronsUpDown
           aria-hidden='true'
-          className='size-4 shrink-0 opacity-50'
+          className='text-muted-foreground size-4 shrink-0'
         />
       </PopoverTrigger>
       <PopoverContent

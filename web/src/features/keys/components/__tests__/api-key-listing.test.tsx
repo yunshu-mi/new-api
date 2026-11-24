@@ -380,6 +380,34 @@ it('shows the left-aligned create button above API addresses and filters', async
   ).toBeTruthy()
 })
 
+it('keeps the API keys header and pinned actions header at their normal color on hover', async () => {
+  await renderKeysPage()
+
+  const table = screen.getByRole<HTMLTableElement>('table')
+  expect(table.tHead).toHaveClass(
+    'sticky',
+    '[&_tr:hover]:bg-transparent',
+    '[--table-header-hover:var(--table-header)]'
+  )
+})
+
+it('gives the select-all checkbox a clearer border and keeps keyboard selection', async () => {
+  await renderKeysPage()
+  const user = userEvent.setup()
+  const selectAll = screen.getByRole('checkbox', { name: 'Select all' })
+  const selectRow = screen.getByRole('checkbox', { name: 'Select row' })
+
+  expect(selectAll).toHaveClass('border-muted-foreground/50')
+  expect(selectAll).not.toBeChecked()
+  selectAll.focus()
+  await user.keyboard(' ')
+  expect(selectAll).toBeChecked()
+  expect(selectRow).toBeChecked()
+  await user.keyboard(' ')
+  expect(selectAll).not.toBeChecked()
+  expect(selectRow).not.toBeChecked()
+})
+
 it('highlights a checked row and clears the highlight when unchecked', async () => {
   await renderKeysPage()
   const user = userEvent.setup()
@@ -389,6 +417,11 @@ it('highlights a checked row and clears the highlight when unchecked', async () 
 
   expect(row).not.toHaveAttribute('data-state', 'selected')
   expect(row).toHaveClass('bg-(--table-row)')
+  expect(row).toHaveClass(
+    'hover:[background-color:var(--table-row-hover)]',
+    '[--table-row-hover:color-mix(in_srgb,var(--muted)_80%,var(--card))]',
+    'dark:[--table-row-hover:var(--muted)]'
+  )
   expect(actions).toHaveClass('sticky', 'bg-inherit')
   await user.click(checkbox)
   expect(checkbox).toBeChecked()
@@ -434,6 +467,15 @@ it('distinguishes the selected status and shows an outlined reset control', asyn
 })
 
 it('combines creation and last use while keeping expiry, models and IP restrictions separate', async () => {
+  localStorage.setItem(
+    'api-keys:column-visibility',
+    JSON.stringify({
+      activity_time: true,
+      expired_time: true,
+      model_limits: true,
+      allow_ips: true,
+    })
+  )
   await renderKeysPage()
   for (const name of ['Name', 'API Key', 'Group', 'Models', 'IP Restriction']) {
     expect(screen.getByRole('columnheader', { name })).toBeInTheDocument()
@@ -450,6 +492,23 @@ it('combines creation and last use while keeping expiry, models and IP restricti
   })
   expect(quotaHeader).not.toHaveClass('pr-8')
   expect(quotaTrigger.closest('td')).not.toHaveClass('pr-8')
+})
+
+it('shows primary columns by default and retains secondary columns in view options', async () => {
+  await renderKeysPage()
+  for (const name of ['Name', 'Status', 'API Key', 'Group', 'Actions']) {
+    expect(screen.getByRole('columnheader', { name })).toBeInTheDocument()
+  }
+  expect(
+    screen.queryByRole('columnheader', { name: 'Models' })
+  ).not.toBeInTheDocument()
+  await userEvent.click(screen.getByRole('button', { name: 'View' }))
+  await userEvent.click(
+    screen.getByRole('menuitemcheckbox', { name: 'Models' })
+  )
+  expect(
+    screen.getByRole('columnheader', { name: 'Models' })
+  ).toBeInTheDocument()
 })
 
 it('restores dates hidden by the old default and preserves unrelated column preferences', async () => {

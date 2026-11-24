@@ -249,7 +249,10 @@ it('matches the desktop sign-in colors when the mobile menu opens', async () => 
   )
 
   const mobileSignIn = screen.getByRole('link', { name: 'Sign in / Sign up' })
-  const signInColors = ['bg-[#526FDB]', 'text-white', '[a]:hover:bg-[#4667CC]']
+  const signInColors = [
+    'bg-[var(--button-primary,var(--primary))]',
+    'text-primary-foreground',
+  ]
   expect(desktopSignIn).toHaveClass(...signInColors)
   expect(mobileSignIn).toHaveClass(...signInColors)
 })

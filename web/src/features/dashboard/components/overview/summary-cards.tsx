@@ -137,7 +137,7 @@ export function SummaryCards() {
       <div
         role='list'
         aria-label={t('Usage at a glance')}
-        className='grid min-w-0 grid-cols-1 gap-4 min-[480px]:grid-cols-2 xl:grid-cols-4'
+        className='grid min-w-0 grid-cols-1 gap-x-4 gap-y-3 min-[480px]:grid-cols-2 min-[1024px]:grid-cols-3 min-[1150px]:grid-cols-4'
       >
         {items.map((item) => (
           <Card

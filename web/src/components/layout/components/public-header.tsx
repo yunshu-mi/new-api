@@ -40,7 +40,8 @@ import type { TopNavLink } from '../types'
 import { HeaderLogo } from './header-logo'
 
 const AUTH_PROMPT_SECONDS = 5
-const signInColors = 'bg-[#526FDB] text-white [a]:hover:bg-[#4667CC]'
+const signInColors =
+  'bg-[var(--button-primary,var(--primary))] text-primary-foreground hover:bg-[color-mix(in_oklab,var(--button-primary,var(--primary))_80%,transparent)]'
 
 type AuthPromptTarget = {
   title: string

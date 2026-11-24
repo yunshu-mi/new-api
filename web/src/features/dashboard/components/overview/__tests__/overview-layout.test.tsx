@@ -284,8 +284,10 @@ describe('overview dashboard layout', () => {
     expect(grid).toHaveClass(
       'grid-cols-1',
       'min-[480px]:grid-cols-2',
-      'xl:grid-cols-4',
-      'gap-4'
+      'min-[1024px]:grid-cols-3',
+      'min-[1150px]:grid-cols-4',
+      'gap-x-4',
+      'gap-y-3'
     )
     const cards = within(grid).getAllByRole('listitem')
     expect(cards).toHaveLength(8)
@@ -299,7 +301,7 @@ describe('overview dashboard layout', () => {
     }
     for (const card of cards) {
       expect(card).toHaveClass('min-w-0', 'rounded-xl', 'ring-card-outline')
-      expect(card.querySelector('[aria-busy]')).toHaveClass('min-h-[118px]')
+      expect(card.querySelector('[aria-busy]')).toHaveClass('min-h-[88px]')
       expect(card.querySelector('.tabular-nums')).toHaveClass(
         'font-mono',
         'font-bold',
@@ -536,7 +538,12 @@ describe('overview dashboard layout', () => {
       ]) {
         const badge = within(legend).getByTitle(label)
         expect(badge).toHaveTextContent(label)
-        expect(badge.querySelector('[aria-hidden=true]')).toHaveClass(color)
+        expect(badge.querySelector('[aria-hidden=true]')).toHaveClass(
+          color,
+          'size-1.5',
+          'shrink-0',
+          '[clip-path:circle(closest-side)]'
+        )
       }
       expect(legend.closest('.border-b')).toHaveTextContent(
         'System Announcements'

@@ -86,7 +86,7 @@ export function LogsFilterInput(props: ComponentProps<typeof Input>) {
       {...props}
       autoComplete='off'
       className={cn(
-        'border-control-outline bg-card dark:bg-card h-8 min-w-0 text-sm leading-5',
+        'bg-card dark:bg-card h-8 min-w-0 text-sm leading-5',
         props.className
       )}
     />

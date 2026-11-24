@@ -240,7 +240,7 @@ export function StatCard(props: StatCardProps) {
   if (props.layout === 'inline') {
     return (
       <div
-        className='flex min-h-[118px] min-w-0 items-center gap-3 p-4'
+        className='flex min-h-[88px] min-w-0 items-center gap-3 px-3 py-2'
         aria-busy={props.loading}
       >
         <IconBadge tone={iconTone} size='lg' className='rounded-lg'>

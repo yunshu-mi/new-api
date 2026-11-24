@@ -21,7 +21,11 @@ import { isAxiosError } from 'axios'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { DataTablePage, useDataTable } from '@/components/data-table'
+import {
+  DataTablePage,
+  MUTED_ROW_HOVER,
+  useDataTable,
+} from '@/components/data-table'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { requireServerSuccess } from '@/lib/server-error-message'
@@ -122,6 +126,10 @@ export function AuditLogViewer(props: {
         paginationInFooter={!props.accessOnly}
         className='h-auto min-h-0 flex-1'
         applyHeaderSize
+        tableHeaderClassName={
+          props.accessOnly ? undefined : '[&_tr:hover]:bg-transparent'
+        }
+        getRowClassName={props.accessOnly ? undefined : () => MUTED_ROW_HOVER}
         getColumnClassName={() => 'py-2'}
         tableClassName='[&_[data-slot=table]]:text-[13px] [&_[data-slot=table]_td]:text-[13px] [&_[data-slot=table]_td_*]:text-[13px] [&_[data-slot=table]_th]:text-[13px] [&_[data-slot=table]_th_*]:text-[13px]'
         toolbar={

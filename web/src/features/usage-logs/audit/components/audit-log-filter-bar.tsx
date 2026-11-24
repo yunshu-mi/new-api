@@ -34,9 +34,10 @@ function AuditFilterSelect(props: {
   value: string
   options: { value: string; label: string; disabled?: boolean }[]
   onChange: (value: string) => void
+  className?: string
 }) {
   return (
-    <LogsFilterField>
+    <LogsFilterField className={props.className}>
       <Combobox
         options={props.options}
         value={props.value}
@@ -94,6 +95,9 @@ export function AuditLogFilterBar(props: {
       <AuditFilterSelect
         label={t('Result')}
         value={props.filters.success ?? 'all'}
+        className={
+          props.accessOnly ? undefined : '[&_[data-slot=input-group]]:bg-card'
+        }
         options={[
           { value: 'all', label: t('All results') },
           { value: 'true', label: t('Success') },
@@ -126,6 +130,7 @@ export function AuditLogFilterBar(props: {
         <AuditFilterSelect
           label={t('Category')}
           value={props.filters.category ?? 'all'}
+          className='[&_[data-slot=input-group]]:bg-card'
           options={[
             { value: 'all', label: t('All categories') },
             { value: 'login', label: t('Login') },

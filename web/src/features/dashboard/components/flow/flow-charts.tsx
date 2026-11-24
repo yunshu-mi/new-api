@@ -555,7 +555,7 @@ export function FlowCharts(props: FlowChartsProps) {
                     render={
                       <button
                         type='button'
-                        className='text-muted-foreground/60 hover:text-foreground flex size-5 shrink-0 items-center justify-center rounded-md'
+                        className='text-muted-foreground hover:text-foreground flex size-5 shrink-0 items-center justify-center rounded-md'
                         aria-label={t('Flow width metric')}
                       />
                     }
@@ -656,6 +656,7 @@ export function FlowCharts(props: FlowChartsProps) {
           {isAdmin && (
             <div className='flex min-w-0 flex-col gap-2 sm:flex-row xl:w-[min(24rem,34vw)]'>
               <MultiSelect
+                className='bg-card dark:bg-card'
                 options={userFilterOptions}
                 selected={selectedUsers}
                 onChange={setSelectedUsers}
@@ -674,7 +675,7 @@ export function FlowCharts(props: FlowChartsProps) {
         </div>
       </div>
 
-      <div className='border-card-outline overflow-hidden rounded-lg border'>
+      <div className='border-card-outline bg-card overflow-hidden rounded-lg border'>
         <div className='flex w-full flex-col gap-2 border-b px-3 py-2 sm:px-5 sm:py-3 lg:flex-row lg:items-center lg:justify-between'>
           <div className='flex min-w-0 items-center gap-2'>
             <IconBadge tone='info' size='sm'>
@@ -689,7 +690,7 @@ export function FlowCharts(props: FlowChartsProps) {
                   render={
                     <button
                       type='button'
-                      className='text-muted-foreground/60 hover:text-foreground flex size-6 shrink-0 items-center justify-center rounded-md'
+                      className='text-muted-foreground hover:text-foreground flex size-6 shrink-0 items-center justify-center rounded-md'
                       aria-label={t('Show or hide flow columns')}
                     />
                   }
@@ -717,7 +718,10 @@ export function FlowCharts(props: FlowChartsProps) {
                             pressed={visible}
                             onPressedChange={() => toggleStage(stage)}
                             aria-label={t(meta.labelKey)}
-                            className={cn('shrink-0', !visible && 'opacity-50')}
+                            className={cn(
+                              'shrink-0 aria-pressed:inset-ring-0 aria-pressed:not-focus-visible:border-border',
+                              !visible && 'opacity-50'
+                            )}
                           />
                         }
                       >

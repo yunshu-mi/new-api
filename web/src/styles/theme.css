@@ -49,6 +49,11 @@ For commercial licensing, please contact support@quantumnous.com
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-button-primary-foreground: var(
+    --button-primary-foreground,
+    var(--primary-foreground)
+  );
+  --color-button-primary-outline: var(--button-primary-outline, transparent);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -73,11 +78,7 @@ For commercial licensing, please contact support@quantumnous.com
   --color-neutral-foreground: var(--neutral-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
-  --color-control-outline: color-mix(
-    in oklab,
-    var(--muted-foreground) 74%,
-    var(--input)
-  );
+  --color-control-outline: var(--input);
   --color-card-outline: var(--card-outline);
   --color-ring: var(--ring);
   --color-chart-1: var(--chart-1);
@@ -112,9 +113,30 @@ body {
   --table-row: var(--card);
 }
 
+@layer utilities {
+  :where(#api-key-form) .border-input {
+    border-color: var(--border);
+  }
+}
+
+.dashboard-filter-controls [data-slot='tabs-list'][data-variant='default'] {
+  background-color: var(--card);
+}
+
+html:not(.dark) body[data-theme-preset='default'] {
+  --button-primary: #3f659e;
+
+  &:has(.console-layout) {
+    --button-primary: var(--sidebar-accent);
+    --button-primary-foreground: var(--sidebar-accent-foreground);
+    --button-primary-outline: var(--border);
+  }
+}
+
 .public-layout,
 .sign-in-page,
-.console-layout > [data-slot='sidebar-inset'] {
+.console-layout > [data-slot='sidebar-inset'],
+html:not(.dark) body[data-theme-preset='default'] .console-layout {
   background-image: radial-gradient(
     ellipse at top left,
     color-mix(in oklab, var(--primary) 9%, transparent),
@@ -140,6 +162,20 @@ body {
   height: var(--console-header-height);
   border-bottom: 1px solid var(--line);
   background: var(--card);
+}
+
+html:not(.dark) body[data-theme-preset='default'] .console-layout {
+  --card-outline: var(--border);
+  background-color: var(--background);
+
+  > .console-header {
+    background: transparent;
+    border-bottom-color: var(--sidebar-border);
+  }
+
+  > [data-slot='sidebar-inset'] {
+    background: transparent;
+  }
 }
 
 .console-layout
@@ -190,11 +226,7 @@ body {
     [data-slot='sidebar-menu-button'],
     [data-slot='sidebar-menu-sub-button']
   )[data-active] {
-  border-color: color-mix(
-    in oklab,
-    var(--sidebar-primary) 75%,
-    var(--sidebar-foreground)
-  );
+  border-color: var(--border);
 }
 
 body:has([data-slot='sidebar'][data-mobile='true']) .tsqd-open-btn-container {
