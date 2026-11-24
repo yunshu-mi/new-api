@@ -415,6 +415,13 @@ func TestEpayRSAModeSignsOrdersAndVerifiesCallbacks(t *testing.T) {
 	require.NoError(t, err)
 	unsigned := maps.Clone(paid)
 	delete(unsigned, "sign")
+	platform.Config.PartnerID = "other_partner"
+	wrongPartner, err := platform.SignParams(paidFields)
+	require.NoError(t, err)
+	platform.Config.PartnerID = ""
+	missingPartner, err := platform.SignParams(paidFields)
+	require.NoError(t, err)
+	platform.Config.PartnerID = "epay_id"
 
 	assertEpayCallbacksVerifyBeforeSettlement(t, []epayCallbackCase{
 		{name: "valid pending signed by platform", params: pending, validPending: true},
@@ -422,6 +429,8 @@ func TestEpayRSAModeSignsOrdersAndVerifiesCallbacks(t *testing.T) {
 		{name: "signed with merchant key", params: merchantSigned},
 		{name: "MD5 signature in RSA mode", params: md5Signed},
 		{name: "missing signature", params: unsigned},
+		{name: "valid platform signature for another partner", params: wrongPartner},
+		{name: "valid platform signature without partner", params: missingPartner},
 	})
 }
 
