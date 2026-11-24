@@ -422,6 +422,46 @@ function renderViewer(scope: 'all' | 'self' = 'self') {
   )
 }
 
+it.each(['all', 'self'] as const)(
+  'uses a neutral hover background only on audit data rows in %s scope',
+  async (scope) => {
+    vi.spyOn(api, 'get').mockResolvedValue({
+      data: {
+        success: true,
+        data: {
+          total: 1,
+          items: [
+            {
+              event_id: 'login-1',
+              created_at: 1788840000,
+              username: 'alice',
+              category: 'login',
+              action: 'login',
+              success: true,
+              ip: '127.0.0.1',
+            },
+          ],
+        },
+      },
+    })
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    })
+    render(
+      <QueryClientProvider client={client}>
+        <AuditLogViewer scope={scope} />
+      </QueryClientProvider>
+    )
+
+    const table = screen.getByRole<HTMLTableElement>('table')
+    const cell = await within(table).findByRole('cell', { name: '127.0.0.1' })
+    expect(cell.closest('tr')).toHaveClass(
+      'hover:[background-color:var(--table-row-hover)]'
+    )
+    expect(table.tHead).toHaveClass('sticky', '[&_tr:hover]:bg-transparent')
+  }
+)
+
 it('filters own access history by result, generation and time and resets pagination', async () => {
   const get = vi.spyOn(api, 'get').mockResolvedValue({
     data: { success: true, data: { items: [], total: 45 } },

@@ -89,7 +89,10 @@ export function AnnouncementsPanel() {
                 label={label}
                 type='text'
                 showDot
-                dotClassName={getAnnouncementColorClass(type)}
+                dotClassName={cn(
+                  '[clip-path:circle(closest-side)]',
+                  getAnnouncementColorClass(type)
+                )}
                 copyable={false}
                 className='text-xs font-semibold'
               />

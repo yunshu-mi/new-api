@@ -88,7 +88,7 @@ export function useApiKeysColumns(now: number): ColumnDef<ApiKey>[] {
               table.toggleAllPageRowsSelected(!!value)
             }
             aria-label={t('Select all')}
-            className='translate-y-[2px]'
+            className='border-muted-foreground/50 translate-y-[2px]'
           />
         ),
         cell: ({ row }) => (
@@ -109,7 +109,7 @@ export function useApiKeysColumns(now: number): ColumnDef<ApiKey>[] {
         cell: ({ row }) => (
           <span className='font-medium'>{row.getValue('name')}</span>
         ),
-        size: 180,
+        size: 140,
         meta: { mobileTitle: true },
       },
       {
@@ -129,7 +129,7 @@ export function useApiKeysColumns(now: number): ColumnDef<ApiKey>[] {
           )
         },
         filterFn: (row, id, value) => value.includes(String(row.getValue(id))),
-        size: 120,
+        size: 100,
         meta: { mobileBadge: true },
       },
       {
@@ -138,15 +138,15 @@ export function useApiKeysColumns(now: number): ColumnDef<ApiKey>[] {
         header: t('API Key'),
         cell: ({ row }) => <ApiKeyCell apiKey={row.original} />,
         enableSorting: false,
-        size: 260,
+        size: 210,
       },
       {
         id: 'quota',
         accessorKey: 'remain_quota',
         header: `${t('Quota')} (${quotaUnit})`,
         cell: ({ row }) => <ApiKeyQuotaCell apiKey={row.original} now={now} />,
-        size: 260,
-        minSize: 260,
+        size: 200,
+        minSize: 200,
       },
       {
         accessorKey: 'group',
@@ -163,7 +163,7 @@ export function useApiKeysColumns(now: number): ColumnDef<ApiKey>[] {
             />
           )
         },
-        size: 220,
+        size: 170,
         meta: { mobileHidden: true },
       },
       {

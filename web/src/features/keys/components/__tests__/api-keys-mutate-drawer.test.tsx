@@ -404,6 +404,16 @@ describe('API key expiry across editing sessions', () => {
   )
 })
 
+test('shows separate bordered panels for quota and advanced settings', async () => {
+  installApiFixtures([])
+  await renderCreateDrawer()
+
+  for (const name of ['Quota Settings', 'Advanced Settings']) {
+    const panel = screen.getByRole('heading', { name }).closest('section')
+    expect(panel).toHaveClass('bg-card', 'border-input', 'border')
+  }
+})
+
 describe('API keys mutate drawer user quota query switch', () => {
   test('sends false for a new key after the switch, which starts on, is turned off', async () => {
     const createdPayloads: Array<Record<string, unknown>> = []

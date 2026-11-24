@@ -25,6 +25,7 @@ import { useTranslation } from 'react-i18next'
 import {
   DataTablePage,
   DataTableRow,
+  MUTED_ROW_HOVER,
   useDataTable,
 } from '@/components/data-table'
 import {
@@ -240,6 +241,7 @@ export function UsageLogsTable({ logCategory }: UsageLogsTableProps) {
       )}
       skeletonKeyPrefix='usage-log-skeleton'
       applyHeaderSize
+      tableHeaderClassName='[&_tr:hover]:bg-transparent'
       tableClassName={cn(
         '[&_[data-slot=table]]:text-[13px] [&_[data-slot=table]_td]:text-[13px] [&_[data-slot=table]_td_*]:text-[13px] [&_[data-slot=table]_th]:text-[13px] [&_[data-slot=table]_th_*]:text-[13px]'
       )}
@@ -276,7 +278,7 @@ export function UsageLogsTable({ logCategory }: UsageLogsTableProps) {
           <DataTableRow
             key={row.id}
             row={row}
-            className={cn('transition-colors', tintClass)}
+            className={cn('transition-colors', MUTED_ROW_HOVER, tintClass)}
             getColumnClassName={getColumnClassName}
             cellRenderColumns={table.options.columns}
           />

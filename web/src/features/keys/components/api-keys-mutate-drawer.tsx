@@ -95,6 +95,9 @@ import {
 import { useApiKeys } from './api-keys-provider'
 import { AutoGroupOrderEditor } from './auto-group-order-editor'
 
+const SETTINGS_PANEL_CLASS_NAME =
+  'border-input bg-card rounded-control border p-3 last:border-b last:pb-3'
+
 type ApiKeyMutateDrawerProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -407,7 +410,11 @@ export function ApiKeysMutateDrawer({
                   <FormItem>
                     <FormLabel>{t('Name')}</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder={t('Enter a name')} />
+                      <Input
+                        {...field}
+                        className='bg-card dark:bg-card'
+                        placeholder={t('Enter a name')}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -525,7 +532,7 @@ export function ApiKeysMutateDrawer({
                           value={field.value ?? undefined}
                           onChange={(date) => field.onChange(date ?? null)}
                           placeholder={t('Never expires')}
-                          className='min-w-0 [&_input[type=time]]:w-24 sm:[&_input[type=time]]:w-32'
+                          className='[&_input[type=time]:enabled]:bg-card min-w-0 [&_input[type=time]]:w-24 sm:[&_input[type=time]]:w-32'
                         />
                       </FormControl>
                       <div className='grid grid-cols-4 gap-2 sm:flex'>
@@ -582,6 +589,7 @@ export function ApiKeysMutateDrawer({
                       <FormControl>
                         <Input
                           {...field}
+                          className='bg-card dark:bg-card'
                           type='number'
                           min='1'
                           placeholder={t('Number of keys to create')}
@@ -604,7 +612,7 @@ export function ApiKeysMutateDrawer({
               )}
             </SideDrawerSection>
 
-            <SideDrawerSection>
+            <SideDrawerSection className={SETTINGS_PANEL_CLASS_NAME}>
               <SideDrawerSectionHeader
                 title={t('Quota Settings')}
                 description={t('Set quota amount and limits')}
@@ -621,6 +629,7 @@ export function ApiKeysMutateDrawer({
                       <FormControl>
                         <Input
                           {...field}
+                          className='bg-card dark:bg-card'
                           type='number'
                           step={tokensOnly ? 1 : 0.01}
                           placeholder={quotaPlaceholder}
@@ -648,7 +657,11 @@ export function ApiKeysMutateDrawer({
                 control={form.control}
                 name='unlimited_quota'
                 render={({ field }) => (
-                  <FormItem className={sideDrawerSwitchItemClassName()}>
+                  <FormItem
+                    className={sideDrawerSwitchItemClassName(
+                      'min-h-0 border-b-0 pb-0'
+                    )}
+                  >
                     <div className='flex flex-col gap-0.5'>
                       <FormLabel className='text-sm'>
                         {t('Unlimited Quota')}
@@ -669,7 +682,7 @@ export function ApiKeysMutateDrawer({
             </SideDrawerSection>
 
             <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
-              <SideDrawerSection>
+              <SideDrawerSection className={SETTINGS_PANEL_CLASS_NAME}>
                 <CollapsibleTrigger
                   render={
                     <button
@@ -701,6 +714,7 @@ export function ApiKeysMutateDrawer({
                           <FormLabel>{t('Model Limits')}</FormLabel>
                           <FormControl>
                             <MultiSelect
+                              className='bg-card dark:bg-card [&_input]:placeholder:text-muted-foreground'
                               options={models.map((m) => ({
                                 label: m,
                                 value: m,
@@ -731,7 +745,7 @@ export function ApiKeysMutateDrawer({
                           <FormControl>
                             <Textarea
                               {...field}
-                              className='min-h-20 resize-none'
+                              className='bg-card dark:bg-card min-h-20 resize-none'
                               placeholder={t(
                                 'One IP per line (empty for no restriction)'
                               )}

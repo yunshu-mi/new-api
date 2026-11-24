@@ -76,7 +76,7 @@ it('shows every configured address directly and copies only the chosen visible U
   const rows = within(list).getAllByRole('listitem')
   expect(rows).toHaveLength(2)
   expect(rows[0].querySelector('span[aria-hidden="true"]')).toHaveClass(
-    'size-2',
+    'size-1.5',
     '[clip-path:circle(closest-side)]'
   )
   expect(rows[0]).toHaveTextContent('Global')

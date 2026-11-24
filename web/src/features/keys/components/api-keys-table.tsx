@@ -28,6 +28,7 @@ import {
   DISABLED_ROW_MOBILE,
   DataTablePage,
   DataTableToolbar,
+  MUTED_ROW_HOVER,
   useDebouncedColumnFilter,
   useDataTable,
 } from '@/components/data-table'
@@ -313,6 +314,12 @@ export function ApiKeysTable() {
     enableRowSelection: true,
     columnFilters,
     columnVisibilityStorageKey: API_KEYS_COLUMN_VISIBILITY_STORAGE_KEY,
+    initialColumnVisibility: {
+      model_limits: false,
+      allow_ips: false,
+      activity_time: false,
+      expired_time: false,
+    },
     globalFilter,
     pagination,
     globalFilterFn: () => true,
@@ -328,16 +335,17 @@ export function ApiKeysTable() {
   useEffect(() => {
     // Restore the dates hidden by the previous default when adopting the combined time column.
     if (
-      columnVisibility.activity_time === undefined &&
+      columnVisibility.activity_time === false &&
       columnVisibility.created_time === false &&
       columnVisibility.accessed_time === false &&
       columnVisibility.expired_time === false
     ) {
-      table.setColumnVisibility((previous) => ({
-        ...previous,
-        activity_time: true,
-        expired_time: true,
-      }))
+      table.setColumnVisibility((previous) => {
+        const updated = { ...previous }
+        delete updated.created_time
+        delete updated.accessed_time
+        return { ...updated, activity_time: true, expired_time: true }
+      })
     }
   }, [columnVisibility, table])
 
@@ -353,6 +361,7 @@ export function ApiKeysTable() {
       )}
       skeletonKeyPrefix='api-keys-skeleton'
       applyHeaderSize
+      tableHeaderClassName='[--table-header-hover:var(--table-header)] [&_tr:hover]:bg-transparent'
       toolbar={
         <>
           <ApiKeysPrimaryButtons />
@@ -385,7 +394,9 @@ export function ApiKeysTable() {
         <ApiKeysMobileList table={table} isLoading={isLoading} now={now} />
       }
       getRowClassName={(row) =>
-        isDisabledApiKeyRow(row.original) ? DISABLED_ROW_DESKTOP : undefined
+        isDisabledApiKeyRow(row.original)
+          ? DISABLED_ROW_DESKTOP
+          : MUTED_ROW_HOVER
       }
       bulkActions={<DataTableBulkActions table={table} />}
     />

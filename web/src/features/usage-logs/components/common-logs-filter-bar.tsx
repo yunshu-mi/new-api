@@ -352,7 +352,7 @@ export function CommonLogsFilterBar<TData>(
         aria-label={t('Group')}
         emptyText={t('No group found.')}
         placeholder={t('Group')}
-        className='border-control-outline bg-card dark:bg-card h-8 min-w-0 text-sm leading-5'
+        className='bg-card dark:bg-card h-8 min-w-0 text-sm leading-5'
         popupClassName={sensitiveInputClass}
         value={filters.group || ''}
         onValueChange={(value) => handleChange('group', value ?? '')}
@@ -383,7 +383,7 @@ export function CommonLogsFilterBar<TData>(
       >
         <SelectTrigger
           aria-label={t('Type')}
-          className='border-control-outline bg-card dark:bg-card'
+          className='bg-card dark:bg-card'
           aria-description={
             selectedLogType?.deprecated ? deprecatedTypeDescription : undefined
           }

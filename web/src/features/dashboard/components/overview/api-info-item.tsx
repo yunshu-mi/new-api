@@ -58,7 +58,8 @@ export function ApiInfoItemComponent(props: ApiInfoItemProps) {
     <span
       aria-hidden='true'
       className={cn(
-        'inline-block size-2 shrink-0 [clip-path:circle(closest-side)]',
+        'inline-block shrink-0 [clip-path:circle(closest-side)]',
+        inline ? 'size-1.5' : 'size-2',
         getBgColorClass(item.color)
       )}
     />
